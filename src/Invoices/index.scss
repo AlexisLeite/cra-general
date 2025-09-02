@@ -1,0 +1,92 @@
+@media print {
+
+  .controls,
+  .remove {
+    display: none;
+  }
+}
+
+.invoice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: auto;
+}
+
+.item {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: calc(100% - 100px) 1fr;
+}
+
+.item,
+.extra {
+  position: relative;
+  padding-right: 20px;
+}
+
+.remove {
+  position: absolute;
+  right: 0;
+  background: transparent;
+  border: none;
+  z-index: 9;
+  border-radius: 4px;
+  top: 0;
+
+  &:hover {
+    background: #0004;
+  }
+}
+
+.invoice input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+}
+
+.invoice .item_title {
+  color: white;
+}
+
+.invoice .item_cost {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+}
+
+.invoice input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.total_sum {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #333;
+  color: white;
+  padding: 4px;
+
+  strong {
+    color: white;
+  }
+}
+
+@media print {
+  .item_cost *:not(.print) {
+    display: none;
+  }
+
+  .print {
+    font-size: 14px;
+  }
+
+  .item_title,
+  input,
+  .print,
+  .sufix {
+    color: #333 !important
+  }
+}
