@@ -1,50 +1,56 @@
-import { makeAutoObservable } from "mobx";
-import { observer } from "mobx-react-lite";
-import { useEffect, useState, type KeyboardEvent } from "react";
-import { TControllerState, TItem } from './types';
+import { makeAutoObservable } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useState, type KeyboardEvent } from 'react'
+import { TControllerState, TItem } from './types'
 
-import "./index.scss";
+import './index.scss'
 
-const periodo = "02/08/2025 - 01/09/2025";
+const periodo = '02/08/2025 - 01/09/2025'
 
 class Controller {
   state: TControllerState = {
     hourPrice: 550,
     items: [],
     extra: [],
-    tempStr: "",
-    tempCost: "",
-  };
+    tempStr: '',
+    tempCost: '',
+  }
 
   private genId() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    return Math.random().toString(36).slice(2) + Date.now().toString(36)
   }
 
   getTotalHours() {
-    return this.state.items.reduce((acc, cur) => acc + cur.cost, 0);
+    return this.state.items.reduce((acc, cur) => acc + cur.cost, 0)
   }
 
   getTotalExtra() {
-    return this.state.extra.reduce((acc, cur) => acc + cur.cost, 0);
+    return this.state.extra.reduce((acc, cur) => acc + cur.cost, 0)
   }
 
   getTotal() {
-    const hours = this.getTotalHours();
-    const extra = this.getTotalExtra();
+    const hours = this.getTotalHours()
+    const extra = this.getTotalExtra()
 
-    return hours * this.state.hourPrice + extra;
+    return hours * this.state.hourPrice + extra
   }
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this)
 
-    if (localStorage.getItem("save")) {
-      this.state = JSON.parse(localStorage.getItem("save") || "{}");
+    if (localStorage.getItem('save')) {
+      this.state = JSON.parse(localStorage.getItem('save') || '{}')
     }
 
     // ensure items have ids (migrate old saves)
-    this.state.items = (this.state.items || []).map((it: any) => ({ id: it.id || this.genId(), ...it }));
-    this.state.extra = (this.state.extra || []).map((it: any) => ({ id: it.id || this.genId(), ...it }));
+    this.state.items = (this.state.items || []).map((it: any) => ({
+      id: it.id || this.genId(),
+      ...it,
+    }))
+    this.state.extra = (this.state.extra || []).map((it: any) => ({
+      id: it.id || this.genId(),
+      ...it,
+    }))
   }
 
   add() {
@@ -52,8 +58,8 @@ class Controller {
       id: this.genId(),
       cost: Number.parseFloat(this.state.tempCost),
       activities: this.state.tempStr,
-    });
-    this.reset();
+    })
+    this.reset()
   }
 
   addExtra() {
@@ -61,82 +67,89 @@ class Controller {
       id: this.genId(),
       cost: Number.parseFloat(this.state.tempCost),
       activities: this.state.tempStr,
-    });
-    this.reset();
+    })
+    this.reset()
   }
 
   removeActivity(x: TItem) {
-    this.state.items = this.state.items.filter((c) => c.id !== x.id);
-    this.persist();
+    this.state.items = this.state.items.filter((c) => c.id !== x.id)
+    this.persist()
   }
 
   removeExtra(x: TItem) {
-    this.state.extra = this.state.extra.filter((c) => c.id !== x.id);
-    this.persist();
+    this.state.extra = this.state.extra.filter((c) => c.id !== x.id)
+    this.persist()
   }
 
   updateActivity(target: TItem, updates: Partial<TItem>) {
-    const idx = this.state.items.findIndex((i) => i.id === target.id);
+    const idx = this.state.items.findIndex((i) => i.id === target.id)
     if (idx >= 0) {
-      this.state.items[idx] = { ...this.state.items[idx], ...updates };
-      this.persist();
+      this.state.items[idx] = { ...this.state.items[idx], ...updates }
+      this.persist()
     }
   }
 
   updateExtra(target: TItem, updates: Partial<TItem>) {
-    const idx = this.state.extra.findIndex((i) => i.id === target.id);
+    const idx = this.state.extra.findIndex((i) => i.id === target.id)
     if (idx >= 0) {
-      this.state.extra[idx] = { ...this.state.extra[idx], ...updates };
-      this.persist();
+      this.state.extra[idx] = { ...this.state.extra[idx], ...updates }
+      this.persist()
     }
   }
 
   persist() {
-    localStorage.setItem("save", JSON.stringify(this.state));
+    localStorage.setItem('save', JSON.stringify(this.state))
   }
 
   reset() {
-    this.state.tempCost = "";
-    this.state.tempStr = "";
-    this.persist();
+    this.state.tempCost = ''
+    this.state.tempStr = ''
+    this.persist()
   }
 }
 
-const controller = new Controller();
+const controller = new Controller()
 
 type EditableRowProps = {
-  item: TItem;
-  className: string;
-  prefix?: string; // e.g. "$ "
-  suffix?: string; // e.g. "hs"
-  onRemove: () => void;
-  onSave: (updates: { activities?: string; cost?: number }) => void;
-};
+  item: TItem
+  className: string
+  prefix?: string // e.g. "$ "
+  suffix?: string // e.g. "hs"
+  onRemove: () => void
+  onSave: (updates: { activities?: string; cost?: number }) => void
+}
 
-function EditableRow({ item, className, prefix = "", suffix = "", onRemove, onSave }: EditableRowProps) {
-  const [activitiesStr, setActivitiesStr] = useState(item.activities);
-  const [costStr, setCostStr] = useState(String(item.cost));
+function EditableRow({
+  item,
+  className,
+  prefix = '',
+  suffix = '',
+  onRemove,
+  onSave,
+}: EditableRowProps) {
+  const [activitiesStr, setActivitiesStr] = useState(item.activities)
+  const [costStr, setCostStr] = useState(String(item.cost))
 
   // Sync local fields when item updates (e.g., after persist)
   useEffect(() => {
-    setActivitiesStr(item.activities);
-    setCostStr(String(item.cost));
-  }, [item.id, item.activities, item.cost]);
+    setActivitiesStr(item.activities)
+    setCostStr(String(item.cost))
+  }, [item.id, item.activities, item.cost])
 
   const commit = () => {
-    const updates: { activities?: string; cost?: number } = {};
-    if (activitiesStr !== item.activities) updates.activities = activitiesStr;
-    const num = Number.parseFloat(costStr);
-    if (!Number.isNaN(num) && num !== item.cost) updates.cost = num;
-    if (Object.keys(updates).length) onSave(updates);
-  };
+    const updates: { activities?: string; cost?: number } = {}
+    if (activitiesStr !== item.activities) updates.activities = activitiesStr
+    const num = Number.parseFloat(costStr)
+    if (!Number.isNaN(num) && num !== item.cost) updates.cost = num
+    if (Object.keys(updates).length) onSave(updates)
+  }
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      commit();
-      (e.target as HTMLInputElement).blur();
+      commit()
+      ;(e.target as HTMLInputElement).blur()
     }
-  };
+  }
 
   return (
     <li className={className}>
@@ -161,9 +174,11 @@ function EditableRow({ item, className, prefix = "", suffix = "", onRemove, onSa
         {suffix && <span className="sufix">{suffix}</span>}
         <span className="print">{costStr}hs</span>
       </div>
-      <button className="remove" onClick={onRemove}>x</button>
+      <button className="remove" onClick={onRemove}>
+        x
+      </button>
     </li>
-  );
+  )
 }
 
 const Invoice = observer(() => {
@@ -185,20 +200,23 @@ const Invoice = observer(() => {
           />
         ))}
       </ul>
-      {controller.state.extra.length > 0 && <>
-        <strong>Extra</strong>
-        <ul>
-          {controller.state.extra.map((c) => (
-            <EditableRow
-              key={c.id}
-              item={c}
-              className="extra"
-              prefix="$ "
-              onRemove={() => controller.removeExtra(c)}
-              onSave={(updates) => controller.updateExtra(c, updates)}
-            />
-          ))}
-        </ul></>}
+      {controller.state.extra.length > 0 && (
+        <>
+          <strong>Extra</strong>
+          <ul>
+            {controller.state.extra.map((c) => (
+              <EditableRow
+                key={c.id}
+                item={c}
+                className="extra"
+                prefix="$ "
+                onRemove={() => controller.removeExtra(c)}
+                onSave={(updates) => controller.updateExtra(c, updates)}
+              />
+            ))}
+          </ul>
+        </>
+      )}
       <div className="total">
         <div>
           <strong>Total horas</strong> {controller.getTotalHours()}hs
@@ -214,8 +232,8 @@ const Invoice = observer(() => {
         </div>
       </div>
     </div>
-  );
-});
+  )
+})
 
 const Controls = observer(() => {
   return (
@@ -232,22 +250,22 @@ const Controls = observer(() => {
       />
       <button
         onClick={() => {
-          controller.add();
+          controller.add()
         }}
       >
         activity
       </button>
       <button
         onClick={() => {
-          controller.addExtra();
+          controller.addExtra()
         }}
       >
         extra
       </button>
       <button onClick={() => window.print()}>print</button>
     </div>
-  );
-});
+  )
+})
 
 export function InvoicesComponent() {
   return (
@@ -255,5 +273,5 @@ export function InvoicesComponent() {
       <Controls />
       <Invoice />
     </>
-  );
+  )
 }

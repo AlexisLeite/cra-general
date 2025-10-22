@@ -1,0 +1,23 @@
+.diagram__canvas {
+  background: white;
+  height: 600px;
+  width: 900px;
+  position: relative;
+  overflow: hidden;
+}
+
+.diagram__node {
+  position: absolute;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 3px solid black;
+  border-radius: 6px;
+
+  color: black;
+  cursor: pointer;
+
+  user-select: none;
+}
