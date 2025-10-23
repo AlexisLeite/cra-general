@@ -1,10 +1,11 @@
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, toJS } from 'mobx'
+import { Coordinates } from './Coordinates'
 
 /**
  * [ x, y, width, height ]
  */
 export class Dimensions {
-  protected data: number[] = []
+  protected _data: number[] = []
 
   constructor(items: Dimensions | number[]) {
     if (Array.isArray(items)) {
@@ -12,37 +13,74 @@ export class Dimensions {
         throw new Error('Invalid coordinates length')
       }
 
-      this.data = [...items]
+      this._data = [...items]
     } else {
-      this.data = [...items.data]
+      this._data = [...items._data]
     }
 
     makeAutoObservable(this)
   }
 
+  get box() {
+    return new Coordinates(this.raw.slice(2, 4))
+  }
+
+  get coordinates() {
+    return new Coordinates(this.raw.slice(0, 2))
+  }
+
+  get leftMiddle() {
+    return new Coordinates([this.x, this.y + this.height / 2])
+  }
+
+  get rightMiddle() {
+    return new Coordinates([this.x + this.width, this.y + this.height / 2])
+  }
+
   get x() {
     return this.get(0)
   }
+
   get y() {
     return this.get(1)
   }
+
   get width() {
     return this.get(2)
   }
+
   get height() {
     return this.get(3)
   }
 
   get(i: number) {
-    return this.data[i]
+    return this._data[i]
   }
 
   get length() {
-    return this.data.length
+    return this._data.length
   }
 
   get raw(): [number, number, number, number] {
-    return [...this.data] as [number, number, number, number]
+    return toJS([...this._data]) as [number, number, number, number]
+  }
+
+  get round() {
+    return new Coordinates([
+      Math.round(this.x),
+      Math.round(this.y),
+      Math.round(this.width),
+      Math.round(this.height),
+    ])
+  }
+
+  get style() {
+    return {
+      width: this.width,
+      height: this.height,
+      left: this.x,
+      top: this.y,
+    }
   }
 
   assign(
@@ -63,8 +101,43 @@ export class Dimensions {
     return this
   }
 
+  assignCoordinates(this: Dimensions, another: Coordinates | [number, number]) {
+    if (another.length !== 2) {
+      throw new Error('Invalid number of Coordinates')
+    }
+
+    let a = another instanceof Coordinates ? another : new Coordinates(another)
+
+    this.set(0, a.get(0))
+    this.set(1, a.get(1))
+
+    return this
+  }
+
+  collides(another: Dimensions | Coordinates) {
+    if (another instanceof Dimensions) {
+      return !(
+        this.x + this.width <= another.x ||
+        another.x + another.width <= this.x ||
+        this.y + this.height <= another.y ||
+        another.y + another.height <= this.y
+      )
+    } else {
+      return !(
+        this.x >= another.x ||
+        this.x + this.width <= another.x ||
+        this.y >= another.y ||
+        this.y + this.height <= another.y
+      )
+    }
+  }
+
+  copy() {
+    return new Dimensions(this)
+  }
+
   set(i: number, value: number) {
-    this.data[i] = value
+    this._data[i] = value
   }
 
   divide(this: Dimensions, factor: number) {
@@ -121,7 +194,7 @@ export class Dimensions {
     return this
   }
 
-  copy() {
-    return new Dimensions(this)
+  toString() {
+    return `(${this.x}, ${this.y}, ${this.width}, ${this.height})`
   }
 }

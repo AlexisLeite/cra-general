@@ -1,24 +1,23 @@
-import { makeAutoObservable } from 'mobx'
-import type { TNodeState, TEdgeState } from './types'
+import { action, makeAutoObservable, makeObservable, observable } from 'mobx'
+import type { TEdgeState } from './types'
 import { createContext, ReactNode, useContext } from 'react'
-import { Default } from '../components/nodes/Default'
 import { Panzoom } from './Panzoom'
-
-export class Node {
-  constructor(
-    public state: Omit<TNodeState, 'dimentions'> & Partial<TNodeState>,
-  ) {
-    makeAutoObservable(this)
-  }
-
-  get Renderer() {
-    return this.state.Renderer ?? Default
-  }
-}
+import type { Node } from './Node'
+import { EventEmitter } from '../util'
+import { NodesConnector } from './NodesConnector'
+import { Coordinates } from './Coordinates'
 
 export class Edge {
   constructor(public state: TEdgeState) {
     makeAutoObservable(this)
+  }
+
+  public get from() {
+    return this.state.from
+  }
+
+  public get to() {
+    return this.state.to
   }
 }
 
@@ -27,20 +26,63 @@ const DiagramContext = createContext<Diagram | null>(null)
 export class Diagram {
   edges: Edge[] = []
   nodes: Node[] = []
+  selectedNode: Node | null = null
+  protected emitter = new EventEmitter<{
+    select: Node
+  }>()
 
-  panzoom = new Panzoom()
+  connector = new NodesConnector(this)
+  panzoom = new Panzoom(this)
 
   constructor() {
-    makeAutoObservable(this)
+    makeObservable(this, {
+      edges: observable,
+      nodes: observable,
+      selectedNode: observable,
+      selectNode: action,
+    })
   }
 
   add(node: Node) {
+    node.setDiagram(this)
+    node.on('select', () => {
+      this.selectNode(node)
+      this.emitter.emit('select', node)
+    })
     this.nodes.push(node)
+  }
+
+  connect(from: Node, to: Node) {
+    const edge = new Edge({
+      from,
+      to,
+      label: '',
+      labelPositioning: new Coordinates([0, 0]),
+      steps: [],
+    })
+
+    this.edges.push(edge)
+    from.addOutgoingEdge(edge)
+    to.addIncomingEdge(edge)
   }
 
   Context = ({ children }: { children: ReactNode }) => (
     <DiagramContext.Provider value={this}>{children}</DiagramContext.Provider>
   )
+
+  on = this.emitter.on.bind(this.emitter)
+
+  selectNode(node: Node) {
+    if (node !== this.selectedNode) {
+      this.selectedNode?.unselect()
+      this.selectedNode = node
+    }
+  }
+
+  unselectAll() {
+    this.selectedNode?.unselect()
+    this.selectedNode = null
+  }
 
   public static use = () => useContext(DiagramContext)!
 }

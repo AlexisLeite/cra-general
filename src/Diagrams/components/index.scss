@@ -2,12 +2,35 @@
   background: white;
   height: 600px;
   width: 900px;
+  margin-left: 100px;
+  margin-top: 40px;
   position: relative;
   overflow: hidden;
+
+  svg: {
+    position: relative;
+  }
+}
+
+.diagram__panzoom,
+.diagram__tools {
+  width: 0;
+  height: 0;
+  position: absolute;
+  inset: 0;
+}
+
+.diagram__connector {
+  position: absolute;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  inset: 0;
 }
 
 .diagram__node {
   position: absolute;
+  background: white;
 
   display: flex;
   align-items: center;
@@ -20,4 +43,97 @@
   cursor: pointer;
 
   user-select: none;
+}
+
+.diagram__node_tools {
+  position: absolute;
+  background-color: white;
+  color: black;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.diagram__node_tool {
+  cursor: pointer;
+
+  &:hover path {
+    color: #555;
+  }
+}
+
+.--selected-node {
+  z-index: 1;
+  overflow: hidden;
+  border-color: transparent;
+}
+
+.--selected-node::before {
+  content: "";
+  position: absolute;
+  inset: 0 -4px;
+  border-radius: inherit;
+  padding: 3px;
+  background: repeating-linear-gradient(90deg,
+      black 0 10px,
+      transparent 10px 20px);
+  background-size: 20px 20px;
+  animation: move-horizontal 1.8s linear infinite;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.--selected-node::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+  border-radius: inherit;
+  padding: 3px;
+  background: repeating-linear-gradient(0deg,
+      /* 👈 dirección vertical */
+      black 0 10px,
+      transparent 10px 20px);
+  background-size: 20px 20px;
+  animation: move-vertical 1.8s linear infinite;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes move-horizontal {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 20px 0;
+  }
+
+  /* una repetición exacta */
+}
+
+@keyframes move-vertical {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 0 20px;
+  }
+}
+
+.diagram__stats {
+  position: fixed;
+  right: 5px;
+  bottom: 5px;
+
+  background: #555;
+  color: #ccc;
+  padding: 6px;
+  border-radius: 6px;
 }

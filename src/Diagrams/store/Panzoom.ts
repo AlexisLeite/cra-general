@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx'
 import { MouseEvent as MV } from 'react'
 import { Coordinates } from './Coordinates'
 import { Dimensions } from './Dimensions'
+import type { Diagram } from './Diagram'
 
 type E = MV | MouseEvent
 
@@ -9,9 +10,22 @@ export class Panzoom {
   displacement: Coordinates = new Coordinates([0, 0])
   size = new Coordinates([0, 0])
   scale: number = 1
-  canvas: HTMLElement | null = null
 
-  constructor() {
+  canvas: HTMLElement | null = null
+  get canvasPosition() {
+    if (!this.canvas) {
+      return new Coordinates([0, 0])
+    }
+
+    const box = this.canvas!.getBoundingClientRect()
+    return new Coordinates([box.x, box.y])
+  }
+  get canvasDimensions() {
+    const box = this.canvas!.getBoundingClientRect()
+    return new Dimensions([box.x, box.y, box.width, box.height])
+  }
+
+  constructor(public diagram: Diagram) {
     makeAutoObservable(this, { canvas: false })
   }
 
@@ -30,11 +44,28 @@ export class Panzoom {
   displacementStart: null | Coordinates = null
   eventStart: null | Coordinates = null
 
+  protected unsubscribeMouse = () => {}
+
+  displace(c: Coordinates) {
+    this.displacement.sum(c)
+  }
+
   handleMouseDown(ev: E) {
     if (this.findCanvas(ev.target as HTMLElement)) {
+      this.diagram.unselectAll()
       this.displacementStart = this.displacement.copy()
       this.eventStart = new Coordinates([ev.clientX, ev.clientY])
-      document.addEventListener('mousemove', this.handleMouseMove.bind(this))
+
+      const fn1 = this.handleMouseMove.bind(this)
+      const fn2 = this.handleMouseUp.bind(this)
+
+      document.addEventListener('mousemove', fn1)
+      document.addEventListener('mouseup', fn2)
+
+      this.unsubscribeMouse = () => {
+        document.removeEventListener('mousemove', fn1)
+        document.removeEventListener('mouseup', fn2)
+      }
     }
   }
 
@@ -45,7 +76,7 @@ export class Panzoom {
           this.eventStart
             .copy()
             .substract([ev.clientX, ev.clientY])
-            .multiply(1 / this.scale),
+            .divide(this.scale),
         ),
       )
     }
@@ -53,7 +84,7 @@ export class Panzoom {
 
   handleMouseUp() {
     this.eventStart = null
-    document.removeEventListener('mousemove', this.handleMouseMove.bind(this))
+    this.unsubscribeMouse()
   }
 
   handleWheel(ev: Event) {
@@ -64,22 +95,32 @@ export class Panzoom {
     )
   }
 
+  /**
+   * Given a pair of coordinates in the canvas, returns the matching coordinates in the screen
+   */
   fit<T extends Coordinates | Dimensions>(value: T): T {
     if (value instanceof Coordinates) {
-      return value
+      return this.displacement
         .copy()
-        .substract(this.displacement.copy().multiply(this.scale)) as T
+        .sum([value.x, value.y])
+        .multiply(this.scale) as T
     }
 
     return new Dimensions([
-      ...this.displacement
-        .copy()
-        .sum(this.size.copy().divide(2))
-        .sum([value.x, value.y])
-        .multiply(this.scale).raw,
-      value.width * this.scale,
-      value.height * this.scale,
-    ]) as T
+      ...this.displacement.copy().sum([value.x, value.y]).multiply(this.scale)
+        .raw,
+      ...value.box.multiply(this.scale).raw,
+    ]).multiply(-1) as T
+  }
+
+  /**
+   * Given a pair of coordinates in the screen, returns the matching coordinates in the canvas
+   */
+  inverseFit(value: Coordinates) {
+    return value
+      .copy()
+      .divide(this.scale)
+      .substract([this.displacement.x, this.displacement.y])
   }
 
   private unsetRefs = () => {}
@@ -91,14 +132,15 @@ export class Panzoom {
       const rect = el.getBoundingClientRect()
       this.size.assign([rect.width, rect.height])
 
-      el.addEventListener('mousedown', this.handleMouseDown.bind(this))
-      el.addEventListener('mouseup', this.handleMouseUp.bind(this))
-      el.addEventListener('wheel', this.handleWheel.bind(this))
+      const fn1 = this.handleMouseDown.bind(this)
+      const fn2 = this.handleWheel.bind(this)
+
+      el.addEventListener('mousedown', fn1)
+      el.addEventListener('wheel', fn2)
 
       this.unsetRefs = () => {
-        el.removeEventListener('mousedown', this.handleMouseDown.bind(this))
-        el.removeEventListener('mouseup', this.handleMouseUp.bind(this))
-        el.removeEventListener('wheel', this.handleWheel.bind(this))
+        el.removeEventListener('mousedown', fn1)
+        el.removeEventListener('wheel', fn2)
       }
     }
   }
