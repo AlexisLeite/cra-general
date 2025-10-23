@@ -47,7 +47,7 @@ export class Node {
     return this.state.box.copy()
   }
   public get coordinates() {
-    return this.state.box.coordinates
+    return this.box.coordinates
   }
   public get id() {
     return this.state.id

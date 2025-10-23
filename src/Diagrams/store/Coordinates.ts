@@ -71,8 +71,19 @@ export class Coordinates {
     return new Coordinates([Math.round(this.x), Math.round(this.y)])
   }
 
+  get half() {
+    return this.copy().multiply(0.5)
+  }
+
   get norm() {
     return Math.sqrt(this.x ** 2 + this.y ** 2)
+  }
+
+  get style() {
+    return {
+      left: this.x,
+      top: this.y,
+    }
   }
 
   multiply(this: Coordinates, factor: number) {

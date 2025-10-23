@@ -21,6 +21,10 @@ export class Panzoom {
     return new Coordinates([box.x, box.y])
   }
   get canvasDimensions() {
+    if (!this.canvas) {
+      return new Dimensions([0, 0, 0, 0])
+    }
+
     const box = this.canvas!.getBoundingClientRect()
     return new Dimensions([box.x, box.y, box.width, box.height])
   }
@@ -41,6 +45,11 @@ export class Panzoom {
     }
   }
 
+  public get dragging() {
+    return this._dragging
+  }
+
+  protected _dragging = false
   displacementStart: null | Coordinates = null
   eventStart: null | Coordinates = null
 
@@ -71,6 +80,7 @@ export class Panzoom {
 
   handleMouseMove(ev: E) {
     if (this.eventStart) {
+      this._dragging = true
       this.displacement.assign(
         this.displacementStart!.copy().substract(
           this.eventStart
@@ -83,6 +93,7 @@ export class Panzoom {
   }
 
   handleMouseUp() {
+    this._dragging = false
     this.eventStart = null
     this.unsubscribeMouse()
   }
@@ -109,8 +120,8 @@ export class Panzoom {
     return new Dimensions([
       ...this.displacement.copy().sum([value.x, value.y]).multiply(this.scale)
         .raw,
-      ...value.box.multiply(this.scale).raw,
-    ]).multiply(-1) as T
+      ...value.size.multiply(this.scale).raw,
+    ]) as T
   }
 
   /**

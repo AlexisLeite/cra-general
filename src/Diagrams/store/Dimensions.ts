@@ -21,10 +21,6 @@ export class Dimensions {
     makeAutoObservable(this)
   }
 
-  get box() {
-    return new Coordinates(this.raw.slice(2, 4))
-  }
-
   get coordinates() {
     return new Coordinates(this.raw.slice(0, 2))
   }
@@ -35,6 +31,10 @@ export class Dimensions {
 
   get rightMiddle() {
     return new Coordinates([this.x + this.width, this.y + this.height / 2])
+  }
+
+  get size() {
+    return new Coordinates(this.raw.slice(2, 4))
   }
 
   get x() {

@@ -5,8 +5,8 @@ import { Node } from './store/Node'
 
 const d = new Diagram()
 
-let cols = 20
-const nodes = 5
+let cols = 5
+const nodes = 25
 
 function x(n: number) {
   return (n % cols) * 170

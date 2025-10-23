@@ -7,9 +7,14 @@
   position: relative;
   overflow: hidden;
 
-  svg: {
-    position: relative;
+  &>*:not(.diagram__stats) {
+    position: absolute;
+    inset: 0;
   }
+}
+
+.avoid-selection * {
+  user-select: none;
 }
 
 .diagram__panzoom,

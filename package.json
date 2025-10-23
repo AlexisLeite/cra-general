@@ -19,6 +19,8 @@
     "react-router-dom": "^7.7.1",
     "react-scripts": "5.0.1",
     "sass": "^1.89.2",
+    "svg-path-bbox": "^2.1.0",
+    "svg-path-bounds": "^1.0.2",
     "typescript": "^5.9.2",
     "web-vitals": "^2.1.4"
   },
@@ -47,6 +49,8 @@
     ]
   },
   "devDependencies": {
+    "@types/svg-path-bbox": "^1.0.0",
+    "@types/svg-path-bounds": "^1.0.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "3.6.2"
