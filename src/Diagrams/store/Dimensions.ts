@@ -53,6 +53,22 @@ export class Dimensions {
     return this.get(3)
   }
 
+  set x(value: number) {
+    this.set(0, value)
+  }
+
+  set y(value: number) {
+    this.set(1, value)
+  }
+
+  set width(value: number) {
+    this.set(2, value)
+  }
+
+  set height(value: number) {
+    this.set(3, value)
+  }
+
   get(i: number) {
     return this._data[i]
   }
@@ -112,6 +128,18 @@ export class Dimensions {
     this.set(1, a.get(1))
 
     return this
+  }
+
+  bound(boundaries: Dimensions) {
+    this.x = Math.min(
+      boundaries.x + boundaries.width - this.width,
+      Math.max(boundaries.x, this.x),
+    )
+
+    this.y = Math.min(
+      boundaries.y + boundaries.height - this.height,
+      Math.max(boundaries.y, this.y),
+    )
   }
 
   collides(another: Dimensions | Coordinates) {

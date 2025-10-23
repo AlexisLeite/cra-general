@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { forwardRef, MouseEventHandler } from 'react'
 import { Coordinates } from '../../store/Coordinates'
-import { observer } from 'mobx-react-lite'
 import { Diagram } from '../../store/Diagram'
+import { observer } from 'mobx-react-lite'
 
 /**
  * Estilo del borde: sólido, rayado o punteado.
@@ -43,26 +43,30 @@ export interface ShapeProps {
   labelFontFamily?: string
   /** Ajustes de posición del texto */
   labelOffset: Coordinates
+  onMouseDown?: MouseEventHandler<SVGGElement>
 }
 
 /**
  * Shape: componente SVG multi-path que soporta trazo animado, interlineado o punteado,
  * esquinas redondeadas y texto centrado dentro de la figura.
  */
-export const Shape: React.FC<ShapeProps> = observer(
-  ({
-    paths,
-    transform,
-    selected,
-    onClick,
-    className,
-    roundedBorders = false,
-    label,
-    labelColor = '#111',
-    labelFontSize = 14,
-    labelFontFamily = 'sans-serif',
-    labelOffset,
-  }) => {
+const UnobservedShape = forwardRef<any, ShapeProps>(
+  (
+    {
+      paths,
+      transform,
+      selected,
+      onClick,
+      className,
+      roundedBorders = false,
+      label,
+      labelColor = '#111',
+      labelFontSize = 14,
+      labelFontFamily = 'sans-serif',
+      labelOffset,
+    },
+    ref,
+  ) => {
     const d = Diagram.use()
 
     return (
@@ -75,6 +79,7 @@ export const Shape: React.FC<ShapeProps> = observer(
           transition: 'filter 0.2s ease',
           ...(selected && { filter: 'drop-shadow(0 0 3px red)' }),
         }}
+        ref={ref}
       >
         {paths.map((p, i) => {
           const {
@@ -163,3 +168,5 @@ export const Shape: React.FC<ShapeProps> = observer(
     )
   },
 )
+
+export const Shape = observer(UnobservedShape) as typeof UnobservedShape

@@ -1,4 +1,5 @@
 import { makeAutoObservable, toJS } from 'mobx'
+import type { Dimensions } from './Dimensions'
 
 export class Coordinates {
   _data: number[] = []
@@ -17,6 +18,18 @@ export class Coordinates {
     if (observable) {
       makeAutoObservable(this)
     }
+  }
+
+  bound(boundaries: Dimensions) {
+    this.x = Math.min(
+      boundaries.x + boundaries.width,
+      Math.max(boundaries.x, this.x),
+    )
+
+    this.y = Math.min(
+      boundaries.y + boundaries.height,
+      Math.max(boundaries.y, this.y),
+    )
   }
 
   get abs() {
@@ -135,6 +148,14 @@ export class Coordinates {
 
   get y() {
     return this.get(1)
+  }
+
+  set x(value: number) {
+    this.set(0, value)
+  }
+
+  set y(value: number) {
+    this.set(1, value)
   }
 
   toString() {

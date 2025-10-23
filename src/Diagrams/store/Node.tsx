@@ -12,7 +12,7 @@ export class Node {
   }>()
   incomingEdges: Edge[] = []
   outgoingEdges: Edge[] = []
-  public ref: HTMLElement | null = null
+  public ref: SVGElement | null = null
   public state: TNodeState
 
   constructor(
@@ -73,13 +73,15 @@ export class Node {
 
   protected handleMouseMove(ev: MouseEvent) {
     if (this.dragEventStartPosition) {
-      this.state.box.assignCoordinates(
-        this.dragEventStartPosition!.copy().substract(
-          this.dragEventMouseStartPosition!.copy()
-            .substract([ev.clientX, ev.clientY])
-            .multiply(1 / this.diagram!.panzoom.scale),
-        ),
-      )
+      this.state.box
+        .assignCoordinates(
+          this.dragEventStartPosition!.copy().substract(
+            this.dragEventMouseStartPosition!.copy()
+              .substract([ev.clientX, ev.clientY])
+              .multiply(1 / this.diagram!.panzoom.scale),
+          ),
+        )
+        .bound(new Dimensions([0, 0, 10000, 10000]))
     }
   }
 
@@ -100,11 +102,11 @@ export class Node {
   }
 
   protected unsubscribeListeners = () => {}
-  useRef(el: HTMLElement | null) {
+  useRef(el: SVGElement | null) {
     this.unsubscribeListeners()
     this.ref = el
 
-    if (el instanceof HTMLElement) {
+    if (el instanceof SVGElement) {
       const fn = this.handleMouseDown.bind(this)
       el.addEventListener('mousedown', fn)
       this.unsubscribeListeners = () => {

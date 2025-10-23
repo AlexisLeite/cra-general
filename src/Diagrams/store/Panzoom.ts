@@ -7,7 +7,7 @@ import type { Diagram } from './Diagram'
 type E = MV | MouseEvent
 
 export class Panzoom {
-  displacement: Coordinates = new Coordinates([0, 0])
+  displacement: Coordinates = new Coordinates([-5000, -5000])
   size = new Coordinates([0, 0])
   scale: number = 1
 
@@ -55,8 +55,13 @@ export class Panzoom {
 
   protected unsubscribeMouse = () => {}
 
+  protected bound() {
+    this.displacement.bound(new Dimensions([-10000, -10000, 10000, 10000]))
+  }
+
   displace(c: Coordinates) {
     this.displacement.sum(c)
+    this.bound()
   }
 
   handleMouseDown(ev: E) {
@@ -89,6 +94,7 @@ export class Panzoom {
             .divide(this.scale),
         ),
       )
+      this.bound()
     }
   }
 
@@ -101,8 +107,12 @@ export class Panzoom {
   handleWheel(ev: Event) {
     ev.preventDefault()
     this.scale = Math.max(
-      0.1,
-      Math.min(3, this.scale - (ev as WheelEvent).deltaY / 1000),
+      0.01,
+      Math.min(
+        3,
+        this.scale -
+          (ev as WheelEvent).deltaY / (this.scale > 0.2 ? 1000 : 10000),
+      ),
     )
   }
 
