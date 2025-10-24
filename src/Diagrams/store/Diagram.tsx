@@ -9,6 +9,7 @@ import { Coordinates } from './Coordinates';
 import { Measurer } from './tools/Measurer';
 import { Selector } from './tools/Selector';
 import { Dragger } from './tools/Dragger';
+import { Hotkeys } from './tools/Hotkeys';
 
 export class Edge {
   constructor(public state: TEdgeState) {
@@ -55,6 +56,7 @@ export class Diagram {
   connector = new NodesConnector(this);
   canvas = new Canvas(this);
   dragger = new Dragger(this);
+  hotkeys = new Hotkeys(this);
   measurer = new Measurer(this);
   selector = new Selector(this);
 

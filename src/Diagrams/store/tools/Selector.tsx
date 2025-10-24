@@ -74,7 +74,7 @@ export class Selector {
             this.diagram.toggleNodeSelection(node);
           } else {
             this.diagram.selectNode(node, false);
-            this.diagram.selectNode(node, !ev.shiftKey);
+            this.diagram.selectNode(node, !ev.shiftKey && !node.selected);
           }
         }
       }
