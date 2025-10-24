@@ -1,164 +1,164 @@
-import { makeAutoObservable, toJS } from 'mobx'
-import type { Dimensions } from './Dimensions'
+import { makeAutoObservable, toJS } from 'mobx';
+import type { Dimensions } from './Dimensions';
 
 export class Coordinates {
-  _data: number[] = []
+  _data: number[] = [];
 
-  constructor(items: Coordinates | number[], observable = true) {
+  constructor(items?: Coordinates | number[], observable = true) {
+    if (!items) {
+      items = [0, 0];
+    }
+
     if (Array.isArray(items)) {
       if (items.length !== 2) {
-        throw new Error('Invalid coordinates length')
+        throw new Error('Invalid coordinates length');
       }
 
-      this._data = [...items]
+      this._data = [...items];
     } else {
-      this._data = [...items._data]
+      this._data = [...items._data];
     }
 
     if (observable) {
-      makeAutoObservable(this)
+      makeAutoObservable(this);
     }
   }
 
+  // (minX, minY, maxX, maxY)
   bound(boundaries: Dimensions) {
-    this.x = Math.min(
-      boundaries.x + boundaries.width,
-      Math.max(boundaries.x, this.x),
-    )
+    this.x = Math.min(boundaries.get(2), Math.max(boundaries.get(0), this.x));
+    this.y = Math.min(boundaries.get(3), Math.max(boundaries.get(1), this.y));
 
-    this.y = Math.min(
-      boundaries.y + boundaries.height,
-      Math.max(boundaries.y, this.y),
-    )
+    return this;
   }
 
   get abs() {
-    return new Coordinates([Math.abs(this.x), Math.abs(this.y)])
+    return new Coordinates([Math.abs(this.x), Math.abs(this.y)]);
   }
 
   assign(this: Coordinates, another: Coordinates | [number, number]) {
     if (another.length !== 2) {
-      throw new Error('Invalid number of coordinates')
+      throw new Error('Invalid number of coordinates');
     }
 
-    let a = another instanceof Coordinates ? another : new Coordinates(another)
+    let a = another instanceof Coordinates ? another : new Coordinates(another);
 
-    this.set(0, a.get(0))
-    this.set(1, a.get(1))
+    this.set(0, a.get(0));
+    this.set(1, a.get(1));
 
-    return this
+    return this;
   }
 
   copy() {
-    return new Coordinates(this)
+    return new Coordinates(this);
   }
 
   divide(this: Coordinates, factor: number) {
-    this.set(0, this.get(0) / factor)
-    this.set(1, this.get(1) / factor)
+    this.set(0, this.get(0) / factor);
+    this.set(1, this.get(1) / factor);
 
-    return this
+    return this;
   }
 
   get(i: number) {
-    return this._data[i]
+    return this._data[i];
   }
 
   get length() {
-    return this._data.length
+    return this._data.length;
   }
 
   max(n: number) {
-    return new Coordinates([Math.max(n, this.x), Math.max(n, this.y)])
+    return new Coordinates([Math.max(n, this.x), Math.max(n, this.y)]);
   }
 
   get nonObserved() {
-    return new Coordinates(this, false)
+    return new Coordinates(this, false);
   }
 
   get raw(): [number, number] {
-    return toJS([...this._data]) as [number, number]
+    return toJS([...this._data]) as [number, number];
   }
 
   get round() {
-    return new Coordinates([Math.round(this.x), Math.round(this.y)])
+    return new Coordinates([Math.round(this.x), Math.round(this.y)]);
   }
 
   get half() {
-    return this.copy().multiply(0.5)
+    return this.copy().multiply(0.5);
   }
 
   get norm() {
-    return Math.sqrt(this.x ** 2 + this.y ** 2)
+    return Math.sqrt(this.x ** 2 + this.y ** 2);
   }
 
   get style() {
     return {
       left: this.x,
       top: this.y,
-    }
+    };
   }
 
   multiply(this: Coordinates, factor: number) {
-    this.set(0, this.get(0) * factor)
-    this.set(1, this.get(1) * factor)
+    this.set(0, this.get(0) * factor);
+    this.set(1, this.get(1) * factor);
 
-    return this
+    return this;
   }
 
   set(i: number, value: number) {
-    this._data[i] = value
+    this._data[i] = value;
   }
 
   substract(this: Coordinates, another: Coordinates | [number, number]) {
     if (another.length !== 2) {
-      throw new Error('Invalid number of coordinates')
+      throw new Error('Invalid number of coordinates');
     }
 
-    let a = another instanceof Coordinates ? another : new Coordinates(another)
+    let a = another instanceof Coordinates ? another : new Coordinates(another);
 
-    this.set(0, this.get(0) - a.get(0))
-    this.set(1, this.get(1) - a.get(1))
+    this.set(0, this.get(0) - a.get(0));
+    this.set(1, this.get(1) - a.get(1));
 
-    return this
+    return this;
   }
 
   sum(this: Coordinates, another: Coordinates | [number, number] | number) {
     if (typeof another === 'number') {
-      this.set(0, this.get(0) + another)
-      this.set(1, this.get(1) + another)
+      this.set(0, this.get(0) + another);
+      this.set(1, this.get(1) + another);
     } else {
       if (another.length !== 2) {
-        throw new Error('Invalid number of coordinates')
+        throw new Error('Invalid number of coordinates');
       }
 
       let a =
-        another instanceof Coordinates ? another : new Coordinates(another)
+        another instanceof Coordinates ? another : new Coordinates(another);
 
-      this.set(0, this.get(0) + a.get(0))
-      this.set(1, this.get(1) + a.get(1))
+      this.set(0, this.get(0) + a.get(0));
+      this.set(1, this.get(1) + a.get(1));
     }
 
-    return this
+    return this;
   }
 
   get x() {
-    return this.get(0)
+    return this.get(0);
   }
 
   get y() {
-    return this.get(1)
+    return this.get(1);
   }
 
   set x(value: number) {
-    this.set(0, value)
+    this.set(0, value);
   }
 
   set y(value: number) {
-    this.set(1, value)
+    this.set(1, value);
   }
 
   toString() {
-    return `(${this.x}, ${this.y})`
+    return `(${this.x}, ${this.y})`;
   }
 }

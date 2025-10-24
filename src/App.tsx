@@ -1,7 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import { InvoicesComponent } from './Invoices/index'
-import './App.css'
-import { Diagrams } from './Diagrams'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { InvoicesComponent } from './Invoices/index';
+import './App.css';
+import { Diagrams } from './Diagrams';
 
 function Home() {
   return (
@@ -13,7 +13,7 @@ function Home() {
         <Link to="/invoices">Invoices</Link>
       </li>
     </ul>
-  )
+  );
 }
 
 export default function App() {
@@ -25,5 +25,5 @@ export default function App() {
         <Route path="/diagrams" element={<Diagrams />} />
       </Routes>
     </Router>
-  )
+  );
 }

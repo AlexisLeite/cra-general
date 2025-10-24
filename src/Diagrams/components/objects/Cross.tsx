@@ -1,11 +1,11 @@
-import type { Coordinates } from '../../store/Coordinates'
+import type { Coordinates } from '../../store/Coordinates';
 
 export interface RedCrossProps {
-  coordinates: Coordinates
-  size?: number
-  strokeWidth?: number
-  rounded?: boolean
-  stroke?: string
+  coordinates: Coordinates;
+  size?: number;
+  strokeWidth?: number;
+  rounded?: boolean;
+  stroke?: string;
 }
 
 export const Cross: React.FC<RedCrossProps> = ({
@@ -15,8 +15,8 @@ export const Cross: React.FC<RedCrossProps> = ({
   rounded = true,
   stroke = '#ff0000',
 }) => {
-  const half = size / 2
-  const lineCap: 'round' | 'butt' | 'square' = rounded ? 'round' : 'butt'
+  const half = size / 2;
+  const lineCap: 'round' | 'butt' | 'square' = rounded ? 'round' : 'butt';
 
   return (
     <>
@@ -39,5 +39,5 @@ export const Cross: React.FC<RedCrossProps> = ({
         strokeLinecap={lineCap}
       />
     </>
-  )
-}
+  );
+};

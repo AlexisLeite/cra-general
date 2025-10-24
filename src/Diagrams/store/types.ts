@@ -1,25 +1,24 @@
-import type { FC } from 'react'
-import type { Node } from './Node'
-import type { Dimensions } from './Dimensions'
-import type { Coordinates } from './Coordinates'
+import type { FC } from 'react';
+import type { Node } from './Node';
+import type { Dimensions } from './Dimensions';
+import type { Coordinates } from './Coordinates';
 
 export type TNodeState = {
-  id: string
-  box: Dimensions
-  label: string
+  id: string;
+  box: Dimensions;
+  label: string;
 } & Partial<{
-  movable: boolean
-  Renderer: FC<{ node: Node }>
-  selectable: boolean
-  selected: boolean
-}>
+  movable: boolean;
+  Renderer: FC<{ node: Node }>;
+  selectable: boolean;
+}>;
 
 export type TEdgeState = {
-  label: string
-  labelPositioning: Coordinates
+  label: string;
+  labelPositioning: Coordinates;
 
-  from: Node
-  to: Node
+  from: Node;
+  to: Node;
 
-  steps: Coordinates[]
-}
+  steps: Coordinates[];
+};

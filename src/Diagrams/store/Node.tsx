@@ -1,19 +1,23 @@
-import { action, makeObservable, observable } from 'mobx'
-import type { TNodeState } from './types'
-import { Dimensions } from './Dimensions'
-import { Coordinates } from './Coordinates'
-import type { Diagram, Edge } from './Diagram'
-import { EventEmitter } from '../util'
+import { computed, makeObservable, observable } from 'mobx';
+import type { TNodeState } from './types';
+import { Dimensions } from './Dimensions';
+import { Coordinates } from './Coordinates';
+import type { Diagram, Edge } from './Diagram';
+import { EventEmitter } from '../util/EventEmitter';
 
 export class Node {
-  protected diagram: Diagram | null = null
+  protected diagram: Diagram | null = null;
   protected emitter = new EventEmitter<{
-    select: Node
-  }>()
-  incomingEdges: Edge[] = []
-  outgoingEdges: Edge[] = []
-  public ref: SVGElement | null = null
-  public state: TNodeState
+    select: Node;
+  }>();
+  incomingEdges: Edge[] = [];
+  outgoingEdges: Edge[] = [];
+  public ref: SVGElement | null = null;
+  public state: TNodeState;
+
+  public get selected() {
+    return this.diagram?.isNodeSelected(this);
+  }
 
   constructor(
     state: Pick<TNodeState, 'Renderer' | 'id' | 'label'> & Partial<TNodeState>,
@@ -21,97 +25,52 @@ export class Node {
     this.state = {
       ...state,
       box: state.box ?? new Dimensions([100, 80]),
-    }
+    };
 
-    makeObservable<Node, 'handleMouseDown'>(this, {
-      handleMouseDown: action,
+    makeObservable<Node>(this, {
       incomingEdges: observable,
       outgoingEdges: observable,
       state: observable,
-    })
+      selected: computed,
+    });
   }
 
   canConnect(from: Node): boolean {
-    return !from.outgoingEdges.find((c) => c.to === this)
+    return !from.outgoingEdges.find((c) => c.to === this);
   }
 
   addIncomingEdge(edge: Edge) {
-    this.incomingEdges.push(edge)
+    this.incomingEdges.push(edge);
   }
 
   addOutgoingEdge(edge: Edge) {
-    this.outgoingEdges.push(edge)
+    this.outgoingEdges.push(edge);
   }
 
   public get box() {
-    return this.state.box.copy()
+    return this.state.box.copy();
   }
   public get coordinates() {
-    return this.box.coordinates
+    return this.box.coordinates;
   }
   public get id() {
-    return this.state.id
+    return this.state.id;
   }
 
-  protected dragEventMouseStartPosition: Coordinates | null = null
-  protected dragEventStartPosition: Coordinates | null = null
+  protected dragEventMouseStartPosition: Coordinates | null = null;
+  protected dragEventStartPosition: Coordinates | null = null;
 
-  protected handleMouseDown(ev: MouseEvent) {
-    ev.stopPropagation()
-
-    this.dragEventStartPosition = this.state!.box.coordinates.copy()
-    this.dragEventMouseStartPosition = new Coordinates([ev.clientX, ev.clientY])
-
-    document.addEventListener('mousemove', this.handleMouseMove.bind(this))
-    document.addEventListener('mouseup', this.handleMouseUp.bind(this))
-
-    this.emitter.emit('select', this)
-    if (this.state.selectable !== false) {
-      this.state.selected = true
-    }
-  }
-
-  protected handleMouseMove(ev: MouseEvent) {
-    if (this.dragEventStartPosition) {
-      this.state.box
-        .assignCoordinates(
-          this.dragEventStartPosition!.copy().substract(
-            this.dragEventMouseStartPosition!.copy()
-              .substract([ev.clientX, ev.clientY])
-              .multiply(1 / this.diagram!.panzoom.scale),
-          ),
-        )
-        .bound(new Dimensions([0, 0, 10000, 10000]))
-    }
-  }
-
-  protected handleMouseUp() {
-    this.dragEventStartPosition = null
-    document.removeEventListener('mousemove', this.handleMouseMove.bind(this))
-    document.removeEventListener('mouseup', this.handleMouseUp.bind(this))
-  }
-
-  on = this.emitter.on.bind(this.emitter)
+  on = this.emitter.on.bind(this.emitter);
 
   setDiagram(d: Diagram) {
-    this.diagram = d
+    this.diagram = d;
   }
 
-  unselect() {
-    this.state.selected = false
+  setPosition(c: Coordinates) {
+    this.state.box.assignCoordinates(c);
   }
 
-  protected unsubscribeListeners = () => {}
   useRef(el: SVGElement | null) {
-    this.unsubscribeListeners()
-    this.ref = el
-
-    if (el instanceof SVGElement) {
-      const fn = this.handleMouseDown.bind(this)
-      el.addEventListener('mousedown', fn)
-      this.unsubscribeListeners = () => {
-        el.removeEventListener('mousedown', fn)
-      }
-    }
+    this.ref = el;
   }
 }

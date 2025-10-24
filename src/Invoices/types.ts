@@ -2,7 +2,7 @@ export type TItem = {
   id: string;
   cost: number;
   activities: string;
-}
+};
 
 export type TControllerState = {
   hourPrice: number;
@@ -10,4 +10,4 @@ export type TControllerState = {
   extra: TItem[];
   tempStr: string;
   tempCost: string;
-}
+};

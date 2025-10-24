@@ -1,31 +1,31 @@
-import { makeAutoObservable, runInAction } from 'mobx'
-import { Coordinates } from '../store/Coordinates'
+import { makeAutoObservable, runInAction } from 'mobx';
+import { Coordinates } from '../store/Coordinates';
 
 export class Mouse {
-  private static instance: Mouse | null = null
+  private static instance: Mouse | null = null;
   public static getInstance() {
     if (!this.instance) {
-      this.instance = new Mouse()
+      this.instance = new Mouse();
     }
 
-    return this.instance!
+    return this.instance!;
   }
 
-  x = 0
-  y = 0
+  x = 0;
+  y = 0;
 
   public get coordinates() {
-    return new Coordinates([this.x, this.y])
+    return new Coordinates([this.x, this.y]);
   }
 
   constructor() {
-    makeAutoObservable(this)
+    makeAutoObservable(this);
 
     document.addEventListener('mousemove', (ev) => {
       runInAction(() => {
-        this.x = ev.clientX
-        this.y = ev.clientY
-      })
-    })
+        this.x = ev.clientX;
+        this.y = ev.clientY;
+      });
+    });
   }
 }

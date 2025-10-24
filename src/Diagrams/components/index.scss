@@ -1,11 +1,10 @@
-.diagram__canvas {
+.canvas__frame {
   background: white;
-  height: 600px;
-  width: 900px;
-  position: relative;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
 
-  &>*:not(.diagram__stats) {
+  &>*:not(.diagram__stats, .diagram__node_tools, .toolbar) {
     position: absolute;
     inset: 0;
   }
@@ -23,7 +22,7 @@
   inset: 0;
 }
 
-.diagram__connector {
+.diagram__extra {
   position: absolute;
   pointer-events: none;
   width: 100%;
@@ -32,20 +31,11 @@
 }
 
 .diagram__node {
-  position: absolute;
-  background: white;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 3px solid black;
-  border-radius: 6px;
-
-  color: black;
-  cursor: pointer;
-
   user-select: none;
+
+  &.selected {
+    z-index: 1;
+  }
 }
 
 .diagram__node_tools {
@@ -130,13 +120,48 @@
   }
 }
 
-.diagram__stats {
+.diagram__stats>* {
   position: fixed;
   right: 5px;
   bottom: 5px;
+  user-select: none;
 
   background: #555;
   color: #ccc;
-  padding: 6px;
+  padding: 8px 12px;
   border-radius: 6px;
+
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.05;
+    pointer-events: none;
+  }
+}
+
+.toolbar {
+  inset: unset;
+
+  position: fixed;
+  bottom: 5px;
+  left: 5px;
+
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+
+  background: white;
+  border: 1px solid #444;
+  border-radius: 4px;
+
+  .tool {
+    padding: 6px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    color: black;
+  }
+
+  .tool.selected {
+    background: #ccc
+  }
 }

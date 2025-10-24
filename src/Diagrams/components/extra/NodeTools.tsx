@@ -1,24 +1,35 @@
-import { observer } from 'mobx-react-lite'
-import { Diagram } from '../../store/Diagram'
-import { FaCircleArrowRight } from 'react-icons/fa6'
+import { observer } from 'mobx-react-lite';
+import { Diagram } from '../../store/Diagram';
+import { FaCircleArrowRight } from 'react-icons/fa6';
 
 export const NodeTools = observer(() => {
-  const d = Diagram.use()
+  const d = Diagram.use();
 
   if (!d.selectedNode) {
-    return null
+    return null;
   }
 
-  const nodeBox = d.selectedNode.box
-  const box = nodeBox.copy().sum([nodeBox.width + 10, 0, 0, 0])
-  const { left, top, height } = box.style
+  const { x: left, y: top } = d.canvas.fit(
+    d.selectedNode.box.rightMiddle.sum([5 * d.canvas.scale, 0]),
+  );
 
   return (
     <div
       className="diagram__node_tools"
-      style={{ left, top: top + height / 2 }}
+      style={{
+        left,
+        top,
+        background: 'transparent',
+        height: '0',
+      }}
     >
       <FaCircleArrowRight
+        style={{
+          transform: `scale(${d.canvas.scale})`,
+          transformOrigin: '0',
+          willChange: 'transform',
+          shapeRendering: 'geometricPrecision',
+        }}
         className="diagram__node_connect_to diagram__node_tool"
         onMouseDownCapture={d.connector.startConnectionFrom.bind(
           d.connector,
@@ -26,5 +37,5 @@ export const NodeTools = observer(() => {
         )}
       />
     </div>
-  )
-})
+  );
+});

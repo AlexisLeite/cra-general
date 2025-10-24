@@ -1,49 +1,50 @@
-import React, { forwardRef, MouseEventHandler } from 'react'
-import { Coordinates } from '../../store/Coordinates'
-import { Diagram } from '../../store/Diagram'
-import { observer } from 'mobx-react-lite'
+import React, { forwardRef, MouseEventHandler } from 'react';
+import { Coordinates } from '../../store/Coordinates';
+import { Diagram } from '../../store/Diagram';
+import { observer } from 'mobx-react-lite';
 
 /**
  * Estilo del borde: sólido, rayado o punteado.
  */
-export type StrokeStyle = 'solid' | 'dashed' | 'dotted'
+export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 
 /**
  * Configuración de un path individual dentro del Shape.
  */
 export interface PathSpec {
   /** Atributo SVG "d" */
-  d: string
+  d: string;
 
-  fill?: string
-  stroke?: string
-  strokeWidth?: number
-  strokeStyle?: StrokeStyle
-  animated?: boolean
-  animationDuration?: number
-  nonScalingStroke?: boolean
-  roundedBorders?: boolean
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  strokeStyle?: StrokeStyle;
+  animated?: boolean;
+  animationDuration?: number;
+  nonScalingStroke?: boolean;
+  roundedBorders?: boolean;
 }
 
 export interface ShapeProps {
-  paths: PathSpec[]
-  transform?: string
-  selected?: boolean
-  onClick?: React.MouseEventHandler<SVGGElement>
-  className?: string
-  roundedBorders?: boolean
+  paths: PathSpec[];
+  transform?: string;
+  selected?: boolean;
+  onClick?: React.MouseEventHandler<SVGGElement>;
+  className?: string;
+  roundedBorders?: boolean;
 
   /** Texto centrado dentro del shape */
-  label?: string
+  label?: string;
   /** Color del texto */
-  labelColor?: string
+  labelColor?: string;
   /** Tamaño de fuente (px) */
-  labelFontSize?: number
+  labelFontSize?: number;
   /** Familia tipográfica */
-  labelFontFamily?: string
+  labelFontFamily?: string;
   /** Ajustes de posición del texto */
-  labelOffset: Coordinates
-  onMouseDown?: MouseEventHandler<SVGGElement>
+  labelOffset: Coordinates;
+  onMouseDown?: MouseEventHandler<SVGGElement>;
+  'data-id'?: string;
 }
 
 /**
@@ -64,13 +65,15 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
       labelFontSize = 14,
       labelFontFamily = 'sans-serif',
       labelOffset,
+      'data-id': dataId,
     },
     ref,
   ) => {
-    const d = Diagram.use()
+    const d = Diagram.use();
 
     return (
       <g
+        data-id={dataId}
         className={className}
         transform={transform}
         onClick={onClick}
@@ -92,17 +95,17 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
             animationDuration = 1,
             nonScalingStroke = true,
             roundedBorders: roundedLocal = roundedBorders,
-          } = p
+          } = p;
 
           // Patrón de trazo según estilo
-          let dasharray: string | undefined
+          let dasharray: string | undefined;
           switch (strokeStyle) {
             case 'dashed':
-              dasharray = '10 5'
-              break
+              dasharray = '10 5';
+              break;
             case 'dotted':
-              dasharray = '2 6'
-              break
+              dasharray = '2 6';
+              break;
           }
 
           // Animación si está habilitada
@@ -118,7 +121,7 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
               dur={`${animationDuration}s`}
               repeatCount="indefinite"
             />
-          ) : null
+          ) : null;
 
           return (
             <path
@@ -134,7 +137,7 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
             >
               {animateElement}
             </path>
-          )
+          );
         })}
 
         {label && (
@@ -147,7 +150,7 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
             fontSize={labelFontSize}
             fill={labelColor}
             pointerEvents="none"
-            {...(d.panzoom.scale > 1
+            {...(d.canvas.scale > 1
               ? {
                   shapeRendering: 'geometricPrecision',
                   style: {
@@ -165,8 +168,8 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
           </text>
         )}
       </g>
-    )
+    );
   },
-)
+);
 
-export const Shape = observer(UnobservedShape) as typeof UnobservedShape
+export const Shape = observer(UnobservedShape) as typeof UnobservedShape;
