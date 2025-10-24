@@ -40,6 +40,7 @@ export class Diagram {
     return this._enableEvents;
   }
 
+  protected _gridSize = 50;
   protected _showGrid = true;
   protected _snapToGrid = true;
 
@@ -59,6 +60,7 @@ export class Diagram {
       | '_nodes'
       | '_showGrid'
       | '_snapToGrid'
+      | '_gridSize'
     >(this, {
       _edges: observable,
       _nodes: observable,
@@ -69,6 +71,7 @@ export class Diagram {
       disableEvents: action,
       _showGrid: observable,
       _snapToGrid: observable,
+      _gridSize: observable,
     });
   }
 
@@ -123,6 +126,10 @@ export class Diagram {
   }
   getNodeById(id: string) {
     return this._nodes.get(id);
+  }
+
+  get gridSize() {
+    return this._gridSize;
   }
 
   on = this.emitter.on.bind(this.emitter);

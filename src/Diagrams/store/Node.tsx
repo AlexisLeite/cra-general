@@ -70,6 +70,15 @@ export class Node {
     this.state.box
       .assignCoordinates(c)
       .bound(new Dimensions([0, 0, ...this.diagram!.canvas.size.raw]));
+
+    if (this.diagram?.snapToGrid) {
+      this.state.box.x =
+        Math.round(this.state.box.x / this.diagram.gridSize) *
+        this.diagram.gridSize;
+      this.state.box.y =
+        Math.round(this.state.box.y / this.diagram.gridSize) *
+        this.diagram.gridSize;
+    }
   }
 
   useRef(el: SVGElement | null) {

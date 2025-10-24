@@ -1,11 +1,11 @@
 import type { Diagram } from '../Diagram';
 
 export class Hotkeys {
-  protected revertHotkey: (() => unknown) | null = null;
+  protected revertHotkey = new Map<string, () => unknown>();
 
   constructor(public diagram: Diagram) {
     document.addEventListener('keydown', (ev) => {
-      if (!this.revertHotkey) {
+      if (!this.revertHotkey.has(ev.code)) {
         switch (ev.code) {
           case 'Space':
             const selectionMode = this.diagram.selector.selectionModeEnabled;
@@ -16,7 +16,7 @@ export class Hotkeys {
             } else {
               this.diagram.selector.enableSelectionMode();
             }
-            this.revertHotkey = () => {
+            this.revertHotkey.set(ev.code, () => {
               if (selectionMode) {
                 this.diagram.selector.enableSelectionMode();
               } else if (measurer) {
@@ -24,7 +24,7 @@ export class Hotkeys {
               } else {
                 this.diagram.enableEvents();
               }
-            };
+            });
             break;
           case 'KeyM':
             this.diagram.enableEvents();
@@ -36,12 +36,22 @@ export class Hotkeys {
             break;
           case 'KeyR':
             this.diagram.measurer.enable();
+            break;
+          case 'ControlLeft':
+            ev.preventDefault();
+            this.diagram.toggleSnapToGrid();
+            this.revertHotkey.set(ev.code, () => {
+              this.diagram.toggleSnapToGrid();
+            });
+            break;
         }
       }
     });
     document.addEventListener('keyup', () => {
-      this.revertHotkey?.();
-      this.revertHotkey = null;
+      for (const k of this.revertHotkey.keys()) {
+        this.revertHotkey.get(k)?.();
+        this.revertHotkey.delete(k);
+      }
     });
   }
 }

@@ -11,7 +11,7 @@ export const Grid = observer(() => {
 
   const positions: number[] = [];
   const size = d.canvas.size.x;
-  const gridSize = 50;
+  const gridSize = d.gridSize;
   for (let i = 0; i <= size; i += gridSize) {
     positions.push(i);
   }
