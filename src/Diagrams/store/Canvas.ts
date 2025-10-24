@@ -8,13 +8,15 @@ import { EventEmitter } from '../util/EventEmitter';
 export type AnyMouseEvent = MV | MouseEvent;
 
 export class Canvas {
-  displacement: Coordinates = new Coordinates([-5000, -5000]);
+  protected _displacement: Coordinates = new Coordinates([-5000, -5000]);
   scale: number = 1;
   size = new Coordinates([10000, 10000]);
   protected emitter = new EventEmitter<{
     mouseDown: AnyMouseEvent;
     mouseMove: AnyMouseEvent;
     mouseUp: AnyMouseEvent;
+    wheel: Event;
+    scale: { previousScale: number; newScale: number };
   }>();
 
   element: SVGElement | null = null;
@@ -32,6 +34,25 @@ export class Canvas {
     }
 
     const box = this.element!.getBoundingClientRect();
+    return new Dimensions([box.x, box.y, box.width, box.height]);
+  }
+  get displacement(): Readonly<Coordinates> {
+    return this._displacement.copy();
+  }
+  get framePosition() {
+    if (!this.element) {
+      return new Coordinates([0, 0]);
+    }
+
+    const box = this.element.parentElement!.getBoundingClientRect();
+    return new Coordinates([box.x, box.y]);
+  }
+  get frameDimensions() {
+    if (!this.element) {
+      return new Dimensions([0, 0, 0, 0]);
+    }
+
+    const box = this.element.parentElement!.getBoundingClientRect();
     return new Dimensions([box.x, box.y, box.width, box.height]);
   }
 
@@ -72,12 +93,16 @@ export class Canvas {
       ...rectDims.raw,
     ]).multiply(0.9);
 
-    this.displacement.bound(bounds);
+    this._displacement.bound(bounds);
   }
 
   displace(c: Coordinates) {
-    this.displacement.sum(c);
+    this._displacement.sum(c);
+    const previous = this._displacement.copy();
+
     this.bound();
+    this.setDisplacementStyles();
+    return c.copy().substract(this._displacement.copy().substract(previous));
   }
 
   protected handleMouseDown(ev: AnyMouseEvent) {
@@ -100,8 +125,8 @@ export class Canvas {
         (this.diagram.eventsEnabled || ev.button === 1)
       ) {
         this.diagram.unselectAll();
-        this.displacementStart = this.displacement.copy();
-        this.eventStart = new Coordinates([ev.clientX, ev.clientY]);
+        this.displacementStart = this._displacement.copy();
+        this.eventStart = new Coordinates(ev);
       }
     }
   }
@@ -111,7 +136,7 @@ export class Canvas {
 
     if (!ev.defaultPrevented && this.eventStart) {
       this._dragging = true;
-      this.displacement.assign(
+      this._displacement.assign(
         this.displacementStart!.copy().substract(
           this.eventStart
             .copy()
@@ -120,6 +145,7 @@ export class Canvas {
         ),
       );
       this.bound();
+      this.setDisplacementStyles();
     }
   }
 
@@ -135,15 +161,43 @@ export class Canvas {
   }
 
   protected handleWheel(ev: Event) {
-    ev.preventDefault();
-    this.scale = Math.max(
-      0.01,
-      Math.min(
-        3,
-        this.scale -
-          (ev as WheelEvent).deltaY / (this.scale > 0.2 ? 1000 : 10000),
-      ),
-    );
+    this.emitter.emit('wheel', ev);
+
+    if (!ev.defaultPrevented) {
+      ev.preventDefault();
+
+      const B = this.inverseFit(new Coordinates(ev));
+      const B_ = B.copy();
+      const scale = this.scale;
+      const disp = this.displacement;
+
+      this.scale = Math.max(
+        0.05,
+        Math.min(
+          3,
+          this.scale -
+            (ev as WheelEvent).deltaY / (this.scale > 0.2 ? 1000 : 10000),
+        ),
+      );
+
+      if (scale !== this.scale) {
+        const scale_ = this.scale;
+
+        const disp2 = B.copy()
+          .multiply(scale)
+          .sum(disp.multiply(scale))
+          .substract(B_.copy().multiply(scale_))
+          .divide(scale_);
+
+        this._displacement.assign(disp2);
+
+        this.setDisplacementStyles();
+        this.emitter.emit('scale', {
+          previousScale: scale,
+          newScale: this.scale,
+        });
+      }
+    }
   }
 
   /**
@@ -151,14 +205,14 @@ export class Canvas {
    */
   fit<T extends Coordinates | Dimensions>(value: T): T {
     if (value instanceof Coordinates) {
-      return this.displacement
+      return this._displacement
         .copy()
         .sum([value.x, value.y])
         .multiply(this.scale) as T;
     }
 
     return new Dimensions([
-      ...this.displacement.copy().sum([value.x, value.y]).multiply(this.scale)
+      ...this._displacement.copy().sum([value.x, value.y]).multiply(this.scale)
         .raw,
       ...value.size.multiply(this.scale).raw,
     ]) as T;
@@ -172,16 +226,28 @@ export class Canvas {
       return value
         .copy()
         .divide(this.scale)
-        .substract([this.displacement.x, this.displacement.y]) as T;
+        .substract([this._displacement.x, this._displacement.y]) as T;
     }
 
     return value
       .copy()
       .divide(this.scale)
-      .substract([this.displacement.x, this.displacement.y, 0, 0]) as T;
+      .substract([this._displacement.x, this._displacement.y, 0, 0]) as T;
   }
 
   on = this.emitter.on.bind(this.emitter);
+
+  protected setDisplacementStyles() {
+    const translation = this._displacement.copy().multiply(this.scale);
+
+    this.element!.dataset.setStyles = 'true';
+    this.element!.style.width = '10000px';
+
+    this.element!.style.height = '10000px';
+    this.element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
+    this.element!.style.transformOrigin = '0 0';
+    this.element!.style.willChange = 'transform';
+  }
 
   private unsetRefs = () => {};
   useRef = (el: SVGElement | null) => {
@@ -189,6 +255,8 @@ export class Canvas {
     this.unsetRefs();
 
     if (el instanceof SVGElement) {
+      this.setDisplacementStyles();
+
       const fn1 = this.handleMouseDown.bind(this);
       const fn2 = this.handleWheel.bind(this);
 

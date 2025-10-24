@@ -67,7 +67,9 @@ export class Node {
   }
 
   setPosition(c: Coordinates) {
-    this.state.box.assignCoordinates(c);
+    this.state.box
+      .assignCoordinates(c)
+      .bound(new Dimensions([0, 0, ...this.diagram!.canvas.size.raw]));
   }
 
   useRef(el: SVGElement | null) {

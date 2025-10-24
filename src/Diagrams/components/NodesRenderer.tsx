@@ -59,18 +59,8 @@ const Shapes = observer(() => {
 
 export const NodesRenderer = observer(() => {
   const d = Diagram.use();
-  const translation = d.canvas.displacement.copy().multiply(d.canvas.scale);
   return (
-    <Svg
-      ref={d.canvas.useRef}
-      style={{
-        width: 10000,
-        height: 10000,
-        transform: `translate(${translation.x}px, ${translation.y}px) scale(${d.canvas.scale})`,
-        transformOrigin: '0 0',
-        willChange: 'transform',
-      }}
-    >
+    <Svg ref={d.canvas.useRef}>
       <Shapes />
     </Svg>
   );

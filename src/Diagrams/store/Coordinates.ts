@@ -1,10 +1,14 @@
 import { makeAutoObservable, toJS } from 'mobx';
 import type { Dimensions } from './Dimensions';
+import type { AnyMouseEvent } from './Canvas';
 
 export class Coordinates {
   _data: number[] = [];
 
-  constructor(items?: Coordinates | number[], observable = true) {
+  constructor(
+    items?: AnyMouseEvent | Event | Coordinates | number[],
+    observable = true,
+  ) {
     if (!items) {
       items = [0, 0];
     }
@@ -15,8 +19,15 @@ export class Coordinates {
       }
 
       this._data = [...items];
-    } else {
+    } else if (items instanceof Coordinates) {
       this._data = [...items._data];
+    } else if ((items as MouseEvent).clientX !== undefined) {
+      this._data = [
+        (items as MouseEvent).clientX,
+        (items as MouseEvent).clientY,
+      ];
+    } else {
+      this._data = [0, 0];
     }
 
     if (observable) {
@@ -53,9 +64,12 @@ export class Coordinates {
     return new Coordinates(this);
   }
 
-  divide(this: Coordinates, factor: number) {
-    this.set(0, this.get(0) / factor);
-    this.set(1, this.get(1) / factor);
+  divide(this: Coordinates, factor: number | Coordinates) {
+    const x = factor instanceof Coordinates ? factor.x : factor;
+    const y = factor instanceof Coordinates ? factor.y : factor;
+
+    this.set(0, this.get(0) / x);
+    this.set(1, this.get(1) / y);
 
     return this;
   }

@@ -56,13 +56,13 @@ export class Selector {
 
     if (this._selectionMode)
       if (!nodeG) {
-        this.startPoint = new Coordinates([ev.clientX, ev.clientY]);
-        this.endPoint = new Coordinates([ev.clientX, ev.clientY]);
+        this.startPoint = new Coordinates(ev);
+        this.endPoint = new Coordinates(ev);
       } else {
         const node = nodeG ? this.diagram.getNodeById(nodeG.dataset.id!) : null;
         if (!node?.selected) {
-          this.startPoint = new Coordinates([ev.clientX, ev.clientY]);
-          this.endPoint = new Coordinates([ev.clientX, ev.clientY]);
+          this.startPoint = new Coordinates(ev);
+          this.endPoint = new Coordinates(ev);
         }
       }
     else {
@@ -73,7 +73,6 @@ export class Selector {
           if (ev.ctrlKey) {
             this.diagram.toggleNodeSelection(node);
           } else {
-            this.diagram.selectNode(node, false);
             this.diagram.selectNode(node, !ev.shiftKey && !node.selected);
           }
         }
@@ -84,7 +83,7 @@ export class Selector {
     if (this._selectionMode) {
       this.moved = true;
       if (this.startPoint && this._selectionMode) {
-        this.endPoint = new Coordinates([ev.clientX, ev.clientY]);
+        this.endPoint = new Coordinates(ev);
 
         this.diagram.nodes.forEach((c) => {
           if (this.diagram.canvas.inverseFit(this.get()).collides(c.box)) {

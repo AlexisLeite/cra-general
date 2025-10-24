@@ -46,7 +46,7 @@ export class NodesConnector {
   startConnectionFrom(node: Node, ev: RMEv) {
     ev.nativeEvent.stopImmediatePropagation();
     this.startNode = node;
-    this.arrowTo = new Coordinates([ev.clientX, ev.clientY]);
+    this.arrowTo = new Coordinates(ev);
 
     const fn1 = this.handleMouseMove.bind(this);
     const fn2 = this.handleMouseUp.bind(this);
@@ -61,7 +61,7 @@ export class NodesConnector {
   }
 
   protected handleMouseMove(ev: MouseEvent) {
-    this.arrowTo = new Coordinates(new Coordinates([ev.clientX, ev.clientY]));
+    this.arrowTo = new Coordinates(new Coordinates(ev));
 
     const box = this.diagram.canvas.elementDimensions;
 
