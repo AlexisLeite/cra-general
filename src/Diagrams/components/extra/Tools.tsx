@@ -2,7 +2,28 @@ import { observer } from 'mobx-react-lite';
 import { TfiRulerAlt } from 'react-icons/tfi';
 import { TfiHandDrag } from 'react-icons/tfi';
 import { TfiLayoutSidebarNone } from 'react-icons/tfi';
+import { PiGridFourThin } from 'react-icons/pi';
 import { Diagram } from '../../store/Diagram';
+import { SVGAttributes } from 'react';
+
+interface IconBaseProps extends SVGAttributes<SVGElement> {
+  size?: string | number;
+  color?: string;
+  title?: string;
+}
+const MiSnapToGrid = (props: IconBaseProps) => (
+  <svg
+    viewBox="0 0 256 256"
+    fill="currentColor"
+    height="1em"
+    width="1em"
+    {...props}
+  >
+    {props.title && <title>{props.title}</title>}
+    <path d="M200,44H56A12,12,0,0,0,44,56V200a12,12,0,0,0,12,12H200a12,12,0,0,0,12-12V56A12,12,0,0,0,200,44Zm4,12v68H132V52h68A4,4,0,0,1,204,56ZM56,52h68v72H52V56A4,4,0,0,1,56,52ZM52,200V132h72v72H56A4,4,0,0,1,52,200Zm148,4H132V132h72v68A4,4,0,0,1,200,204Z" />
+    <circle cx="50" cy="50" r="50" stroke="black" fill="black" />
+  </svg>
+);
 
 export const Tools = observer(() => {
   const d = Diagram.use();
@@ -14,18 +35,32 @@ export const Tools = observer(() => {
         onClick={() => {
           d.enableEvents();
         }}
+        title="Move"
       />
       <TfiLayoutSidebarNone
         className={`tool ${d.selector.selectionModeEnabled ? 'selected' : ''}`}
         onClick={() => {
           d.selector.enableSelectionMode();
         }}
+        title="Select"
       />
       <TfiRulerAlt
         className={`tool ${d.measurer.enabled ? 'selected' : ''}`}
         onClick={() => {
           d.measurer.enable();
         }}
+        title="Ruler"
+      />
+      <div className="separator"></div>
+      <PiGridFourThin
+        className={`tool ${d.showGrid ? 'selected' : ''}`}
+        onClick={() => d.toggleGrid()}
+        title="Show grid"
+      />
+      <MiSnapToGrid
+        className={`tool ${d.snapToGrid ? 'selected' : ''}`}
+        onClick={() => d.toggleSnapToGrid()}
+        title="Snap to grid"
       />
     </div>
   );

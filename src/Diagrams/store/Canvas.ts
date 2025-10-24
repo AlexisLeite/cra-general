@@ -6,6 +6,11 @@ import { Diagram } from './Diagram';
 import { EventEmitter } from '../util/EventEmitter';
 
 export type AnyMouseEvent = MV | MouseEvent;
+export type ScaleEvent = {
+  previousScale: number;
+  newScale: number;
+  displacement: Coordinates;
+};
 
 export class Canvas {
   protected _displacement: Coordinates = new Coordinates([-5000, -5000]);
@@ -16,7 +21,7 @@ export class Canvas {
     mouseMove: AnyMouseEvent;
     mouseUp: AnyMouseEvent;
     wheel: Event;
-    scale: { previousScale: number; newScale: number };
+    scale: ScaleEvent;
   }>();
 
   element: SVGElement | null = null;
@@ -36,7 +41,7 @@ export class Canvas {
     const box = this.element!.getBoundingClientRect();
     return new Dimensions([box.x, box.y, box.width, box.height]);
   }
-  get displacement(): Readonly<Coordinates> {
+  get displacement(): Coordinates {
     return this._displacement.copy();
   }
   get framePosition() {
@@ -189,12 +194,15 @@ export class Canvas {
           .substract(B_.copy().multiply(scale_))
           .divide(scale_);
 
+        const previous = this.displacement;
         this._displacement.assign(disp2);
+        this.bound();
 
         this.setDisplacementStyles();
         this.emitter.emit('scale', {
           previousScale: scale,
           newScale: this.scale,
+          displacement: this.displacement.copy().substract(previous),
         });
       }
     }
@@ -203,7 +211,7 @@ export class Canvas {
   /**
    * Given a pair of coordinates in the canvas, returns the matching coordinates in the screen
    */
-  fit<T extends Coordinates | Dimensions>(value: T): T {
+  fit<T extends Coordinates | Dimensions | number>(value: T): T {
     if (value instanceof Coordinates) {
       return this._displacement
         .copy()
@@ -211,11 +219,17 @@ export class Canvas {
         .multiply(this.scale) as T;
     }
 
-    return new Dimensions([
-      ...this._displacement.copy().sum([value.x, value.y]).multiply(this.scale)
-        .raw,
-      ...value.size.multiply(this.scale).raw,
-    ]) as T;
+    if (value instanceof Dimensions) {
+      return new Dimensions([
+        ...this._displacement
+          .copy()
+          .sum([value.x, value.y])
+          .multiply(this.scale).raw,
+        ...value.size.multiply(this.scale).raw,
+      ]) as T;
+    }
+
+    return ((value as number) * this.scale) as T;
   }
 
   /**

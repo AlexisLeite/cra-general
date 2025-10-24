@@ -3,7 +3,7 @@ import type { Dimensions } from './Dimensions';
 import type { AnyMouseEvent } from './Canvas';
 
 export class Coordinates {
-  _data: number[] = [];
+  protected _data: number[] = [];
 
   constructor(
     items?: AnyMouseEvent | Event | Coordinates | number[],
@@ -47,7 +47,7 @@ export class Coordinates {
     return new Coordinates([Math.abs(this.x), Math.abs(this.y)]);
   }
 
-  assign(this: Coordinates, another: Coordinates | [number, number]) {
+  assign(another: Coordinates | [number, number]) {
     if (another.length !== 2) {
       throw new Error('Invalid number of coordinates');
     }
@@ -64,7 +64,7 @@ export class Coordinates {
     return new Coordinates(this);
   }
 
-  divide(this: Coordinates, factor: number | Coordinates) {
+  divide(factor: number | Coordinates) {
     const x = factor instanceof Coordinates ? factor.x : factor;
     const y = factor instanceof Coordinates ? factor.y : factor;
 
@@ -113,7 +113,7 @@ export class Coordinates {
     };
   }
 
-  multiply(this: Coordinates, factor: number) {
+  multiply(factor: number) {
     this.set(0, this.get(0) * factor);
     this.set(1, this.get(1) * factor);
 
@@ -124,7 +124,7 @@ export class Coordinates {
     this._data[i] = value;
   }
 
-  substract(this: Coordinates, another: Coordinates | [number, number]) {
+  substract(another: Coordinates | [number, number]) {
     if (another.length !== 2) {
       throw new Error('Invalid number of coordinates');
     }
@@ -137,7 +137,7 @@ export class Coordinates {
     return this;
   }
 
-  sum(this: Coordinates, another: Coordinates | [number, number] | number) {
+  sum(another: Coordinates | [number, number] | number) {
     if (typeof another === 'number') {
       this.set(0, this.get(0) + another);
       this.set(1, this.get(1) + another);

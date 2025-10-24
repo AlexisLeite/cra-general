@@ -1,10 +1,9 @@
 import { observer } from 'mobx-react-lite';
-import { Diagram, Edge } from '../store/Diagram';
-import { RenderEdge } from './objects/RenderEdge';
-import { Svg } from './extra/Svg';
-import { Shape } from './objects/Shape';
-import { getRectPath } from '../util/shapes';
-import { Node } from '../store/Node';
+import { Diagram, Edge } from '../../store/Diagram';
+import { RenderEdge } from './RenderEdge';
+import { Shape } from './Shape';
+import { getRectPath } from '../../util/shapes';
+import { Node } from '../../store/Node';
 
 const NodeShape = observer(({ node }: { node: Node }) => {
   return (
@@ -36,7 +35,7 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
   );
 });
 
-const Shapes = observer(() => {
+export const Shapes = observer(() => {
   const d = Diagram.use();
   return (
     <>
@@ -54,14 +53,5 @@ const Shapes = observer(() => {
         <DiagramEdge edge={c} key={`${c.state.from.id}__${c.state.to.id}`} />
       ))}
     </>
-  );
-});
-
-export const NodesRenderer = observer(() => {
-  const d = Diagram.use();
-  return (
-    <Svg ref={d.canvas.useRef}>
-      <Shapes />
-    </Svg>
   );
 });

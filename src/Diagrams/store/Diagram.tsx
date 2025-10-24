@@ -36,22 +36,12 @@ export class Diagram {
   }>();
   protected _enableEvents = true;
 
-  protected disableEventDependantClasses() {
-    this.measurer.disable();
-    this.selector.disableSelectionMode();
-  }
-  public enableEvents() {
-    this._enableEvents = true;
-    this.disableEventDependantClasses();
-  }
-  public disableEvents() {
-    this._enableEvents = false;
-    this.disableEventDependantClasses();
-  }
-
-  public get eventsEnabled() {
+  get eventsEnabled() {
     return this._enableEvents;
   }
+
+  protected _showGrid = true;
+  protected _snapToGrid = true;
 
   connector = new NodesConnector(this);
   canvas = new Canvas(this);
@@ -63,7 +53,12 @@ export class Diagram {
   constructor() {
     makeObservable<
       Diagram,
-      '_enableEvents' | '_selectedNodes' | '_edges' | '_nodes'
+      | '_enableEvents'
+      | '_selectedNodes'
+      | '_edges'
+      | '_nodes'
+      | '_showGrid'
+      | '_snapToGrid'
     >(this, {
       _edges: observable,
       _nodes: observable,
@@ -72,6 +67,8 @@ export class Diagram {
       _enableEvents: observable,
       enableEvents: action,
       disableEvents: action,
+      _showGrid: observable,
+      _snapToGrid: observable,
     });
   }
 
@@ -110,6 +107,20 @@ export class Diagram {
     <DiagramContext.Provider value={this}>{children}</DiagramContext.Provider>
   );
 
+  protected disableEventDependantClasses() {
+    this.measurer.disable();
+    this.selector.disableSelectionMode();
+  }
+
+  enableEvents() {
+    this._enableEvents = true;
+    this.disableEventDependantClasses();
+  }
+
+  disableEvents() {
+    this._enableEvents = false;
+    this.disableEventDependantClasses();
+  }
   getNodeById(id: string) {
     return this._nodes.get(id);
   }
@@ -141,12 +152,27 @@ export class Diagram {
     }
   }
 
+  get showGrid() {
+    return this._showGrid;
+  }
+  get snapToGrid() {
+    return this._snapToGrid;
+  }
+
+  toggleGrid() {
+    this._showGrid = !this._showGrid;
+  }
+
   toggleNodeSelection(node: Node) {
     if (this._selectedNodes.has(node)) {
       this._selectedNodes.delete(node);
     } else {
       this._selectedNodes.add(node);
     }
+  }
+
+  toggleSnapToGrid() {
+    this._snapToGrid = !this._snapToGrid;
   }
 
   unselectNode(node: Node) {
