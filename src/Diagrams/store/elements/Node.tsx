@@ -1,9 +1,11 @@
 import { computed, makeObservable, observable } from 'mobx';
-import type { TNodeState } from './types';
-import { Dimensions } from './Dimensions';
-import { Coordinates } from './Coordinates';
-import type { Diagram, Edge } from './Diagram';
-import { EventEmitter } from '../util/EventEmitter';
+import type { TNodeState } from '../types';
+import { Dimensions } from '../primitives/Dimensions';
+import { Coordinates } from '../primitives/Coordinates';
+import type { Diagram } from '../Diagram';
+import { EventEmitter } from '../../util/EventEmitter';
+import { Edge } from '../elements/Edge';
+import { findBestPathBetweenNodes } from '../tools/paths/findBestPathBetweenNodes';
 
 export class Node {
   protected diagram: Diagram | null = null;
@@ -67,6 +69,8 @@ export class Node {
   }
 
   setPosition(c: Coordinates) {
+    const previousBox = this.state.box.copy();
+
     this.state.box
       .assignCoordinates(c)
       .bound(new Dimensions([0, 0, ...this.diagram!.canvas.size.raw]));
@@ -78,6 +82,23 @@ export class Node {
       this.state.box.y =
         Math.round(this.state.box.y / this.diagram.gridSize) *
         this.diagram.gridSize;
+
+      if (previousBox.substract(this.state.box).norm) {
+        this.updateEdges();
+      }
+    }
+  }
+
+  protected async updateEdges() {
+    for await (const edge of this.incomingEdges) {
+      edge.setSteps(
+        await findBestPathBetweenNodes(this.diagram!, edge.from, edge.to),
+      );
+    }
+    for await (const edge of this.outgoingEdges) {
+      edge.setSteps(
+        await findBestPathBetweenNodes(this.diagram!, edge.from, edge.to),
+      );
     }
   }
 

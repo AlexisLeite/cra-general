@@ -1,5 +1,5 @@
-import { Coordinates } from '../store/Coordinates';
-import { Dimensions } from '../store/Dimensions';
+import { Coordinates } from '../store/primitives/Coordinates';
+import { Dimensions } from '../store/primitives/Dimensions';
 import { svgPathBbox } from 'svg-path-bbox';
 
 export const getRectPath = (bound: Dimensions, r = 0): string => {

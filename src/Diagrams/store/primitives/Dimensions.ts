@@ -41,12 +41,20 @@ export class Dimensions {
     return new Coordinates(this.raw.slice(0, 2));
   }
 
+  get bottomMiddle() {
+    return new Coordinates([this.x + this.width / 2, this.y + this.height]);
+  }
+
   get leftMiddle() {
     return new Coordinates([this.x, this.y + this.height / 2]);
   }
 
   get rightMiddle() {
     return new Coordinates([this.x + this.width, this.y + this.height / 2]);
+  }
+
+  get topMiddle() {
+    return new Coordinates([this.x + this.width / 2, this.y]);
   }
 
   get size() {
@@ -87,6 +95,13 @@ export class Dimensions {
 
   get(i: number) {
     return this._data[i];
+  }
+
+  /**
+   * Diagonal norm
+   */
+  get norm() {
+    return this.size.substract(this.coordinates).norm;
   }
 
   get length() {
@@ -159,24 +174,29 @@ export class Dimensions {
   }
 
   collides(another: Dimensions | Coordinates) {
-    const leftA = Math.min(this.x, this.x + this.width);
-    const rightA = Math.max(this.x, this.x + this.width);
-    const topA = Math.min(this.y, this.y + this.height);
-    const bottomA = Math.max(this.y, this.y + this.height);
-
     if (another instanceof Dimensions) {
-      const leftB = Math.min(another.x, another.x + another.width);
-      const rightB = Math.max(another.x, another.x + another.width);
-      const topB = Math.min(another.y, another.y + another.height);
-      const bottomB = Math.max(another.y, another.y + another.height);
+      const leftA = this.x;
+      const rightA = this.x + this.width;
+      const topA = this.y;
+      const bottomA = this.y + this.height;
+
+      const leftB = another.x;
+      const rightB = another.x + another.width;
+      const topB = another.y;
+      const bottomB = another.y + another.height;
 
       return !(
-        rightA < leftB ||
-        rightB < leftA ||
-        bottomA < topB ||
-        bottomB < topA
+        rightA <= leftB ||
+        rightB <= leftA ||
+        bottomA <= topB ||
+        bottomB <= topA
       );
     } else {
+      const leftA = this.x;
+      const rightA = this.x + this.width;
+      const topA = this.y;
+      const bottomA = this.y + this.height;
+
       return (
         another.x >= leftA &&
         another.x <= rightA &&

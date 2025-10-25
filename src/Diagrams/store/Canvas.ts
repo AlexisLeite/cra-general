@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { MouseEvent as MV } from 'react';
-import { Coordinates } from './Coordinates';
-import { Dimensions } from './Dimensions';
+import { Coordinates } from './primitives/Coordinates';
+import { Dimensions } from './primitives/Dimensions';
 import { Diagram } from './Diagram';
 import { EventEmitter } from '../util/EventEmitter';
 

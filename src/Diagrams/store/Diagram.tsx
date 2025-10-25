@@ -1,29 +1,15 @@
-import { action, makeAutoObservable, makeObservable, observable } from 'mobx';
-import type { TEdgeState } from './types';
+import { action, makeObservable, observable } from 'mobx';
 import { createContext, ReactNode, useContext } from 'react';
 import { Canvas } from './Canvas';
-import type { Node } from './Node';
+import type { Node } from './elements/Node';
 import { EventEmitter } from '../util/EventEmitter';
-import { NodesConnector } from './NodesConnector';
-import { Coordinates } from './Coordinates';
+import { NodesConnector } from './tools/NodesConnector';
+import { Coordinates } from './primitives/Coordinates';
 import { Measurer } from './tools/Measurer';
 import { Selector } from './tools/Selector';
 import { Dragger } from './tools/Dragger';
 import { Hotkeys } from './tools/Hotkeys';
-
-export class Edge {
-  constructor(public state: TEdgeState) {
-    makeAutoObservable(this);
-  }
-
-  public get from() {
-    return this.state.from;
-  }
-
-  public get to() {
-    return this.state.to;
-  }
-}
+import { Edge } from './elements/Edge';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -104,6 +90,8 @@ export class Diagram {
     this._edges.push(edge);
     from.addOutgoingEdge(edge);
     to.addIncomingEdge(edge);
+
+    return edge;
   }
 
   Context = ({ children }: { children: ReactNode }) => (

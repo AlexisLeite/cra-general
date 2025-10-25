@@ -1,7 +1,7 @@
 import type { FC } from 'react';
-import type { Node } from './Node';
-import type { Dimensions } from './Dimensions';
-import type { Coordinates } from './Coordinates';
+import type { Node } from './elements/Node';
+import type { Dimensions } from './primitives/Dimensions';
+import type { Coordinates } from './primitives/Coordinates';
 
 export type TNodeState = {
   id: string;
@@ -22,3 +22,5 @@ export type TEdgeState = {
 
   steps: Coordinates[];
 };
+
+export type TDirection = 'up' | 'right' | 'down' | 'left';

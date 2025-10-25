@@ -1,5 +1,5 @@
 import React, { forwardRef, MouseEventHandler } from 'react';
-import { Coordinates } from '../../store/Coordinates';
+import { Coordinates } from '../../store/primitives/Coordinates';
 import { Diagram } from '../../store/Diagram';
 import { observer } from 'mobx-react-lite';
 
@@ -33,15 +33,10 @@ export interface ShapeProps {
   className?: string;
   roundedBorders?: boolean;
 
-  /** Texto centrado dentro del shape */
   label?: string;
-  /** Color del texto */
   labelColor?: string;
-  /** Tamaño de fuente (px) */
   labelFontSize?: number;
-  /** Familia tipográfica */
   labelFontFamily?: string;
-  /** Ajustes de posición del texto */
   labelOffset: Coordinates;
   onMouseDown?: MouseEventHandler<SVGGElement>;
   'data-id'?: string;

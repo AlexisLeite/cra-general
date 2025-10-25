@@ -7,7 +7,7 @@ export const ConnectorRenderer = observer(() => {
 
   const points = d.connector.arrowSteps;
 
-  if (!points) {
+  if (!points.length) {
     return null;
   }
 

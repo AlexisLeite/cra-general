@@ -12,8 +12,8 @@ export const Measurement = observer(() => {
   return (
     <RenderEdge
       points={d.measurer.get()}
-      startType="meassure"
-      endType="meassure"
+      startType="measure"
+      endType="measure"
       width={2}
       arrowSize={12}
       lineStyle="dotted"

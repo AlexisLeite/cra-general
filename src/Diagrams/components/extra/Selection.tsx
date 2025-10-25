@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { Shape } from '../objects/Shape';
 import { getRectPath } from '../../util/shapes';
-import { Coordinates } from '../../store/Coordinates';
+import { Coordinates } from '../../store/primitives/Coordinates';
 
 export const Selection = observer(() => {
   const d = Diagram.use();

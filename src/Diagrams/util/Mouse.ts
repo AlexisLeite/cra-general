@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import { Coordinates } from '../store/Coordinates';
+import { Coordinates } from '../store/primitives/Coordinates';
 
 export class Mouse {
   private static instance: Mouse | null = null;

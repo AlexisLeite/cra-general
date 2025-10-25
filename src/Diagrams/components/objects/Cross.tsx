@@ -1,4 +1,4 @@
-import type { Coordinates } from '../../store/Coordinates';
+import type { Coordinates } from '../../store/primitives/Coordinates';
 
 export interface RedCrossProps {
   coordinates: Coordinates;

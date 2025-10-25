@@ -1,11 +1,12 @@
 import { observer } from 'mobx-react-lite';
-import { Diagram, Edge } from '../../store/Diagram';
+import { Diagram } from '../../store/Diagram';
 import { RenderEdge } from './RenderEdge';
 import { Shape } from './Shape';
 import { getRectPath } from '../../util/shapes';
-import { Node } from '../../store/Node';
+import { Node } from '../../store/elements/Node';
+import { Edge } from '../../store/elements/Edge';
 
-const NodeShape = observer(({ node }: { node: Node }) => {
+const ShapeWrap = observer(({ node }: { node: Node }) => {
   return (
     <Shape
       key={node.id}
@@ -30,7 +31,10 @@ const NodeShape = observer(({ node }: { node: Node }) => {
 const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
   return (
     <RenderEdge
-      points={[edge.state.from.box.rightMiddle, edge.state.to.box.leftMiddle]}
+      points={edge.steps}
+      endType={edge.arrowHeadEnd}
+      startType={edge.arrowHeadStart}
+      lineStyle={edge.lineStyle}
     />
   );
 });
@@ -42,15 +46,15 @@ export const Shapes = observer(() => {
       {d.nodes
         .map((c) =>
           d.selectedNodes.find((s) => s === c) ? null : (
-            <NodeShape node={c} key={c.id} />
+            <ShapeWrap node={c} key={c.id} />
           ),
         )
         .filter(Boolean)}
       {d.selectedNodes.map((c) => (
-        <NodeShape node={c} key={c.id} />
+        <ShapeWrap node={c} key={c.id} />
       ))}
       {d.edges.map((c) => (
-        <DiagramEdge edge={c} key={`${c.state.from.id}__${c.state.to.id}`} />
+        <DiagramEdge edge={c} key={`${c.from.id}__${c.to.id}`} />
       ))}
     </>
   );

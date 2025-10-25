@@ -2,8 +2,8 @@ import { Diagram } from '../Diagram';
 
 import { makeAutoObservable } from 'mobx';
 import type { AnyMouseEvent, ScaleEvent } from '../Canvas';
-import type { Node } from '../Node';
-import { Coordinates } from '../Coordinates';
+import type { Node } from '../elements/Node';
+import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 
 /**

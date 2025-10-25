@@ -22,12 +22,12 @@ export const Grid = observer(() => {
         <Fragment key={`h_${p}`}>
           <path
             d={`M ${p} 0 L ${p} ${size}`}
-            stroke="#ccc"
+            stroke={p % 500 === 0 ? '#ccc' : '#eee'}
             strokeWidth={1}
           ></path>
           <path
             d={`M 0 ${p} L ${size} ${p}`}
-            stroke="#ccc"
+            stroke={p % 500 === 0 ? '#ccc' : '#eee'}
             strokeWidth={1}
           ></path>
         </Fragment>

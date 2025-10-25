@@ -9,7 +9,7 @@ import './index.scss';
 import { Measurement } from './extra/Measurement';
 import { Svg } from './extra/Svg';
 import { Cross } from './objects/Cross';
-import { Coordinates } from '../store/Coordinates';
+import { Coordinates } from '../store/primitives/Coordinates';
 import { Selection } from './extra/Selection';
 import { Shapes } from './objects/Shapes';
 import { Grid } from './objects/Grid';
@@ -18,7 +18,7 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
   return (
     <diagram.Context>
       <div className="canvas__frame">
-        <Svg ref={diagram.canvas.useRef}>
+        <Svg ref={diagram.canvas.useRef} shapeRendering="geometricPrecision">
           <Grid />
           <Shapes />
         </Svg>

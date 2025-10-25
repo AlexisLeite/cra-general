@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { AnyMouseEvent } from '../Canvas';
-import { Coordinates } from '../Coordinates';
+import { Coordinates } from '../primitives/Coordinates';
 
 export class Measurer {
   protected _enabled = false;

@@ -1,6 +1,20 @@
-import { makeAutoObservable, toJS } from 'mobx';
+import { makeObservable, toJS } from 'mobx';
 import type { Dimensions } from './Dimensions';
-import type { AnyMouseEvent } from './Canvas';
+import type { AnyMouseEvent } from '../Canvas';
+import { TDirection } from '../types';
+import type { DirectedPoint } from './DirectedPoint';
+
+async function getDirectedClass() {
+  return (await import('./DirectedPoint')).DirectedPoint;
+}
+
+let C: Awaited<ReturnType<typeof getDirectedClass>> = null as any;
+
+export interface TDirectedPoint {
+  x: number;
+  y: number;
+  direction: TDirection;
+}
 
 export class Coordinates {
   protected _data: number[] = [];
@@ -9,6 +23,12 @@ export class Coordinates {
     items?: AnyMouseEvent | Event | Coordinates | number[],
     observable = true,
   ) {
+    if (C === null) {
+      getDirectedClass().then((r) => {
+        C = r;
+      });
+    }
+
     if (!items) {
       items = [0, 0];
     }
@@ -31,7 +51,9 @@ export class Coordinates {
     }
 
     if (observable) {
-      makeAutoObservable(this);
+      makeObservable<Coordinates, '_data'>(this, {
+        _data: observable,
+      });
     }
   }
 
@@ -154,6 +176,12 @@ export class Coordinates {
     }
 
     return this;
+  }
+
+  toDirectedPoint(direction: TDirection): DirectedPoint {
+    const d = new C(this);
+    d.direction = direction;
+    return d;
   }
 
   get x() {

@@ -1,8 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { AnyMouseEvent } from '../Canvas';
-import { Coordinates } from '../Coordinates';
-import { Dimensions } from '../Dimensions';
+import { Coordinates } from '../primitives/Coordinates';
+import { Dimensions } from '../primitives/Dimensions';
 
 export class Selector {
   protected _selectionMode = false;

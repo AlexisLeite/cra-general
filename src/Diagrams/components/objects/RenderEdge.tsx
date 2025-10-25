@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import type { Coordinates } from '../../store/Coordinates';
+import type { Coordinates } from '../../store/primitives/Coordinates';
+import { EdgeArrowHead, EdgeLineStyle } from '../../store/elements/Edge';
 
 export interface ArrowPathProps {
   points: Coordinates[];
@@ -10,28 +11,10 @@ export interface ArrowPathProps {
 
   endStroke?: string;
   startStroke?: string;
-  /** Tipos de flecha */
-  startType?:
-    | 'none'
-    | 'arrow'
-    | 'triangle'
-    | 'triangle-filled'
-    | 'diamond'
-    | 'circle-small'
-    | 'circle-medium'
-    | 'meassure';
-  endType?:
-    | 'none'
-    | 'arrow'
-    | 'triangle'
-    | 'triangle-filled'
-    | 'diamond'
-    | 'circle-small'
-    | 'circle-medium'
-    | 'meassure';
+  startType?: EdgeArrowHead;
+  endType?: EdgeArrowHead;
 
-  /** Tipos de trazo */
-  lineStyle?: 'solid' | 'dashed' | 'dotted';
+  lineStyle?: EdgeLineStyle;
 }
 
 export const RenderEdge: React.FC<ArrowPathProps> = ({
@@ -194,7 +177,7 @@ export const RenderEdge: React.FC<ArrowPathProps> = ({
           </marker>
         );
 
-      case 'meassure':
+      case 'measure':
         return (
           <marker
             id={id}
