@@ -62,59 +62,50 @@ export class Dragger {
       }
     }
   }
+
+  private calcDisplacement(distanceFromEdge: number) {
+    return ((100 - distanceFromEdge) / 10) ** 2;
+  }
+
   protected handleDragInterval() {
     const mouse = Mouse.getInstance().coordinates;
 
     if (this.draggingNodes.length) {
       if (mouse.x < this.diagram.canvas.frameDimensions.x + 100) {
-        const diff =
-          20 *
-          Math.log(this.diagram.canvas.frameDimensions.x + 100 - mouse.x + 1);
+        const diff = this.calcDisplacement(
+          mouse.x - this.diagram.canvas.frameDimensions.x,
+        );
         this.diagram.canvas.displace(new Coordinates([diff, 0]));
-        // this.startPoint.sum(displaced.multiply(this.diagram.canvas.scale));
       } else if (
         mouse.x >
         this.diagram.canvas.frameDimensions.x +
           this.diagram.canvas.frameDimensions.width -
           100
       ) {
-        const diff =
-          20 *
-          Math.log(
-            mouse.x -
-              (this.diagram.canvas.frameDimensions.x +
-                this.diagram.canvas.frameDimensions.width -
-                100) +
-              1,
-          );
+        const diff = this.calcDisplacement(
+          this.diagram.canvas.frameDimensions.x +
+            this.diagram.canvas.frameDimensions.width -
+            mouse.x,
+        );
         this.diagram.canvas.displace(new Coordinates([-diff, 0]));
-        // this.startPoint.sum(displaced.multiply(this.diagram.canvas.scale));
       }
       if (mouse.y < this.diagram.canvas.frameDimensions.y + 100) {
-        const diff =
-          20 *
-          Math.log(this.diagram.canvas.frameDimensions.y + 100 - mouse.y + 1);
+        const diff = this.calcDisplacement(
+          mouse.y - this.diagram.canvas.frameDimensions.y,
+        );
         this.diagram.canvas.displace(new Coordinates([0, diff]));
-        // this.startPoint.sum(
-        //   new Coordinates(displaced).multiply(this.diagram.canvas.scale),
-        // );
       } else if (
         mouse.y >
         this.diagram.canvas.frameDimensions.y +
           this.diagram.canvas.frameDimensions.height -
           100
       ) {
-        const diff =
-          20 *
-          Math.log(
-            mouse.y -
-              (this.diagram.canvas.frameDimensions.y +
-                this.diagram.canvas.frameDimensions.height -
-                100) +
-              1,
-          );
+        const diff = this.calcDisplacement(
+          this.diagram.canvas.frameDimensions.y +
+            this.diagram.canvas.frameDimensions.height -
+            mouse.y,
+        );
         this.diagram.canvas.displace(new Coordinates([0, -diff]));
-        // this.startPoint.sum(displaced.multiply(this.diagram.canvas.scale));
       }
 
       /**
@@ -133,8 +124,6 @@ export class Dragger {
       const compensation = this.startPointScaled
         .copy()
         .substract(rescaledStartPoint);
-
-      console.log('compensation', compensation.toString());
 
       this.draggingNodes.forEach((c) => {
         c.node.setPosition(
