@@ -1,4 +1,4 @@
-import { makeObservable, toJS } from 'mobx';
+import { action, makeObservable, toJS } from 'mobx';
 import { Dimensions } from './Dimensions';
 import type { AnyMouseEvent } from '../Canvas';
 import { TDirection } from '../types';
@@ -53,6 +53,7 @@ export class Coordinates {
     if (observable) {
       makeObservable<Coordinates, '_data'>(this, {
         _data: observable,
+        set: action,
       });
     }
   }

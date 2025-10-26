@@ -10,6 +10,7 @@ export type TNodeState = {
   box: Dimensions;
   label: string;
 } & Partial<{
+  edition: boolean;
   movable: boolean;
   Renderer: FC<{ node: Node }>;
   selectable: boolean;

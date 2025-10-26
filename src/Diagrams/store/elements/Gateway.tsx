@@ -4,6 +4,7 @@ import type { Edge } from './Edge';
 import type { Node } from './Node';
 import { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
+import { makeAutoObservable } from 'mobx';
 
 export class Gateway {
   protected state: TGatewayState;
@@ -26,6 +27,8 @@ export class Gateway {
       position: new Coordinates(),
       ...state,
     };
+
+    makeAutoObservable(this);
   }
 
   canConnect(from: Gateway): boolean {
@@ -37,8 +40,8 @@ export class Gateway {
   }
 
   addOutgoingEdge(edge: Edge) {
-    this.updateEdges();
     this.state.outgoingEdges.push(edge);
+    this.updateEdges();
   }
 
   get coordinates() {
@@ -66,6 +69,10 @@ export class Gateway {
 
   get radius() {
     return this.state.radius;
+  }
+
+  get relativePosition() {
+    return this.state.position.copy();
   }
 
   get stroke() {

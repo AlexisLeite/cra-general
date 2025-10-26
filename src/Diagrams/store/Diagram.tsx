@@ -17,6 +17,8 @@ import { Dragger } from './tools/Dragger';
 import { Hotkeys } from './tools/Hotkeys';
 import { Edge } from './elements/Edge';
 import { Gateway } from './elements/Gateway';
+import { Creator } from './tools/Creator';
+import { TextNode } from './elements/TextNode';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -44,8 +46,9 @@ export class Diagram {
   protected _showGrid = true;
   protected _snapToGrid = true;
 
-  connector = new NodesConnector(this);
   canvas = new Canvas(this);
+  creator = new Creator(this);
+  connector = new NodesConnector(this);
   dragger = new Dragger(this);
   hotkeys = new Hotkeys(this);
   measurer = new Measurer(this);
@@ -55,6 +58,7 @@ export class Diagram {
     Diagram.registerClass(Node);
     Diagram.registerClass(Edge);
     Diagram.registerClass(Gateway);
+    Diagram.registerClass(TextNode);
 
     makeObservable<
       Diagram,
@@ -79,7 +83,7 @@ export class Diagram {
   }
 
   get edges(): Readonly<Edge[]> {
-    return [...this.nodes.values()].reduce<Edge[]>(
+    const edges = [...this._nodes.values()].reduce<Edge[]>(
       (acc, cur) => [
         ...acc,
         ...[...cur.gateways.values()].reduce<Edge[]>(
@@ -89,6 +93,8 @@ export class Diagram {
       ],
       [],
     );
+    console.log({ edges });
+    return edges;
   }
 
   get nodes(): Readonly<Node[]> {

@@ -92,7 +92,7 @@ export class NodesConnector {
         bestPath = await findBestPathBetweenNodes(
           this.diagram,
           this.startGateway!,
-          fakeNode.getGateway('left')!,
+          fakeNode.getGateway('down')!,
         );
       }
 

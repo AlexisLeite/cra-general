@@ -1,4 +1,4 @@
-import { computed, makeObservable, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import type { TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
@@ -6,7 +6,7 @@ import { Diagram } from '../Diagram';
 import { EventEmitter } from '../../util/EventEmitter';
 import { Gateway } from './Gateway';
 
-export class Node<Gateways = 'left' | 'right' | 'top' | 'bottom'> {
+export class Node<Gateways = 'left' | 'right' | 'top' | 'down'> {
   diagram: Diagram | null = null;
   protected emitter = new EventEmitter<{
     select: Node;
@@ -31,8 +31,13 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'bottom'> {
       state: observable,
       selected: computed,
       _gateways: observable,
+      toggleEdition: action,
     });
 
+    this.initializeGateways();
+  }
+
+  protected initializeGateways() {
     this._gateways.set(
       'left' as Gateways,
       new Gateway(this, {
@@ -54,7 +59,7 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'bottom'> {
       }),
     );
     this._gateways.set(
-      'top' as Gateways,
+      'up' as Gateways,
       new Gateway(this, {
         maxIncomingConnections: Infinity,
         maxOutgoingConnections: Infinity,
@@ -64,7 +69,7 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'bottom'> {
       }),
     );
     this._gateways.set(
-      'bottom' as Gateways,
+      'down' as Gateways,
       new Gateway(this, {
         maxIncomingConnections: Infinity,
         maxOutgoingConnections: Infinity,
@@ -126,6 +131,10 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'bottom'> {
         this._gateways.values().forEach((c) => c.updateEdges());
       }
     }
+  }
+
+  toggleEdition(edition?: boolean) {
+    this.state.edition = edition ?? !this.state.edition;
   }
 
   useRef(el: SVGElement | null) {

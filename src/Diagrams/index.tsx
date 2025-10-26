@@ -4,6 +4,8 @@ import { Dimensions } from './store/primitives/Dimensions';
 import { Node } from './store/elements/Node';
 import { Coordinates } from './store/primitives/Coordinates';
 
+import json from '../saves/temp.json';
+
 const d = new Diagram();
 (window as any).d = d;
 
@@ -113,8 +115,11 @@ export function cincoEnCuadrado() {
     c.displace(new Coordinates([5800, 5200]));
   });
 }
+export async function restoreSaved() {
+  d.import(JSON.stringify(json as any));
+}
 
-extremosYCuadricula();
+// extremosYCuadricula();
 
 export const Diagrams = () => {
   return (
@@ -124,6 +129,7 @@ export const Diagrams = () => {
         ref={(el) => {
           if (el) {
             d.canvas.setScale(0.4);
+            restoreSaved();
             window.requestAnimationFrame(() => {
               // d.canvas.centerOnPoint(
               //   d

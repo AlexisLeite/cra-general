@@ -19,13 +19,17 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
             fill: '#ffffff',
           },
         ]}
-        className={`${node.selected ? 'selected' : ''} diagram__node`}
+        className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
         label={node.state.label}
         labelOffset={node.coordinates.sum(node.box.size.half)}
         labelFontSize={14}
         ref={node.useRef.bind(node)}
         selected={node.selected}
         data-id={node.id}
+        onDoubleClick={(ev) => {
+          ev.stopPropagation();
+          node.toggleEdition();
+        }}
       />
       {node.gateways.map((c) => {
         return <GatewayRender key={c.id} gateway={c} />;
