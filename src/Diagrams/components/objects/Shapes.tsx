@@ -5,26 +5,32 @@ import { Shape } from './Shape';
 import { getRectPath } from '../../util/shapes';
 import { Node } from '../../store/elements/Node';
 import { Edge } from '../../store/elements/Edge';
+import { GatewayRender } from '../extra/GatewayRender';
 
 const ShapeWrap = observer(({ node }: { node: Node }) => {
   return (
-    <Shape
-      key={node.id}
-      paths={[
-        {
-          d: getRectPath(node.box, 10),
-          strokeWidth: 3,
-          fill: '#ffffff',
-        },
-      ]}
-      className={`${node.selected ? 'selected' : ''} diagram__node`}
-      label={node.state.label}
-      labelOffset={node.coordinates.sum(node.box.size.half)}
-      labelFontSize={14}
-      ref={node.useRef.bind(node)}
-      selected={node.selected}
-      data-id={node.id}
-    />
+    <>
+      <Shape
+        key={node.id}
+        paths={[
+          {
+            d: getRectPath(node.box, 10),
+            strokeWidth: 3,
+            fill: '#ffffff',
+          },
+        ]}
+        className={`${node.selected ? 'selected' : ''} diagram__node`}
+        label={node.state.label}
+        labelOffset={node.coordinates.sum(node.box.size.half)}
+        labelFontSize={14}
+        ref={node.useRef.bind(node)}
+        selected={node.selected}
+        data-id={node.id}
+      />
+      {node.gateways.map((c) => {
+        return <GatewayRender key={c.id} gateway={c} />;
+      })}
+    </>
   );
 });
 
@@ -55,7 +61,7 @@ export const Shapes = observer(() => {
         <ShapeWrap node={c} key={c.id} />
       ))}
       {d.edges.map((c) => (
-        <DiagramEdge edge={c} key={`${c.from.id}__${c.to.id}`} />
+        <DiagramEdge edge={c} key={c.id} />
       ))}
     </>
   );

@@ -140,7 +140,7 @@ export class Dimensions {
     this: Dimensions,
     another: Dimensions | [number, number, number, number],
   ) {
-    if (another.length !== 2) {
+    if (another.length !== 4) {
       throw new Error('Invalid number of Dimensions');
     }
 

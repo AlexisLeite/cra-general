@@ -8,7 +8,8 @@ import {
   Path,
 } from './paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
-import { TDirection } from '../types';
+import type { Gateway } from '../elements/Gateway';
+import { reducePath } from './paths/reducePath';
 
 export class NodesConnector {
   constructor(public diagram: Diagram) {
@@ -16,28 +17,27 @@ export class NodesConnector {
       NodesConnector,
       | 'arrowTo'
       | 'handleMouseMove'
-      | 'startNode'
-      | 'candidateNode'
+      | 'startGateway'
+      | 'candidateGateway'
       | 'handleMouseUp'
       | '_arrowSteps'
     >(this, {
       _arrowSteps: observable,
       arrowTo: observable,
-      candidateNode: observable,
+      candidateGateway: observable,
       startConnectionFrom: action,
       handleMouseMove: action,
-      startNode: observable,
+      startGateway: observable,
       handleMouseUp: action,
     });
   }
 
   protected arrowTo: Coordinates | null = null;
-  protected startNode: Node | null = null;
-  candidateNode: Node | null = null;
-  candidateGate: TDirection | null = null;
+  protected startGateway: Gateway | null = null;
+  protected candidateGateway: Gateway | null = null;
 
   protected previousArrowTo: Coordinates | null = null;
-  protected previousCandidateNode: Node | null = null;
+  protected previousCandidateGateway: Gateway | null = null;
 
   protected _arrowSteps: Coordinates[] = [];
   public get arrowSteps() {
@@ -53,9 +53,9 @@ export class NodesConnector {
     this.calculating = true;
     try {
       if (
-        !this.startNode ||
-        (this.candidateNode &&
-          this.previousCandidateNode === this.candidateNode)
+        !this.startGateway ||
+        (this.candidateGateway &&
+          this.previousCandidateGateway === this.candidateGateway)
       ) {
         return;
       }
@@ -64,7 +64,7 @@ export class NodesConnector {
         .inverseFit(this.arrowTo)
         .divide(this.diagram.gridSize / 2).round;
 
-      if (!this.candidateNode && this.previousArrowTo) {
+      if (!this.candidateGateway && this.previousArrowTo) {
         if (arrowTo.copy().substract(this.previousArrowTo).norm < 1) {
           return;
         }
@@ -72,12 +72,11 @@ export class NodesConnector {
 
       let bestPath: Path | null = null;
 
-      if (this.candidateNode) {
+      if (this.candidateGateway) {
         bestPath = await findBestPathBetweenNodes(
           this.diagram,
-          this.startNode!,
-          this.candidateNode!,
-          this.candidateGate || undefined,
+          this.startGateway!,
+          this.candidateGateway!,
         );
       } else {
         const fakeNode = new Node({
@@ -92,13 +91,13 @@ export class NodesConnector {
 
         bestPath = await findBestPathBetweenNodes(
           this.diagram,
-          this.startNode!,
-          fakeNode,
+          this.startGateway!,
+          fakeNode.getGateway('left')!,
         );
       }
 
       runInAction(() => {
-        if (this.startNode) {
+        if (this.startGateway) {
           this._arrowSteps = bestPath.map((c) =>
             this.diagram.canvas.fit(new Coordinates([c.x, c.y])),
           );
@@ -110,9 +109,9 @@ export class NodesConnector {
   }
 
   protected unsubscribeEvents = () => {};
-  startConnectionFrom(node: Node, ev: RMEv) {
+  startConnectionFrom(gateway: Gateway, ev: RMEv) {
     ev.nativeEvent.stopImmediatePropagation();
-    this.startNode = node;
+    this.startGateway = gateway;
     this.arrowTo = new Coordinates(ev);
 
     const fn1 = this.handleMouseMove.bind(this);
@@ -148,101 +147,53 @@ export class NodesConnector {
       this.diagram.canvas.displace(displacement);
     }
 
-    for (const node of this.diagram.nodes) {
+    for (const node of this.diagram.nodes.reduce<Gateway[]>(
+      (acc, cur) => [...acc, ...cur.gateways],
+      [],
+    )) {
       const arrowOnPlane = this.diagram.canvas.inverseFit(this.arrowTo);
       if (
-        node.box
+        node !== this.startGateway &&
+        node.coordinates
+          .toDimensions(new Coordinates([20, 20]))
           .copy()
-          .translate(new Coordinates([-20, -20]))
-          .scale(new Coordinates([40, 40]))
-          .collides(arrowOnPlane) &&
-        node !== this.startNode
+          .translate(new Coordinates([-10, -10]))
+          .collides(arrowOnPlane)
       ) {
-        this.candidateNode = node;
+        this.candidateGateway = node;
         this.calculateArrowSteps();
-
-        if (arrowOnPlane.copy().substract(node.box.leftMiddle).norm < 20) {
-          this.candidateGate = 'left';
-        } else if (
-          arrowOnPlane.copy().substract(node.box.rightMiddle).norm < 20
-        ) {
-          this.candidateGate = 'right';
-        } else if (
-          arrowOnPlane.copy().substract(node.box.topMiddle).norm < 20
-        ) {
-          this.candidateGate = 'up';
-        } else if (
-          arrowOnPlane.copy().substract(node.box.bottomMiddle).norm < 20
-        ) {
-          this.candidateGate = 'down';
-        } else {
-          this.candidateGate = null;
-        }
 
         return;
       }
     }
 
-    this.candidateNode = null;
+    this.candidateGateway = null;
     this.calculateArrowSteps();
   }
 
   protected handleMouseUp() {
     try {
       if (
-        this.candidateNode &&
-        this.startNode &&
-        this.candidateNode.canConnect(this.startNode) &&
+        this.candidateGateway &&
+        this.startGateway &&
+        this.candidateGateway.canConnect(this.startGateway) &&
         this.arrowSteps.length
       ) {
-        const edge = this.diagram.connect(this.startNode, this.candidateNode);
-        const simplified = this.simplifyToCorners(this.arrowSteps);
+        const edge = this.diagram.connect(
+          this.startGateway,
+          this.candidateGateway,
+        );
+        const simplified = reducePath(this.arrowSteps);
         edge.setSteps(simplified.map((c) => this.diagram.canvas.inverseFit(c)));
       }
     } finally {
-      console.log('Up');
-
       this._arrowSteps = [];
-      this.startNode = null;
+      this.startGateway = null;
       this.arrowTo = null;
-      this.candidateNode = null;
+      this.candidateGateway = null;
       this.previousArrowTo = null;
-      this.previousCandidateNode = null;
-
+      this.previousCandidateGateway = null;
       this.unsubscribeEvents();
     }
-  }
-
-  // Reduce a per-cell step path to only corner points (axis-aligned polyline)
-  protected simplifyToCorners(points: Coordinates[]): Coordinates[] {
-    if (points.length <= 2) return [...points];
-
-    const out: Coordinates[] = [];
-    const eq = (a: Coordinates, b: Coordinates) => a.x === b.x && a.y === b.y;
-
-    // Always keep the first point
-    out.push(points[0]);
-
-    for (let i = 1; i < points.length - 1; i++) {
-      const a = out[out.length - 1];
-      const b = points[i];
-      const c = points[i + 1];
-
-      // Drop duplicates
-      if (eq(b, a)) continue;
-
-      // If a, b, c are collinear horizontally or vertically, b is redundant
-      const collinear =
-        (a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y);
-      if (collinear) continue;
-
-      out.push(b);
-    }
-
-    // Always keep the last point
-    const last = points[points.length - 1];
-    if (!eq(last, out[out.length - 1])) out.push(last);
-
-    return out;
   }
 }

@@ -5,6 +5,10 @@ import { TfiLayoutSidebarNone } from 'react-icons/tfi';
 import { PiGridFourThin } from 'react-icons/pi';
 import { Diagram } from '../../store/Diagram';
 import { SVGAttributes } from 'react';
+import { TfiSaveAlt } from 'react-icons/tfi';
+import { downloadFile } from '../../store/tools/downloadFile';
+import { PiFolder } from 'react-icons/pi';
+import { readFile } from '../../store/tools/readFile';
 
 interface IconBaseProps extends SVGAttributes<SVGElement> {
   size?: string | number;
@@ -61,6 +65,22 @@ export const Tools = observer(() => {
         className={`tool ${d.snapToGrid ? 'selected' : ''}`}
         onClick={() => d.toggleSnapToGrid()}
         title="Snap to grid"
+      />
+      <div className="separator"></div>
+      <TfiSaveAlt
+        className={`tool`}
+        onClick={() => {
+          downloadFile(d.export(), 'diagram-save.json', 'application/json');
+        }}
+        title="Download"
+      />
+      <PiFolder
+        className={`tool`}
+        onClick={async () => {
+          const content = await readFile();
+          if (content) d.import(content);
+        }}
+        title="Open"
       />
     </div>
   );

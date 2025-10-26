@@ -14,7 +14,7 @@ export type ScaleEvent = {
 
 export class Canvas {
   protected _displacement: Coordinates = new Coordinates([-5000, -5000]);
-  scale: number = 1;
+  _scale: number = 1;
   size = new Coordinates([10000, 10000]);
   protected emitter = new EventEmitter<{
     mouseDown: AnyMouseEvent;
@@ -23,6 +23,10 @@ export class Canvas {
     wheel: Event;
     scale: ScaleEvent;
   }>();
+
+  get scale() {
+    return this._scale;
+  }
 
   element: SVGElement | null = null;
   get elementPosition() {
@@ -101,6 +105,14 @@ export class Canvas {
     this._displacement.bound(bounds);
   }
 
+  centerOnPoint(c: Coordinates) {
+    const screenFitted = this.frameDimensions.multiply(1 / this.scale);
+    this.setDisplacement(c.copy().substract(screenFitted.middle).multiply(-1));
+  }
+
+  /**
+   * @returns how much it displaced
+   */
   displace(c: Coordinates) {
     this._displacement.sum(c);
     const previous = this._displacement.copy();
@@ -171,40 +183,49 @@ export class Canvas {
     if (!ev.defaultPrevented) {
       ev.preventDefault();
 
-      const B = this.inverseFit(new Coordinates(ev));
-      const B_ = B.copy();
-      const scale = this.scale;
-      const disp = this.displacement;
-
-      this.scale = Math.max(
-        0.05,
-        Math.min(
-          3,
-          this.scale -
-            (ev as WheelEvent).deltaY / (this.scale > 0.2 ? 1000 : 10000),
-        ),
+      this.setScale(
+        this.scale -
+          (ev as WheelEvent).deltaY / (this.scale > 0.2 ? 1000 : 10000),
+        new Coordinates(ev),
       );
+    }
+  }
 
-      if (scale !== this.scale) {
-        const scale_ = this.scale;
+  setDisplacement(c: Coordinates) {
+    this._displacement.assign(c);
+    this.bound();
+  }
 
-        const disp2 = B.copy()
-          .multiply(scale)
-          .sum(disp.multiply(scale))
-          .substract(B_.copy().multiply(scale_))
-          .divide(scale_);
+  setScale(
+    newScale: number,
+    zoomCenter: Coordinates = new Coordinates([0, 0]),
+  ) {
+    const B = this.inverseFit(zoomCenter);
+    const B_ = B.copy();
+    const scale = this.scale;
+    const disp = this.displacement;
 
-        const previous = this.displacement;
-        this._displacement.assign(disp2);
-        this.bound();
+    this._scale = Math.max(0.05, Math.min(3, newScale));
 
-        this.setDisplacementStyles();
-        this.emitter.emit('scale', {
-          previousScale: scale,
-          newScale: this.scale,
-          displacement: this.displacement.copy().substract(previous),
-        });
-      }
+    if (scale !== this.scale) {
+      const scale_ = this.scale;
+
+      const disp2 = B.copy()
+        .multiply(scale)
+        .sum(disp.multiply(scale))
+        .substract(B_.copy().multiply(scale_))
+        .divide(scale_);
+
+      const previous = this.displacement;
+      this._displacement.assign(disp2);
+      this.bound();
+
+      this.setDisplacementStyles();
+      this.emitter.emit('scale', {
+        previousScale: scale,
+        newScale: this.scale,
+        displacement: this.displacement.copy().substract(previous),
+      });
     }
   }
 

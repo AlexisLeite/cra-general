@@ -2,18 +2,16 @@ import { computed, makeObservable, observable } from 'mobx';
 import type { TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
-import type { Diagram } from '../Diagram';
+import { Diagram } from '../Diagram';
 import { EventEmitter } from '../../util/EventEmitter';
-import { Edge } from '../elements/Edge';
-import { findBestPathBetweenNodes } from '../tools/paths/findBestPathBetweenNodes';
+import { Gateway } from './Gateway';
 
-export class Node {
-  protected diagram: Diagram | null = null;
+export class Node<Gateways = 'left' | 'right' | 'top' | 'bottom'> {
+  diagram: Diagram | null = null;
   protected emitter = new EventEmitter<{
     select: Node;
   }>();
-  incomingEdges: Edge[] = [];
-  outgoingEdges: Edge[] = [];
+  protected _gateways = new Map<Gateways, Gateway>();
   public ref: SVGElement | null = null;
   public state: TNodeState;
 
@@ -26,28 +24,55 @@ export class Node {
   ) {
     this.state = {
       ...state,
-      box: state.box ?? new Dimensions([100, 80]),
+      box: state.box ?? new Dimensions([0, 0, 100, 80]),
     };
 
-    makeObservable<Node>(this, {
-      incomingEdges: observable,
-      outgoingEdges: observable,
+    makeObservable<Node<any>, '_gateways'>(this, {
       state: observable,
       selected: computed,
+      _gateways: observable,
     });
-  }
 
-  canConnect(from: Node): boolean {
-    return !from.outgoingEdges.find((c) => c.to === this);
-  }
-
-  addIncomingEdge(edge: Edge) {
-    this.incomingEdges.push(edge);
-  }
-
-  addOutgoingEdge(edge: Edge) {
-    this.outgoingEdges.push(edge);
-    this.updateEdges();
+    this._gateways.set(
+      'left' as Gateways,
+      new Gateway(this, {
+        maxIncomingConnections: Infinity,
+        maxOutgoingConnections: Infinity,
+        id: 'left',
+        orientation: 'left',
+        position: new Coordinates([0, 0.5]),
+      }),
+    );
+    this._gateways.set(
+      'right' as Gateways,
+      new Gateway(this, {
+        maxIncomingConnections: Infinity,
+        maxOutgoingConnections: Infinity,
+        id: 'right',
+        orientation: 'right',
+        position: new Coordinates([1, 0.5]),
+      }),
+    );
+    this._gateways.set(
+      'top' as Gateways,
+      new Gateway(this, {
+        maxIncomingConnections: Infinity,
+        maxOutgoingConnections: Infinity,
+        id: 'up',
+        orientation: 'up',
+        position: new Coordinates([0.5, 0]),
+      }),
+    );
+    this._gateways.set(
+      'bottom' as Gateways,
+      new Gateway(this, {
+        maxIncomingConnections: Infinity,
+        maxOutgoingConnections: Infinity,
+        id: 'down',
+        orientation: 'down',
+        position: new Coordinates([0.5, 1]),
+      }),
+    );
   }
 
   public get box() {
@@ -56,14 +81,27 @@ export class Node {
   public get coordinates() {
     return this.box.coordinates;
   }
+
+  displace(howMuch: Coordinates) {
+    this.state.box.sum([...howMuch.raw, 0, 0]);
+  }
+
   public get id() {
     return this.state.id;
+  }
+
+  public get gateways() {
+    return [...this._gateways.values()];
   }
 
   protected dragEventMouseStartPosition: Coordinates | null = null;
   protected dragEventStartPosition: Coordinates | null = null;
 
   on = this.emitter.on.bind(this.emitter);
+
+  getGateway(which: Gateways) {
+    return this._gateways.get(which);
+  }
 
   setDiagram(d: Diagram) {
     this.diagram = d;
@@ -85,25 +123,57 @@ export class Node {
         this.diagram.gridSize;
 
       if (previousBox.substract(this.state.box).norm) {
-        this.updateEdges();
+        this._gateways.values().forEach((c) => c.updateEdges());
       }
-    }
-  }
-
-  protected async updateEdges() {
-    for await (const edge of this.incomingEdges) {
-      edge.setSteps(
-        await findBestPathBetweenNodes(this.diagram!, edge.from, edge.to),
-      );
-    }
-    for await (const edge of this.outgoingEdges) {
-      edge.setSteps(
-        await findBestPathBetweenNodes(this.diagram!, edge.from, edge.to),
-      );
     }
   }
 
   useRef(el: SVGElement | null) {
     this.ref = el;
+  }
+
+  deserialize(o: ReturnType<(typeof this)['serialize']>) {
+    this.state.box.assign(o.box);
+    this.state.id = o.id;
+    this.state.label = o.label;
+    this.state.movable = o.movable;
+    this.state.selectable = o.selectable;
+
+    this._gateways.clear();
+
+    o.gateways.forEach((c) => {
+      this._gateways.set(
+        c.id as any,
+        new (Diagram.getClass(c.class))(this, {
+          id: c.id,
+        }) as Gateway,
+      );
+    });
+    o.gateways.forEach((c) => {
+      this._gateways.get(c.id as any)?.deserialize(c);
+    });
+  }
+
+  serialize() {
+    const {
+      box: { raw: box },
+      id,
+      label,
+      movable,
+      selectable,
+    } = this.state;
+    const gateways = this.gateways.map((g) => {
+      return g.serialize();
+    });
+
+    return {
+      box,
+      id,
+      label,
+      movable,
+      selectable,
+      gateways,
+      class: this.constructor.name,
+    };
   }
 }

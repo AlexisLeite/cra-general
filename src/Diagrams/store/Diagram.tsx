@@ -1,7 +1,13 @@
-import { action, makeObservable, observable } from 'mobx';
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from 'mobx';
 import { createContext, ReactNode, useContext } from 'react';
 import { Canvas } from './Canvas';
-import type { Node } from './elements/Node';
+import { Node } from './elements/Node';
 import { EventEmitter } from '../util/EventEmitter';
 import { NodesConnector } from './tools/NodesConnector';
 import { Coordinates } from './primitives/Coordinates';
@@ -10,11 +16,19 @@ import { Selector } from './tools/Selector';
 import { Dragger } from './tools/Dragger';
 import { Hotkeys } from './tools/Hotkeys';
 import { Edge } from './elements/Edge';
+import { Gateway } from './elements/Gateway';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
 export class Diagram {
-  protected _edges: Edge[] = [];
+  private static knownClasses = new Map<string, any>();
+  static getClass(name: string) {
+    return this.knownClasses.get(name);
+  }
+  static registerClass(clazz: any) {
+    this.knownClasses.set(clazz.name, clazz);
+  }
+
   protected _nodes = new Map<string, Node>();
   protected _selectedNodes = new Set<Node>();
   protected emitter = new EventEmitter<{
@@ -38,17 +52,20 @@ export class Diagram {
   selector = new Selector(this);
 
   constructor() {
+    Diagram.registerClass(Node);
+    Diagram.registerClass(Edge);
+    Diagram.registerClass(Gateway);
+
     makeObservable<
       Diagram,
       | '_enableEvents'
       | '_selectedNodes'
-      | '_edges'
       | '_nodes'
       | '_showGrid'
       | '_snapToGrid'
       | '_gridSize'
     >(this, {
-      _edges: observable,
+      edges: computed,
       _nodes: observable,
       _selectedNodes: observable,
       selectNode: action,
@@ -62,7 +79,16 @@ export class Diagram {
   }
 
   get edges(): Readonly<Edge[]> {
-    return [...this._edges.values()];
+    return [...this.nodes.values()].reduce<Edge[]>(
+      (acc, cur) => [
+        ...acc,
+        ...[...cur.gateways.values()].reduce<Edge[]>(
+          (acc2, cur2) => [...acc2, ...cur2.outgoingEdges],
+          [],
+        ),
+      ],
+      [],
+    );
   }
 
   get nodes(): Readonly<Node[]> {
@@ -76,9 +102,11 @@ export class Diagram {
       this.emitter.emit('select', node);
     });
     this._nodes.set(node.id, node);
+
+    return node;
   }
 
-  connect(from: Node, to: Node) {
+  connect(from: Gateway, to: Gateway) {
     const edge = new Edge({
       from,
       to,
@@ -87,7 +115,6 @@ export class Diagram {
       steps: [],
     });
 
-    this._edges.push(edge);
     from.addOutgoingEdge(edge);
     to.addIncomingEdge(edge);
 
@@ -179,4 +206,43 @@ export class Diagram {
   }
 
   public static use = () => useContext(DiagramContext)!;
+
+  export() {
+    return JSON.stringify(this.serialize());
+  }
+  serialize() {
+    return {
+      position: {
+        x: this.canvas.displacement.x,
+        y: this.canvas.displacement.y,
+        scale: this.canvas.scale,
+      },
+      nodes: this.nodes.map((c) => {
+        return c.serialize();
+      }),
+    };
+  }
+
+  import(w: string) {
+    runInAction(() => {
+      const state = JSON.parse(w) as ReturnType<(typeof this)['serialize']>;
+      this.canvas.setScale(state.position.scale);
+      this.canvas.setDisplacement(
+        new Coordinates([state.position.x, state.position.y]),
+      );
+
+      this._nodes.clear();
+      this._selectedNodes.clear();
+
+      state.nodes.forEach((nodeState) => {
+        const node = new (Diagram.getClass(nodeState.class))({
+          id: nodeState.id,
+        }) as Node;
+        this.add(node);
+      });
+      state.nodes.forEach((nodeState) => {
+        this.getNodeById(nodeState.id)!.deserialize(nodeState);
+      });
+    });
+  }
 }

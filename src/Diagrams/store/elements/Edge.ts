@@ -14,11 +14,14 @@ export type EdgeArrowHead =
   | 'measure';
 export type EdgeLineStyle = 'solid' | 'dashed' | 'dotted';
 
+let id = Number.MIN_SAFE_INTEGER;
+
 export class Edge {
-  _arrowHeadEnd: EdgeArrowHead = 'arrow';
-  _arrowHeadStart: EdgeArrowHead = 'none';
-  _lineStyle: EdgeLineStyle = 'solid';
-  _pathType: EdgePathType = 'straight';
+  protected _arrowHeadEnd: EdgeArrowHead = 'arrow';
+  protected _arrowHeadStart: EdgeArrowHead = 'none';
+  protected _lineStyle: EdgeLineStyle = 'solid';
+  protected _pathType: EdgePathType = 'straight';
+  id: Readonly<number> = id++;
 
   constructor(protected state: TEdgeState) {
     makeAutoObservable(this);
@@ -54,5 +57,44 @@ export class Edge {
 
   public get to() {
     return this.state.to;
+  }
+
+  deserialize(o: ReturnType<(typeof this)['serialize']>) {
+    this._arrowHeadEnd = o.arrowHeadEnd;
+    this._arrowHeadStart = o.arrowHeadStart;
+    this._lineStyle = o.lineStyle;
+    this._pathType = o.pathType;
+
+    this.state.steps = o.steps.map((c) => new Coordinates(c));
+    this.state.from.diagram.connect(
+      this.state.from,
+      this.state.from.diagram
+        .getNodeById(o.toParentId)!
+        .getGateway(o.to as any)!,
+    );
+  }
+
+  serialize() {
+    const {
+      arrowHeadEnd,
+      arrowHeadStart,
+      lineStyle,
+      pathType,
+      steps,
+      to: {
+        id: to,
+        parent: { id: toParentId },
+      },
+    } = this;
+    return {
+      arrowHeadEnd,
+      arrowHeadStart,
+      lineStyle,
+      pathType,
+      steps: steps.map((c) => c.raw),
+      to,
+      toParentId,
+      class: this.constructor.name,
+    };
   }
 }

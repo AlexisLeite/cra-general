@@ -1,4 +1,4 @@
-import React, { forwardRef, MouseEventHandler } from 'react';
+import React, { forwardRef, MouseEventHandler, SVGProps } from 'react';
 import { Coordinates } from '../../store/primitives/Coordinates';
 import { Diagram } from '../../store/Diagram';
 import { observer } from 'mobx-react-lite';
@@ -25,7 +25,7 @@ export interface PathSpec {
   roundedBorders?: boolean;
 }
 
-export interface ShapeProps {
+export interface ShapeProps extends SVGProps<SVGGElement> {
   paths: PathSpec[];
   transform?: string;
   selected?: boolean;
@@ -61,6 +61,7 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
       labelFontFamily = 'sans-serif',
       labelOffset,
       'data-id': dataId,
+      ...props
     },
     ref,
   ) => {
@@ -68,6 +69,7 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
 
     return (
       <g
+        {...props}
         data-id={dataId}
         className={className}
         transform={transform}

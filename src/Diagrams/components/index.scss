@@ -38,6 +38,13 @@
   }
 }
 
+.diagram__node__gateway {
+  &:hover path {
+    fill: greenyellow;
+    stroke: greenyellow;
+  }
+}
+
 .diagram__node_tools {
   position: absolute;
   background-color: white;

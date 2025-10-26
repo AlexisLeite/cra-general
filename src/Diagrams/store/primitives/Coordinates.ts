@@ -1,5 +1,5 @@
 import { makeObservable, toJS } from 'mobx';
-import type { Dimensions } from './Dimensions';
+import { Dimensions } from './Dimensions';
 import type { AnyMouseEvent } from '../Canvas';
 import { TDirection } from '../types';
 import type { DirectedPoint } from './DirectedPoint';
@@ -139,9 +139,14 @@ export class Coordinates {
     };
   }
 
-  multiply(factor: number) {
-    this.set(0, this.get(0) * factor);
-    this.set(1, this.get(1) * factor);
+  multiply(factor: number | Coordinates) {
+    if (typeof factor === 'number') {
+      this.set(0, this.get(0) * factor);
+      this.set(1, this.get(1) * factor);
+    } else if (factor instanceof Coordinates) {
+      this.set(0, this.get(0) * factor.get(0));
+      this.set(1, this.get(1) * factor.get(1));
+    }
 
     return this;
   }
@@ -187,6 +192,10 @@ export class Coordinates {
     const d = new C(this);
     d.direction = direction;
     return d;
+  }
+
+  toDimensions(size: Coordinates) {
+    return new Dimensions([...this.raw, ...size.raw]);
   }
 
   get x() {
