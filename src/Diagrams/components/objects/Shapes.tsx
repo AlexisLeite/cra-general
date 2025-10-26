@@ -35,6 +35,7 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
       endType={edge.arrowHeadEnd}
       startType={edge.arrowHeadStart}
       lineStyle={edge.lineStyle}
+      color="red"
     />
   );
 });

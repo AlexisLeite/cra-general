@@ -86,6 +86,10 @@ export class Coordinates {
     return new Coordinates(this);
   }
 
+  equals(another: Coordinates) {
+    return this.copy().substract(another).norm === 0;
+  }
+
   divide(factor: number | Coordinates) {
     const x = factor instanceof Coordinates ? factor.x : factor;
     const y = factor instanceof Coordinates ? factor.y : factor;
@@ -144,6 +148,7 @@ export class Coordinates {
 
   set(i: number, value: number) {
     this._data[i] = value;
+    return this;
   }
 
   substract(another: Coordinates | [number, number]) {

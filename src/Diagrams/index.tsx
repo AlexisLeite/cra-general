@@ -10,10 +10,10 @@ let cols = 5;
 const nodes = 20;
 
 function x(n: number) {
-  return (n % cols) * 250;
+  return (n % cols) * 300;
 }
 function y(n: number) {
-  return Math.floor(n / cols) * 150;
+  return Math.floor(n / cols) * 200;
 }
 
 d.add(
@@ -54,6 +54,10 @@ for (let i = 0; i < nodes; i++) {
     }),
   );
 }
+
+// for (let i = 1; i < nodes; i++) {
+//   d.connect(d.getNodeById('0')!, d.getNodeById(String(i))!);
+// }
 
 export const Diagrams = () => {
   return <Viewer diagram={d} />;

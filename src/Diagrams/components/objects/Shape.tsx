@@ -37,7 +37,7 @@ export interface ShapeProps {
   labelColor?: string;
   labelFontSize?: number;
   labelFontFamily?: string;
-  labelOffset: Coordinates;
+  labelOffset?: Coordinates;
   onMouseDown?: MouseEventHandler<SVGGElement>;
   'data-id'?: string;
 }
@@ -137,8 +137,8 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
 
         {label && (
           <text
-            x={labelOffset.x}
-            y={labelOffset.y}
+            x={labelOffset?.x ?? 0}
+            y={labelOffset?.y ?? 0}
             textAnchor="middle"
             dominantBaseline="middle"
             fontFamily={labelFontFamily}

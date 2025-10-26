@@ -1,60 +1,130 @@
 import type { Diagram } from '../../Diagram';
 import type { Node } from '../../elements/Node';
-import { Coordinates, TDirectedPoint } from '../../primitives/Coordinates';
-import { findBestAnglePathAsync } from './findBestAnglePathWorker';
+import { Coordinates } from '../../primitives/Coordinates';
+import { TDirection } from '../../types';
 
-export async function findBestPathBetweenNodes(
+export type Path = { x: number; y: number }[];
+
+export function findBestPathBetweenNodes(
   diagram: Diagram,
   A: Node,
   B: Node,
-) {
-  const startPoints = [
-    A.box.leftMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('left')
-      .stepForward().rawDirectedPoint,
-    A.box.rightMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('right')
-      .stepForward().rawDirectedPoint,
-    A.box.topMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('up')
-      .stepForward().rawDirectedPoint,
-    A.box.bottomMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('down')
-      .stepForward().rawDirectedPoint,
-  ];
+  destinationGate?: TDirection,
+): Coordinates[] {
+  /**
+   * We must always choose a gate
+   */
 
-  let endPoints: TDirectedPoint[] = [];
+  const diff = A.box.middle.substract(B.box.middle);
+  const distX = diff.x;
+  const distY = diff.y;
 
-  endPoints = [
-    B.box.leftMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('right')
-      .stepBack().rawDirectedPoint,
-    B.box.rightMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('left')
-      .stepBack().rawDirectedPoint,
-    B.box.topMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('down')
-      .stepBack().rawDirectedPoint,
-    B.box.bottomMiddle
-      .divide(diagram.gridSize / 2)
-      .round.toDirectedPoint('up')
-      .stepBack().rawDirectedPoint,
-  ];
+  if (!destinationGate) {
+    if (Math.abs(distX) > Math.abs(distY)) {
+      if (A.box.x > B.box.x) {
+        destinationGate = 'right';
+      } else {
+        destinationGate = 'left';
+      }
+    } else {
+      if (A.box.y > B.box.y) {
+        destinationGate = 'down';
+      } else {
+        destinationGate = 'up';
+      }
+    }
+  }
 
-  const bestPath = await findBestAnglePathAsync(
-    diagram,
-    startPoints,
-    endPoints,
-  );
+  switch (destinationGate) {
+    case 'down':
+      if (A.box.topMiddle.y > B.box.bottomMiddle.y) {
+        // The easy way
+        if (distX !== 0) {
+          return [
+            A.box.topMiddle,
+            new Coordinates([
+              A.box.middle.x,
+              (A.box.middle.y + B.box.middle.y) / 2,
+            ]),
+            new Coordinates([
+              B.box.middle.x,
+              (A.box.middle.y + B.box.middle.y) / 2,
+            ]),
+            B.box.bottomMiddle,
+          ];
+        } else {
+          return [A.box.topMiddle, B.box.bottomMiddle];
+        }
+      } else {
+      }
+      break;
+    case 'up':
+      if (A.box.bottomMiddle.y > B.box.topMiddle.y) {
+      } else {
+        if (distX !== 0) {
+          return [
+            A.box.bottomMiddle,
+            new Coordinates([
+              A.box.middle.x,
+              (A.box.middle.y + B.box.middle.y) / 2,
+            ]),
+            new Coordinates([
+              B.box.middle.x,
+              (A.box.middle.y + B.box.middle.y) / 2,
+            ]),
+            B.box.topMiddle,
+          ];
+        } else {
+          return [A.box.bottomMiddle, B.box.topMiddle];
+        }
+      }
+      break;
+    case 'right':
+      if (A.box.leftMiddle.x > B.box.rightMiddle.x) {
+        if (distY !== 0) {
+          return [
+            A.box.leftMiddle,
+            new Coordinates([
+              (A.box.middle.x + B.box.middle.x) / 2,
+              A.box.middle.y,
+            ]),
+            new Coordinates([
+              (A.box.middle.x + B.box.middle.x) / 2,
+              B.box.middle.y,
+            ]),
 
-  return bestPath.map((c) =>
-    new Coordinates([c.x, c.y]).multiply(diagram.gridSize / 2),
-  );
+            B.box.rightMiddle,
+          ];
+        } else {
+          return [A.box.leftMiddle, B.box.rightMiddle];
+        }
+      } else {
+      }
+      break;
+    case 'left':
+      if (A.box.rightMiddle.x > B.box.leftMiddle.x) {
+      } else {
+        // The easy wah
+        if (distY !== 0) {
+          return [
+            A.box.rightMiddle,
+            new Coordinates([
+              (A.box.middle.x + B.box.middle.x) / 2,
+              A.box.middle.y,
+            ]),
+            new Coordinates([
+              (A.box.middle.x + B.box.middle.x) / 2,
+              B.box.middle.y,
+            ]),
+
+            B.box.leftMiddle,
+          ];
+        } else {
+          return [A.box.rightMiddle, B.box.leftMiddle];
+        }
+      }
+      break;
+  }
+
+  return [];
 }

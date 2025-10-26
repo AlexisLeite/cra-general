@@ -47,6 +47,7 @@ export class Node {
 
   addOutgoingEdge(edge: Edge) {
     this.outgoingEdges.push(edge);
+    this.updateEdges();
   }
 
   public get box() {

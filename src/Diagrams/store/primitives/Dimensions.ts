@@ -7,7 +7,7 @@ import { Coordinates } from './Coordinates';
 export class Dimensions {
   protected _data: number[] = [];
 
-  constructor(items?: Dimensions | number[]) {
+  constructor(items?: Dimensions | number[], observable = true) {
     if (!items) {
       items = [0, 0, 0, 0];
     }
@@ -34,7 +34,9 @@ export class Dimensions {
       this.height = -h;
     }
 
-    makeAutoObservable(this);
+    if (observable) {
+      makeAutoObservable(this);
+    }
   }
 
   get coordinates() {
@@ -47,6 +49,10 @@ export class Dimensions {
 
   get leftMiddle() {
     return new Coordinates([this.x, this.y + this.height / 2]);
+  }
+
+  get middle() {
+    return new Coordinates([this.x + this.width / 2, this.y + this.height / 2]);
   }
 
   get rightMiddle() {
@@ -207,7 +213,7 @@ export class Dimensions {
   }
 
   copy() {
-    return new Dimensions(this);
+    return new Dimensions([this.x, this.y, this.width, this.height]);
   }
 
   set(i: number, value: number) {
@@ -269,6 +275,20 @@ export class Dimensions {
       this.set(2, this.get(2) + a.get(2));
       this.set(3, this.get(3) + a.get(3));
     }
+
+    return this;
+  }
+
+  translate(another: Coordinates) {
+    this.set(0, this.get(0) + another.get(0));
+    this.set(1, this.get(1) + another.get(1));
+
+    return this;
+  }
+
+  scale(another: Coordinates) {
+    this.set(2, this.get(2) + another.get(0));
+    this.set(3, this.get(3) + another.get(1));
 
     return this;
   }

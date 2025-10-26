@@ -1,9 +1,14 @@
 import { MouseEvent as RMEv } from 'react';
 import type { Diagram } from '../Diagram';
-import type { Node } from '../elements/Node';
-import { Coordinates, TDirectedPoint } from '../primitives/Coordinates';
+import { Node } from '../elements/Node';
+import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { findBestAnglePathAsync } from './paths/findBestAnglePathWorker';
+import {
+  findBestPathBetweenNodes,
+  Path,
+} from './paths/findBestPathBetweenNodes';
+import { Dimensions } from '../primitives/Dimensions';
+import { TDirection } from '../types';
 
 export class NodesConnector {
   constructor(public diagram: Diagram) {
@@ -28,7 +33,8 @@ export class NodesConnector {
 
   protected arrowTo: Coordinates | null = null;
   protected startNode: Node | null = null;
-  protected candidateNode: Node | null = null;
+  candidateNode: Node | null = null;
+  candidateGate: TDirection | null = null;
 
   protected previousArrowTo: Coordinates | null = null;
   protected previousCandidateNode: Node | null = null;
@@ -64,62 +70,39 @@ export class NodesConnector {
         }
       }
 
-      this.previousCandidateNode = this.candidateNode;
-      this.previousArrowTo = arrowTo;
-
-      const startPoints = [
-        this.startNode!.box.leftMiddle.divide(this.diagram.gridSize / 2)
-          .round.toDirectedPoint('left')
-          .stepForward().rawDirectedPoint,
-        this.startNode!.box.rightMiddle.divide(this.diagram.gridSize / 2)
-          .round.toDirectedPoint('right')
-          .stepForward().rawDirectedPoint,
-        this.startNode!.box.topMiddle.divide(this.diagram.gridSize / 2)
-          .round.toDirectedPoint('up')
-          .stepForward().rawDirectedPoint,
-        this.startNode!.box.bottomMiddle.divide(this.diagram.gridSize / 2)
-          .round.toDirectedPoint('down')
-          .stepForward().rawDirectedPoint,
-      ];
-
-      let endPoints: TDirectedPoint[] = [];
+      let bestPath: Path | null = null;
 
       if (this.candidateNode) {
-        endPoints = [
-          this.candidateNode!.box.leftMiddle.divide(this.diagram.gridSize / 2)
-            .round.toDirectedPoint('right')
-            .stepBack().rawDirectedPoint,
-          this.candidateNode!.box.rightMiddle.divide(this.diagram.gridSize / 2)
-            .round.toDirectedPoint('left')
-            .stepBack().rawDirectedPoint,
-          this.candidateNode!.box.topMiddle.divide(this.diagram.gridSize / 2)
-            .round.toDirectedPoint('down')
-            .stepBack().rawDirectedPoint,
-          this.candidateNode!.box.bottomMiddle.divide(this.diagram.gridSize / 2)
-            .round.toDirectedPoint('up')
-            .stepBack().rawDirectedPoint,
-        ];
+        bestPath = await findBestPathBetweenNodes(
+          this.diagram,
+          this.startNode!,
+          this.candidateNode!,
+          this.candidateGate || undefined,
+        );
       } else {
-        endPoints = [
-          arrowTo.toDirectedPoint('left').stepBack().rawDirectedPoint,
-          arrowTo.toDirectedPoint('right').stepBack().rawDirectedPoint,
-          arrowTo.toDirectedPoint('up').stepBack().rawDirectedPoint,
-          arrowTo.toDirectedPoint('down').stepBack().rawDirectedPoint,
-        ];
+        const fakeNode = new Node({
+          id: 'fake',
+          label: '',
+          box: new Dimensions([
+            ...this.diagram.canvas.inverseFit(this.arrowTo).raw,
+            0,
+            0,
+          ]),
+        });
+
+        bestPath = await findBestPathBetweenNodes(
+          this.diagram,
+          this.startNode!,
+          fakeNode,
+        );
       }
 
-      const bestPath = await findBestAnglePathAsync(
-        this.diagram,
-        startPoints,
-        endPoints,
-      );
-
       runInAction(() => {
-        this._arrowSteps = bestPath.map((c) =>
-          this.diagram.canvas.fit(
-            new Coordinates([c.x, c.y]).multiply(this.diagram.gridSize / 2),
-          ),
-        );
+        if (this.startNode) {
+          this._arrowSteps = bestPath.map((c) =>
+            this.diagram.canvas.fit(new Coordinates([c.x, c.y])),
+          );
+        }
       });
     } finally {
       this.calculating = false;
@@ -166,9 +149,36 @@ export class NodesConnector {
     }
 
     for (const node of this.diagram.nodes) {
-      if (node.box.collides(this.diagram.canvas.inverseFit(this.arrowTo))) {
+      const arrowOnPlane = this.diagram.canvas.inverseFit(this.arrowTo);
+      if (
+        node.box
+          .copy()
+          .translate(new Coordinates([-20, -20]))
+          .scale(new Coordinates([40, 40]))
+          .collides(arrowOnPlane) &&
+        node !== this.startNode
+      ) {
         this.candidateNode = node;
         this.calculateArrowSteps();
+
+        if (arrowOnPlane.copy().substract(node.box.leftMiddle).norm < 20) {
+          this.candidateGate = 'left';
+        } else if (
+          arrowOnPlane.copy().substract(node.box.rightMiddle).norm < 20
+        ) {
+          this.candidateGate = 'right';
+        } else if (
+          arrowOnPlane.copy().substract(node.box.topMiddle).norm < 20
+        ) {
+          this.candidateGate = 'up';
+        } else if (
+          arrowOnPlane.copy().substract(node.box.bottomMiddle).norm < 20
+        ) {
+          this.candidateGate = 'down';
+        } else {
+          this.candidateGate = null;
+        }
+
         return;
       }
     }
@@ -178,25 +188,29 @@ export class NodesConnector {
   }
 
   protected handleMouseUp() {
-    if (
-      this.candidateNode &&
-      this.startNode &&
-      this.candidateNode.canConnect(this.startNode) &&
-      this.arrowSteps.length
-    ) {
-      const edge = this.diagram.connect(this.startNode, this.candidateNode);
-      const simplified = this.simplifyToCorners(this.arrowSteps);
-      edge.setSteps(simplified.map((c) => this.diagram.canvas.inverseFit(c)));
+    try {
+      if (
+        this.candidateNode &&
+        this.startNode &&
+        this.candidateNode.canConnect(this.startNode) &&
+        this.arrowSteps.length
+      ) {
+        const edge = this.diagram.connect(this.startNode, this.candidateNode);
+        const simplified = this.simplifyToCorners(this.arrowSteps);
+        edge.setSteps(simplified.map((c) => this.diagram.canvas.inverseFit(c)));
+      }
+    } finally {
+      console.log('Up');
+
+      this._arrowSteps = [];
+      this.startNode = null;
+      this.arrowTo = null;
+      this.candidateNode = null;
+      this.previousArrowTo = null;
+      this.previousCandidateNode = null;
+
+      this.unsubscribeEvents();
     }
-
-    this._arrowSteps = [];
-    this.startNode = null;
-    this.arrowTo = null;
-    this.candidateNode = null;
-    this.previousArrowTo = null;
-    this.previousCandidateNode = null;
-
-    this.unsubscribeEvents();
   }
 
   // Reduce a per-cell step path to only corner points (axis-aligned polyline)
