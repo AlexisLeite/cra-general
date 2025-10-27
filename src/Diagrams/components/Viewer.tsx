@@ -2,7 +2,6 @@ import { observer } from 'mobx-react-lite';
 import { Diagram } from '../store/Diagram';
 import { ConnectorRenderer } from './extra/ConnectorRenderer';
 import { Stats } from './extra/Stats';
-import { NodeTools } from './extra/NodeTools';
 import { Tools } from './extra/Tools';
 
 import './index.scss';
@@ -23,7 +22,6 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
           <Shapes />
         </Svg>
         <Stats />
-        <NodeTools />
         <Tools />
         <Svg className="diagram__extra">
           <Cross
