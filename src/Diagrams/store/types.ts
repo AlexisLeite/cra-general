@@ -11,10 +11,26 @@ export type TNodeState = {
   label: string;
 } & Partial<{
   edition: boolean;
+  fill: string;
+  labelFontSize: number;
   movable: boolean;
   Renderer: FC<{ node: Node }>;
   selectable: boolean;
+  stroke: string;
+  strokewWidth: number;
 }>;
+
+export type EdgePathType = 'straight' | 'curved' | 'angle';
+export type EdgeArrowHead =
+  | 'none'
+  | 'arrow'
+  | 'triangle'
+  | 'triangle-filled'
+  | 'diamond'
+  | 'circle-small'
+  | 'circle-medium'
+  | 'measure';
+export type EdgeLineStyle = 'solid' | 'dashed' | 'dotted';
 
 export type TEdgeState = {
   label: string;
@@ -24,7 +40,14 @@ export type TEdgeState = {
   to: Gateway;
 
   steps: Coordinates[];
-};
+} & Partial<{
+  arrowHeadEnd: EdgeArrowHead;
+  arrowHeadStart: EdgeArrowHead;
+  lineStyle: EdgeLineStyle;
+  pathType: EdgePathType;
+  stroke: string;
+  strokeWidth: number;
+}>;
 
 export type TGatewayState = {
   id: string;

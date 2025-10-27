@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Coordinates } from '../../store/primitives/Coordinates';
-import { EdgeArrowHead, EdgeLineStyle } from '../../store/elements/Edge';
+import { EdgeArrowHead, EdgeLineStyle } from '../../store/types';
 
 export interface ArrowPathProps {
   points: Coordinates[];

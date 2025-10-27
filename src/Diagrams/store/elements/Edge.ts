@@ -2,25 +2,9 @@ import { makeAutoObservable } from 'mobx';
 import { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
 
-export type EdgePathType = 'straight' | 'curved' | 'angle';
-export type EdgeArrowHead =
-  | 'none'
-  | 'arrow'
-  | 'triangle'
-  | 'triangle-filled'
-  | 'diamond'
-  | 'circle-small'
-  | 'circle-medium'
-  | 'measure';
-export type EdgeLineStyle = 'solid' | 'dashed' | 'dotted';
-
 let id = Number.MIN_SAFE_INTEGER;
 
 export class Edge {
-  protected _arrowHeadEnd: EdgeArrowHead = 'arrow';
-  protected _arrowHeadStart: EdgeArrowHead = 'none';
-  protected _lineStyle: EdgeLineStyle = 'solid';
-  protected _pathType: EdgePathType = 'straight';
   id: Readonly<number> = id++;
 
   constructor(protected state: TEdgeState) {
@@ -28,11 +12,11 @@ export class Edge {
   }
 
   get arrowHeadEnd() {
-    return this._arrowHeadEnd;
+    return this.state.arrowHeadEnd;
   }
 
   get arrowHeadStart() {
-    return this._arrowHeadStart;
+    return this.state.arrowHeadStart;
   }
 
   public get from() {
@@ -40,15 +24,23 @@ export class Edge {
   }
 
   get lineStyle() {
-    return this._lineStyle;
+    return this.state.lineStyle;
   }
 
   get pathType() {
-    return this._pathType;
+    return this.state.pathType;
   }
 
   get steps() {
     return this.state.steps.map((c) => c.copy());
+  }
+
+  get stroke() {
+    return this.state.stroke;
+  }
+
+  get strokeWidth() {
+    return this.state.strokeWidth;
   }
 
   setSteps(steps: Coordinates[]) {
@@ -60,10 +52,10 @@ export class Edge {
   }
 
   deserialize(o: ReturnType<(typeof this)['serialize']>) {
-    this._arrowHeadEnd = o.arrowHeadEnd;
-    this._arrowHeadStart = o.arrowHeadStart;
-    this._lineStyle = o.lineStyle;
-    this._pathType = o.pathType;
+    this.state.arrowHeadEnd = o.arrowHeadEnd;
+    this.state.arrowHeadStart = o.arrowHeadStart;
+    this.state.lineStyle = o.lineStyle;
+    this.state.pathType = o.pathType;
 
     this.state.steps = o.steps.map((c) => new Coordinates(c));
     this.state.from.diagram.connect(

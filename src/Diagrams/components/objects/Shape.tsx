@@ -42,10 +42,6 @@ export interface ShapeProps extends SVGProps<SVGGElement> {
   'data-id'?: string;
 }
 
-/**
- * Shape: componente SVG multi-path que soporta trazo animado, interlineado o punteado,
- * esquinas redondeadas y texto centrado dentro de la figura.
- */
 const UnobservedShape = forwardRef<any, ShapeProps>(
   (
     {
