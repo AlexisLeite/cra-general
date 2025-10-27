@@ -147,6 +147,10 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'down'> {
     this.state.label = o.label;
     this.state.movable = o.movable;
     this.state.selectable = o.selectable;
+    this.state.fill = o.fill;
+    this.state.labelFontSize = o.labelFontSize;
+    this.state.stroke = o.stroke;
+    this.state.strokewWidth = o.strokewWidth;
 
     this._gateways.clear();
 
@@ -170,6 +174,10 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'down'> {
       label,
       movable,
       selectable,
+      fill,
+      labelFontSize,
+      stroke,
+      strokewWidth,
     } = this.state;
     const gateways = this.gateways.map((g) => {
       return g.serialize();
@@ -182,6 +190,10 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'down'> {
       movable,
       selectable,
       gateways,
+      fill,
+      labelFontSize,
+      stroke,
+      strokewWidth,
       class: this.constructor.name,
     };
   }

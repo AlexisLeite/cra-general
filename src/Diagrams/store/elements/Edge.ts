@@ -56,6 +56,8 @@ export class Edge {
     this.state.arrowHeadStart = o.arrowHeadStart;
     this.state.lineStyle = o.lineStyle;
     this.state.pathType = o.pathType;
+    this.state.stroke = o.stroke;
+    this.state.strokeWidth = o.strokeWidth;
 
     this.state.steps = o.steps.map((c) => new Coordinates(c));
     this.state.from.diagram.connect(
@@ -73,6 +75,8 @@ export class Edge {
       lineStyle,
       pathType,
       steps,
+      stroke,
+      strokeWidth,
       to: {
         id: to,
         parent: { id: toParentId },
@@ -84,6 +88,8 @@ export class Edge {
       lineStyle,
       pathType,
       steps: steps.map((c) => c.raw),
+      stroke,
+      strokeWidth,
       to,
       toParentId,
       class: this.constructor.name,
