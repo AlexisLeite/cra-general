@@ -19,7 +19,7 @@ export class Creator {
     let id = String(Date.now());
     let i = 0;
     while (this.diagram.getNodeById(id)) {
-      id = String(Date.now() + String(i++));
+      id = String(Date.now()) + String(i++);
     }
     return id;
   }

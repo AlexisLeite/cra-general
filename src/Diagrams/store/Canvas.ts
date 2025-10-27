@@ -277,7 +277,6 @@ export class Canvas {
 
     this.element!.dataset.setStyles = 'true';
     this.element!.style.width = '10000px';
-
     this.element!.style.height = '10000px';
     this.element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
     this.element!.style.transformOrigin = '0 0';

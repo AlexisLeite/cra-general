@@ -126,10 +126,10 @@ export class Node<Gateways = 'left' | 'right' | 'top' | 'down'> {
       this.state.box.y =
         Math.round(this.state.box.y / this.diagram.gridSize) *
         this.diagram.gridSize;
+    }
 
-      if (previousBox.substract(this.state.box).norm) {
-        this._gateways.values().forEach((c) => c.updateEdges());
-      }
+    if (previousBox.substract(this.state.box).norm) {
+      this._gateways.values().forEach((c) => c.updateEdges());
     }
   }
 
