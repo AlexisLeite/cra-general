@@ -6,9 +6,9 @@ import { PiGridFourThin } from 'react-icons/pi';
 import { Diagram } from '../../store/Diagram';
 import { SVGAttributes } from 'react';
 import { TfiSaveAlt } from 'react-icons/tfi';
-import { downloadFile } from '../../store/tools/downloadFile';
+import { downloadFile } from '../../util/downloadFile';
 import { PiFolder } from 'react-icons/pi';
-import { readFile } from '../../store/tools/readFile';
+import { readFile } from '../../util/readFile';
 import { IoText } from 'react-icons/io5';
 
 interface IconBaseProps extends SVGAttributes<SVGElement> {
