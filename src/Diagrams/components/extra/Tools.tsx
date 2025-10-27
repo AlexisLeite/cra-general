@@ -9,9 +9,6 @@ import { TfiSaveAlt } from 'react-icons/tfi';
 import { downloadFile } from '../../store/tools/downloadFile';
 import { PiFolder } from 'react-icons/pi';
 import { readFile } from '../../store/tools/readFile';
-import { GiPathDistance } from 'react-icons/gi';
-import { pathDebug } from '../../store/tools/paths/PathDebug';
-import { runInAction } from 'mobx';
 import { IoText } from 'react-icons/io5';
 
 interface IconBaseProps extends SVGAttributes<SVGElement> {
@@ -92,37 +89,6 @@ export const Tools = observer(() => {
         }}
         title="Open"
       />
-      {pathDebug.enabled && (
-        <>
-          <div className="separator"></div>
-          <GiPathDistance
-            className={`tool ${pathDebug.showStart ? 'selected' : ''}`}
-            onClick={async () => {
-              runInAction(() => {
-                pathDebug.showStart = true;
-
-                const enable = pathDebug.showEnd === false;
-                pathDebug.showEnd = enable;
-                pathDebug.showPath = enable;
-              });
-            }}
-            title="Show start"
-          />
-          <GiPathDistance
-            className={`tool ${pathDebug.showEnd ? 'selected' : ''}`}
-            onClick={async () => {
-              runInAction(() => {
-                pathDebug.showEnd = true;
-
-                const enable = pathDebug.showStart === false;
-                pathDebug.showStart = enable;
-                pathDebug.showPath = enable;
-              });
-            }}
-            title="Show end"
-          />
-        </>
-      )}
     </div>
   );
 });

@@ -93,7 +93,6 @@ export class Diagram {
       ],
       [],
     );
-    console.log({ edges });
     return edges;
   }
 

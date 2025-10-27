@@ -179,12 +179,12 @@ export class Dimensions {
     );
   }
 
-  collides(another: Dimensions | Coordinates) {
+  collides(another: Dimensions | Coordinates, detectBorders = false) {
     if (another instanceof Dimensions) {
-      const leftA = this.x;
-      const rightA = this.x + this.width;
-      const topA = this.y;
-      const bottomA = this.y + this.height;
+      const leftA = this.x - (detectBorders ? 1 : 0);
+      const rightA = this.x + this.width + (detectBorders ? 1 : 0);
+      const topA = this.y - (detectBorders ? 1 : 0);
+      const bottomA = this.y + this.height + (detectBorders ? 1 : 0);
 
       const leftB = another.x;
       const rightB = another.x + another.width;

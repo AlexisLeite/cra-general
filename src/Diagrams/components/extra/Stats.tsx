@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { Mouse } from '../../util/Mouse';
+import { debug } from '../../store/tools/Debugger';
 
 export const Stats = observer(() => {
   const d = Diagram.use();
@@ -38,6 +39,7 @@ measure-fit: ${scaledMeasure}
 }
 
 `.trim()}
+        {debug.data}
       </pre>
     </div>
   );
