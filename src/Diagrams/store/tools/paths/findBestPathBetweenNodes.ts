@@ -209,11 +209,35 @@ function _findBestPathBetweenNodes(
   }
 
   /**
-   * 6 - Go around end node to side A
+   * 6 - Go around end node to side A, scale Vertical
    */
+  around = getPathAroundNode(gridSize, B, 'a').reverse();
+  const path6 = [
+    A.coordinates,
+    originSteppedBack,
+    new Coordinates([around[0].x, originSteppedBack.y]),
+    ...around,
+  ];
+
+  if (!pathCollidesNodes(path6.slice(1, -1), [A.parent, B.parent])) {
+    debug.set('path6');
+    return path6;
+  }
   /**
-   * 7 - Go around end node to side B
+   * 6_1 - Go around end node to side A, scale Horizontal
    */
+  around = getPathAroundNode(gridSize, B, 'b').reverse();
+  const path6_1 = [
+    A.coordinates,
+    originSteppedBack,
+    new Coordinates([around[0].x, originSteppedBack.y]),
+    ...around,
+  ];
+
+  if (!pathCollidesNodes(path6_1.slice(1, -1), [A.parent, B.parent])) {
+    debug.set('path6_1');
+    return path6_1;
+  }
 
   debug.set('Nones');
   return null;
@@ -234,5 +258,5 @@ export function findBestPathBetweenNodes(
     return res;
   }
 
-  return [];
+  return [A.coordinates, B.coordinates];
 }

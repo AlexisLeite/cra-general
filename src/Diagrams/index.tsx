@@ -120,6 +120,7 @@ export async function restoreSaved() {
 }
 
 // extremosYCuadricula();
+// cincoEnCuadrado();
 
 export const Diagrams = () => {
   return (
