@@ -79,9 +79,6 @@
       transparent 10px 20px);
   background-size: 20px 20px;
   animation: move-horizontal 1.8s linear infinite;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
@@ -98,9 +95,6 @@
       transparent 10px 20px);
   background-size: 20px 20px;
   animation: move-vertical 1.8s linear infinite;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
