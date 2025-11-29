@@ -18,7 +18,6 @@ export class Gateway {
       Partial<TGatewayState>,
   ) {
     this.state = {
-      fill: 'green',
       stroke: 'transparent',
       strokeWidth: 10,
       radius: 5,

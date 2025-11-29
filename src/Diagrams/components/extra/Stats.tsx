@@ -7,7 +7,7 @@ export const Stats = observer(() => {
   const d = Diagram.use();
 
   const displacement = d.canvas.displacement.round;
-  const scale = Math.round(d.canvas.scale * 10) / 10;
+  const scale = Math.round(d.canvas.scale * 100) / 100;
   const mouse = Mouse.getInstance().coordinates;
   const selected = d.selectedNode
     ? d.selectedNode.coordinates.copy().round.nonObserved

@@ -52,8 +52,8 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
       className,
       roundedBorders = false,
       label,
-      labelColor = '#111',
-      labelFontSize = 14,
+      labelColor,
+      labelFontSize,
       labelFontFamily = 'sans-serif',
       labelOffset,
       'data-id': dataId,
@@ -67,14 +67,9 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
       <g
         {...props}
         data-id={dataId}
-        className={className}
+        className={`${className || ''} ${selected ? 'selected' : ''} base_shape`}
         transform={transform}
         onClick={onClick}
-        style={{
-          cursor: 'pointer',
-          transition: 'filter 0.2s ease',
-          ...(selected && { filter: 'drop-shadow(0 0 3px red)' }),
-        }}
         ref={ref}
       >
         {paths.map((p, i) => {

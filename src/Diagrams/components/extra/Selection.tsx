@@ -16,12 +16,11 @@ export const Selection = observer(() => {
       paths={[
         {
           d: getRectPath(d.selector.get(), 0),
-          stroke: '#ccccff',
           strokeWidth: 1,
-          fill: '#ccccff33',
         },
       ]}
       labelOffset={new Coordinates()}
+      className="selection_square"
     />
   );
 });

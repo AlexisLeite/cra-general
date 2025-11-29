@@ -4,7 +4,7 @@ import { ConnectorRenderer } from './extra/ConnectorRenderer';
 import { Stats } from './extra/Stats';
 import { Tools } from './extra/Tools';
 
-import './index.scss';
+import './index.css';
 import { Measurement } from './extra/Measurement';
 import { Svg } from './extra/Svg';
 import { Cross } from './objects/Cross';

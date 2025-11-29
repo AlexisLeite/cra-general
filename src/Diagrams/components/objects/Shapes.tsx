@@ -15,9 +15,9 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
         paths={[
           {
             d: getRectPath(node.box, 10),
-            stroke: node.state.stroke ?? 'black',
+            stroke: node.state.stroke,
             strokeWidth: node.state.strokewWidth ?? 3,
-            fill: node.state.fill ?? '#ffffff',
+            fill: node.state.fill,
           },
         ]}
         className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}

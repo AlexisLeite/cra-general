@@ -21,13 +21,13 @@ export const Grid = observer(() => {
       {positions.map((p) => (
         <Fragment key={`h_${p}`}>
           <path
+            className={`grid_line ${p % 500 === 0 ? 'strong' : ''}`}
             d={`M ${p} 0 L ${p} ${size}`}
-            stroke={p % 500 === 0 ? '#ccc' : '#eee'}
             strokeWidth={1}
           ></path>
           <path
             d={`M 0 ${p} L ${size} ${p}`}
-            stroke={p % 500 === 0 ? '#ccc' : '#eee'}
+            className={`grid_line ${p % 500 === 0 ? 'strong' : ''}`}
             strokeWidth={1}
           ></path>
         </Fragment>

@@ -60,8 +60,8 @@ export type TGatewayState = {
 
   orientation: TDirection;
 
-  fill: string;
-  stroke: string;
+  fill?: string;
+  stroke?: string;
   strokeWidth: number;
   radius: number;
 

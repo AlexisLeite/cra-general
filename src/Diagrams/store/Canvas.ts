@@ -183,9 +183,13 @@ export class Canvas {
     if (!ev.defaultPrevented) {
       ev.preventDefault();
 
+      const negative = (ev as WheelEvent).deltaY < 0;
+      const rounded = Math.floor(this.scale * 100) / 100;
+
       this.setScale(
         this.scale -
-          (ev as WheelEvent).deltaY / (this.scale > 0.2 ? 1000 : 10000),
+          (ev as WheelEvent).deltaY /
+            ((rounded >= 0.2 && negative) || rounded > 0.21 ? 1000 : 10000),
         new Coordinates(ev),
       );
     }
