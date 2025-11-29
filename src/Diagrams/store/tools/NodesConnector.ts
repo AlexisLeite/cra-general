@@ -10,6 +10,7 @@ import {
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import { reducePath } from './paths/reducePath';
+import { TDirection } from '../types';
 
 export class NodesConnector {
   constructor(public diagram: Diagram) {
@@ -89,10 +90,26 @@ export class NodesConnector {
           ]),
         });
 
+        const dx = this.startGateway!.coordinates.substract(
+          fakeNode.getGateway('down')!.coordinates,
+        ).x;
+        const dy = this.startGateway!.coordinates.substract(
+          fakeNode.getGateway('down')!.coordinates,
+        ).y;
+
+        let which: TDirection =
+          Math.abs(dx) > Math.abs(dy)
+            ? dx >= 0
+              ? 'right'
+              : 'left'
+            : dy >= 0
+              ? 'down'
+              : 'up';
+
         bestPath = await findBestPathBetweenNodes(
           this.diagram,
           this.startGateway!,
-          fakeNode.getGateway('down')!,
+          fakeNode.getGateway(which)!,
         );
       }
 
@@ -127,7 +144,7 @@ export class NodesConnector {
   }
 
   protected handleMouseMove(ev: MouseEvent) {
-    this.arrowTo = new Coordinates(new Coordinates(ev));
+    this.arrowTo = new Coordinates(ev);
 
     const box = this.diagram.canvas.elementDimensions;
 

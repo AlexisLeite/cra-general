@@ -1,12 +1,12 @@
 import { action, computed, makeObservable, observable } from 'mobx';
-import type { TNodeState } from '../types';
+import type { TDirection, TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { EventEmitter } from '../../util/EventEmitter';
 import { Gateway } from './Gateway';
 
-export class Node<Gateways = 'left' | 'right' | 'top' | 'down'> {
+export class Node<Gateways = TDirection> {
   diagram: Diagram | null = null;
   protected emitter = new EventEmitter<{
     select: Node;
