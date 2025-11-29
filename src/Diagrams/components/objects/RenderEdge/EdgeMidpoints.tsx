@@ -24,13 +24,8 @@ export const EdgeMidpoints: React.FC<EdgeMidpointsProps> = ({
             key={index}
             x={x - 6}
             y={y - 6}
-            width={12}
-            height={12}
             rx={4}
-            fill="white"
-            stroke="black"
-            strokeWidth={1}
-            style={{ cursor: 'pointer' }}
+            className="edge_drag_point"
             onMouseDownCapture={(e) => {
               e.stopPropagation();
               onMouseDown(e);

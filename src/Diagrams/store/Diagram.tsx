@@ -118,6 +118,7 @@ export class Diagram {
       label: '',
       labelPositioning: new Coordinates([0, 0]),
       steps: [],
+      determinant: [],
     });
 
     from.addOutgoingEdge(edge);

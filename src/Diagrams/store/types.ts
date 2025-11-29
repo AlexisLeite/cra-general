@@ -39,6 +39,7 @@ export type TEdgeState = {
   from: Gateway;
   to: Gateway;
 
+  determinant: Coordinates[];
   steps: Coordinates[];
 } & Partial<{
   arrowHeadEnd: EdgeArrowHead;

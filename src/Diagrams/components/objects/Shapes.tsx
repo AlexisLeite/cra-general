@@ -46,8 +46,9 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
       endType={edge.arrowHeadEnd ?? 'arrow'}
       startType={edge.arrowHeadStart ?? 'none'}
       lineStyle={edge.lineStyle ?? 'solid'}
-      color={edge.stroke ?? 'red'}
+      color={edge.stroke}
       width={edge.strokeWidth ?? 2}
+      draggable
     />
   );
 });
