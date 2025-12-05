@@ -1,7 +1,6 @@
 import { Diagram } from '../../Diagram';
 import { Gateway } from '../../elements/Gateway';
 import { Coordinates } from '../../primitives/Coordinates';
-import { debug } from '../Debugger';
 import { getPathAroundNode } from './getPathAroundNode';
 import { pathCollidesNodes } from './pathCollidesNodes';
 import { stepFromGateway } from './stepBackFromGateway';
@@ -36,7 +35,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path2.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path2');
     return path2;
   }
 
@@ -60,7 +58,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path3.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path3');
     return path3;
   }
 
@@ -84,7 +81,6 @@ function _findBestPathBetweenNodes(
     ];
 
     if (!pathCollidesNodes(path0.slice(1, -1), [A.parent, B.parent])) {
-      debug.set('Path0');
       return path0;
     }
     return null;
@@ -103,7 +99,6 @@ function _findBestPathBetweenNodes(
     ];
 
     if (!pathCollidesNodes(path1.slice(1, -1), [A.parent, B.parent])) {
-      debug.set('Path1');
       return path1;
     }
 
@@ -153,7 +148,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path4.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path4');
     return path4;
   }
 
@@ -170,7 +164,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path4_1.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path4_1');
     return path4_1;
   }
 
@@ -187,7 +180,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path5.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path5');
     return path5;
   }
 
@@ -204,7 +196,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path5_1.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path5_1');
     return path5_1;
   }
 
@@ -220,7 +211,6 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path6.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('path6');
     return path6;
   }
   /**
@@ -235,11 +225,9 @@ function _findBestPathBetweenNodes(
   ];
 
   if (!pathCollidesNodes(path6_1.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('path6_1');
     return path6_1;
   }
 
-  debug.set('Nones');
   return null;
 }
 
