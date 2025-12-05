@@ -100,7 +100,7 @@ export class Diagram {
     return [...this._nodes.values()];
   }
 
-  add(node: Node) {
+  add<T extends Node>(node: T): T {
     node.setDiagram(this);
     node.on('select', () => {
       this.selectNode(node);

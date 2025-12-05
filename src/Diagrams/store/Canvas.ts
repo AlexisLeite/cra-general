@@ -15,7 +15,7 @@ export type ScaleEvent = {
 export class Canvas {
   protected _displacement: Coordinates = new Coordinates([-5000, -5000]);
   _scale: number = 1;
-  size = new Coordinates([10000, 10000]);
+  size = new Coordinates([1000000, 1000000]);
   protected emitter = new EventEmitter<{
     mouseDown: AnyMouseEvent;
     mouseMove: AnyMouseEvent;
@@ -122,7 +122,7 @@ export class Canvas {
     return c.copy().substract(this._displacement.copy().substract(previous));
   }
 
-  protected handleMouseDown(ev: AnyMouseEvent) {
+  handleMouseDown(ev: AnyMouseEvent) {
     const fn1 = this.handleMouseMove.bind(this);
     const fn2 = this.handleMouseUp.bind(this);
 
@@ -134,17 +134,15 @@ export class Canvas {
       document.removeEventListener('mouseup', fn2);
     };
 
-    if (this.findCanvas(ev.target as HTMLElement)) {
-      this.emitter.emit('mouseDown', ev);
+    this.emitter.emit('mouseDown', ev);
 
-      if (
-        !ev.defaultPrevented &&
-        (this.diagram.eventsEnabled || ev.button === 1)
-      ) {
-        this.diagram.unselectAll();
-        this.displacementStart = this._displacement.copy();
-        this.eventStart = new Coordinates(ev);
-      }
+    if (
+      !ev.defaultPrevented &&
+      (this.diagram.eventsEnabled || ev.button === 1)
+    ) {
+      this.diagram.unselectAll();
+      this.displacementStart = this._displacement.copy();
+      this.eventStart = new Coordinates(ev);
     }
   }
 
@@ -177,7 +175,7 @@ export class Canvas {
     this.unsubscribeMouse();
   }
 
-  protected handleWheel(ev: Event) {
+  handleWheel(ev: Event) {
     this.emitter.emit('wheel', ev);
 
     if (!ev.defaultPrevented) {
@@ -209,7 +207,7 @@ export class Canvas {
     const scale = this.scale;
     const disp = this.displacement;
 
-    this._scale = Math.max(0.05, Math.min(3, newScale));
+    this._scale = Math.max(0.3, Math.min(3, newScale));
 
     if (scale !== this.scale) {
       const scale_ = this.scale;
@@ -276,15 +274,27 @@ export class Canvas {
 
   on = this.emitter.on.bind(this.emitter);
 
-  protected setDisplacementStyles() {
-    const translation = this._displacement.copy().multiply(this.scale);
+  getDisplacementStyles() {
+    const translation = this._displacement.copy(false).multiply(this.scale);
 
-    this.element!.dataset.setStyles = 'true';
-    this.element!.style.width = '10000px';
-    this.element!.style.height = '10000px';
-    this.element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
-    this.element!.style.transformOrigin = '0 0';
-    this.element!.style.willChange = 'transform';
+    return {
+      width: `${this.size.x}px`,
+      height: `${this.size.y}px`,
+      transform: `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`,
+      transformOrigin: '0 0',
+      willChange: 'transform',
+    };
+  }
+
+  protected setDisplacementStyles(element = this.element) {
+    const translation = this._displacement.copy(false).multiply(this.scale);
+
+    element!.dataset.setStyles = 'true';
+    element!.style.width = `${this.size.x}px`;
+    element!.style.height = `${this.size.y}px`;
+    element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
+    element!.style.transformOrigin = '0 0';
+    element!.style.willChange = 'transform';
   }
 
   private unsetRefs = () => {};

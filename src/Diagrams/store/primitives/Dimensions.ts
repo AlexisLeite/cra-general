@@ -167,6 +167,19 @@ export class Dimensions {
     return this;
   }
 
+  assignDimensions(this: Dimensions, another: Coordinates | [number, number]) {
+    if (another.length !== 2) {
+      throw new Error('Invalid number of Coordinates');
+    }
+
+    let a = another instanceof Coordinates ? another : new Coordinates(another);
+
+    this.set(2, a.get(0));
+    this.set(3, a.get(1));
+
+    return this;
+  }
+
   bound(boundaries: Dimensions) {
     this.x = Math.min(
       boundaries.x + boundaries.width - this.width,

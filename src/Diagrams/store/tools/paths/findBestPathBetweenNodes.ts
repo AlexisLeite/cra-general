@@ -17,6 +17,54 @@ function _findBestPathBetweenNodes(
   const targetSteppedBack = stepFromGateway(gridSize, B);
 
   /**
+   * 2 - Half horizontal, vertical, half horizontal
+   */
+
+  const path2 = [
+    A.coordinates,
+    originSteppedBack,
+    new Coordinates([
+      (originSteppedBack.x + targetSteppedBack.x) / 2,
+      originSteppedBack.y,
+    ]),
+    new Coordinates([
+      (originSteppedBack.x + targetSteppedBack.x) / 2,
+      targetSteppedBack.y,
+    ]),
+    targetSteppedBack,
+    B.coordinates,
+  ];
+
+  if (!pathCollidesNodes(path2.slice(1, -1), [A.parent, B.parent])) {
+    debug.set('Path2');
+    return path2;
+  }
+
+  /**
+   * 3 - Half vertical, horizontal, half vertical
+   */
+
+  const path3 = [
+    A.coordinates,
+    originSteppedBack,
+    new Coordinates([
+      originSteppedBack.x,
+      (originSteppedBack.y + targetSteppedBack.y) / 2,
+    ]),
+    new Coordinates([
+      targetSteppedBack.x,
+      (originSteppedBack.y + targetSteppedBack.y) / 2,
+    ]),
+    targetSteppedBack,
+    B.coordinates,
+  ];
+
+  if (!pathCollidesNodes(path3.slice(1, -1), [A.parent, B.parent])) {
+    debug.set('Path3');
+    return path3;
+  }
+
+  /**
    * Path 0 and 1 are inverted in case the gateway is vertical
    */
 
@@ -90,54 +138,6 @@ function _findBestPathBetweenNodes(
         }
       }
       break;
-  }
-
-  /**
-   * 2 - Half horizontal, vertical, half horizontal
-   */
-
-  const path2 = [
-    A.coordinates,
-    originSteppedBack,
-    new Coordinates([
-      (originSteppedBack.x + targetSteppedBack.x) / 2,
-      originSteppedBack.y,
-    ]),
-    new Coordinates([
-      (originSteppedBack.x + targetSteppedBack.x) / 2,
-      targetSteppedBack.y,
-    ]),
-    targetSteppedBack,
-    B.coordinates,
-  ];
-
-  if (!pathCollidesNodes(path2.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path2');
-    return path2;
-  }
-
-  /**
-   * 3 - Half vertical, horizontal, half vertical
-   */
-
-  const path3 = [
-    A.coordinates,
-    originSteppedBack,
-    new Coordinates([
-      originSteppedBack.x,
-      (originSteppedBack.y + targetSteppedBack.y) / 2,
-    ]),
-    new Coordinates([
-      targetSteppedBack.x,
-      (originSteppedBack.y + targetSteppedBack.y) / 2,
-    ]),
-    targetSteppedBack,
-    B.coordinates,
-  ];
-
-  if (!pathCollidesNodes(path3.slice(1, -1), [A.parent, B.parent])) {
-    debug.set('Path3');
-    return path3;
   }
 
   /**

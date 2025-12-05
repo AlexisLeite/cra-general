@@ -12,7 +12,7 @@ export class Node<Gateways = TDirection> {
     select: Node;
   }>();
   protected _gateways = new Map<Gateways, Gateway>();
-  public ref: SVGElement | null = null;
+  public ref: SVGElement | HTMLElement | null = null;
   public state: TNodeState;
 
   public get selected() {
@@ -112,6 +112,10 @@ export class Node<Gateways = TDirection> {
     this.diagram = d;
   }
 
+  setDimentions(c: Coordinates | [number, number]) {
+    this.state.box.assignDimensions(c);
+  }
+
   setPosition(c: Coordinates) {
     const previousBox = this.state.box.copy();
 
@@ -137,7 +141,7 @@ export class Node<Gateways = TDirection> {
     this.state.edition = edition ?? !this.state.edition;
   }
 
-  useRef(el: SVGElement | null) {
+  useRef(el: SVGElement | HTMLElement | null) {
     this.ref = el;
   }
 

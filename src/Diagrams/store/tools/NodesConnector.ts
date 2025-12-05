@@ -115,9 +115,7 @@ export class NodesConnector {
 
       runInAction(() => {
         if (this.startGateway) {
-          this._arrowSteps = bestPath.map((c) =>
-            this.diagram.canvas.fit(new Coordinates([c.x, c.y])),
-          );
+          this._arrowSteps = bestPath.map((c) => new Coordinates([c.x, c.y]));
         }
       });
     } finally {

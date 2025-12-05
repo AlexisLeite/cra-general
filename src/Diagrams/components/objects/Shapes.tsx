@@ -10,31 +10,36 @@ import { GatewayRender } from '../extra/GatewayRender';
 const ShapeWrap = observer(({ node }: { node: Node }) => {
   return (
     <>
-      <Shape
-        key={node.id}
-        paths={[
-          {
-            d: getRectPath(node.box, 10),
-            stroke: node.state.stroke,
-            strokeWidth: node.state.strokewWidth ?? 3,
-            fill: node.state.fill,
-          },
-        ]}
-        className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
-        label={node.state.label}
-        labelOffset={node.coordinates.sum(node.box.size.half)}
-        labelFontSize={node.state.labelFontSize ?? 14}
-        ref={node.useRef.bind(node)}
-        selected={node.selected}
-        data-id={node.id}
-        onDoubleClick={(ev) => {
-          ev.stopPropagation();
-          node.toggleEdition();
-        }}
-      />
-      {node.gateways.map((c) => {
-        return <GatewayRender key={c.id} gateway={c} />;
-      })}
+      {!node.state.Renderer && (
+        <Shape
+          key={node.id}
+          paths={[
+            {
+              d: getRectPath(node.box, 10),
+              stroke: node.state.stroke,
+              strokeWidth: node.state.strokewWidth ?? 3,
+              fill: node.state.fill,
+            },
+          ]}
+          onMouseOver={() => (node.state.hover = true)}
+          onMouseOut={() => (node.state.hover = false)}
+          className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
+          label={node.state.label}
+          labelOffset={node.coordinates.sum(node.box.size.half)}
+          labelFontSize={node.state.labelFontSize ?? 14}
+          ref={node.useRef.bind(node)}
+          selected={node.selected}
+          data-id={node.id}
+          onDoubleClick={(ev) => {
+            ev.stopPropagation();
+            node.toggleEdition();
+          }}
+        />
+      )}
+      {(node.state.hover || node.selected) &&
+        node.gateways.map((c) => {
+          return <GatewayRender key={c.id} gateway={c} />;
+        })}
     </>
   );
 });

@@ -83,6 +83,12 @@
   cursor: pointer;
   transition: filter 0.2s ease;
 
+  &:is(div) {
+    background: var(--node-fill);
+    border: 2px solid var(--node-stroke);
+
+  }
+
   path {
     fill: var(--node-fill);
     stroke: var(--node-stroke);
@@ -99,7 +105,14 @@
   }
 }
 
+.base_shape {
+  pointer-events: auto;
+}
+
 .diagram__node__gateway {
+  pointer-events: auto;
+  z-index: 2;
+
   path {
     fill: var(--gateway-fill);
   }
@@ -112,6 +125,7 @@
     fill: var(--gateway-hover);
     stroke: var(--gateway-hover);
   }
+
 }
 
 .diagram__node_tools {
@@ -250,6 +264,10 @@
   .tool:active {
     background: var(--tool-active-bg);
   }
+}
+
+.edge {
+  pointer-events: auto;
 }
 
 .edge_marker_path {

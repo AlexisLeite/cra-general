@@ -83,8 +83,8 @@ export class Coordinates {
     return this;
   }
 
-  copy() {
-    return new Coordinates(this);
+  copy(observable = true) {
+    return new Coordinates(this, observable);
   }
 
   equals(another: Coordinates) {

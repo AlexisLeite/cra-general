@@ -5,19 +5,24 @@ import { Node } from './store/elements/Node';
 import { Coordinates } from './store/primitives/Coordinates';
 
 import json from '../saves/temp.json';
+import { TaskNode } from './custom/bpmn/TaskNode';
+import { toJS } from 'mobx';
+
+Diagram.registerClass(TaskNode);
 
 const d = new Diagram();
 (window as any).d = d;
+(window as any).toJS = toJS;
 
 export function extremosYCuadricula(conectados = false) {
-  let cols = 5;
-  const nodes = 20;
+  let cols = 8;
+  const nodes = 50;
 
   function x(n: number) {
-    return (n % cols) * 300;
+    return (n % cols) * 550;
   }
   function y(n: number) {
-    return Math.floor(n / cols) * 200;
+    return Math.floor(n / cols) * 700;
   }
 
   d.add(
@@ -51,9 +56,9 @@ export function extremosYCuadricula(conectados = false) {
 
   for (let i = 0; i < nodes; i++) {
     d.add(
-      new Node({
-        id: String(i),
-        label: 'World' + i,
+      new TaskNode({
+        id: 'task' + i,
+        label: 'Task ' + i,
         box: new Dimensions([x(i) + 5000, y(i) + 5000, 200, 100]),
       }),
     );
@@ -119,7 +124,7 @@ export async function restoreSaved() {
   d.import(JSON.stringify(json as any));
 }
 
-// extremosYCuadricula();
+extremosYCuadricula();
 // cincoEnCuadrado();
 
 export const Diagrams = () => {
@@ -129,8 +134,7 @@ export const Diagrams = () => {
       <div
         ref={(el) => {
           if (el) {
-            d.canvas.setScale(0.4);
-            restoreSaved();
+            // restoreSaved();
             window.requestAnimationFrame(() => {
               // d.canvas.centerOnPoint(
               //   d

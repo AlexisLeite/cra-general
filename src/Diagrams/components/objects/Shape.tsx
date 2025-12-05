@@ -1,4 +1,9 @@
-import React, { forwardRef, MouseEventHandler, SVGProps } from 'react';
+import React, {
+  forwardRef,
+  MouseEventHandler,
+  ReactNode,
+  SVGProps,
+} from 'react';
 import { Coordinates } from '../../store/primitives/Coordinates';
 import { Diagram } from '../../store/Diagram';
 import { observer } from 'mobx-react-lite';
@@ -40,11 +45,14 @@ export interface ShapeProps extends SVGProps<SVGGElement> {
   labelOffset?: Coordinates;
   onMouseDown?: MouseEventHandler<SVGGElement>;
   'data-id'?: string;
+
+  children?: ReactNode;
 }
 
 const UnobservedShape = forwardRef<any, ShapeProps>(
   (
     {
+      children,
       paths,
       transform,
       selected,
@@ -155,6 +163,8 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
             {label}
           </text>
         )}
+
+        {children}
       </g>
     );
   },
