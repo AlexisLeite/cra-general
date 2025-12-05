@@ -32,7 +32,7 @@ const MiSnapToGrid = (props: IconBaseProps) => (
 );
 
 const Benchmark = ({ onFinish }: { onFinish: () => unknown }) => {
-  const [time, setTime] = useState(30);
+  const [time, setTime] = useState(5);
 
   useEffect(() => {
     console.time('start-bench');
