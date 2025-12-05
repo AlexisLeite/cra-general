@@ -116,6 +116,11 @@ export class Diagram {
     return node;
   }
 
+  addEdge(edge: Edge) {
+    edge.from.addOutgoingEdge(edge);
+    edge.to.addIncomingEdge(edge);
+  }
+
   connect(from: Gateway, to: Gateway) {
     const edge = new this.edgeClass({
       from,
