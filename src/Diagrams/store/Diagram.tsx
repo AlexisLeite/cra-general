@@ -31,6 +31,11 @@ export class Diagram {
     this.knownClasses.set(clazz.name, clazz);
   }
 
+  edgeClass: typeof Edge = Edge;
+  public setDefaultEdge(clazz: typeof Edge) {
+    this.edgeClass = clazz;
+  }
+
   protected _nodes = new Map<string, Node>();
   protected _selectedNodes = new Set<Node>();
   protected emitter = new EventEmitter<{
@@ -112,7 +117,7 @@ export class Diagram {
   }
 
   connect(from: Gateway, to: Gateway) {
-    const edge = new Edge({
+    const edge = new this.edgeClass({
       from,
       to,
       label: '',

@@ -175,11 +175,11 @@ export class Canvas {
     this.unsubscribeMouse();
   }
 
-  handleWheel(ev: Event) {
+  handleWheel(ev: Event, isPassive = false) {
     this.emitter.emit('wheel', ev);
 
     if (!ev.defaultPrevented) {
-      ev.preventDefault();
+      if (!isPassive) ev.preventDefault();
 
       const negative = (ev as WheelEvent).deltaY < 0;
       const rounded = Math.floor(this.scale * 100) / 100;

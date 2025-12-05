@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
 
@@ -8,7 +8,17 @@ export class Edge {
   id: Readonly<number> = id++;
 
   constructor(protected state: TEdgeState) {
-    makeAutoObservable(this);
+    makeObservable<Edge, 'state'>(this, {
+      state: observable,
+      setSteps: action,
+      arrowHeadEnd: computed,
+      arrowHeadStart: computed,
+      from: computed,
+      pathType: computed,
+      steps: computed,
+      stroke: computed,
+      strokeWidth: computed,
+    });
   }
 
   get arrowHeadEnd() {

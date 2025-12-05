@@ -1,4 +1,6 @@
+import { makeObservable, observable } from 'mobx';
 import { Node } from '../../store/elements/Node';
+import { observer } from 'mobx-react-lite';
 
 export class TaskNode extends Node {
   constructor(...props: ConstructorParameters<typeof Node>) {
@@ -6,9 +8,22 @@ export class TaskNode extends Node {
 
     this.state.Renderer = this.Render;
     this.setDimentions([500, 600]);
+
+    makeObservable(this, { value: observable });
   }
 
-  Render = () => {
+  value = '';
+
+  serialize() {
+    return { ...super.serialize(), value: this.value };
+  }
+
+  deserialize(o: ReturnType<this['serialize']>): void {
+    super.deserialize(o);
+    this.value = o.value;
+  }
+
+  Render = observer(() => {
     return (
       <div
         onMouseDownCapture={(ev) => ev.stopPropagation()}
@@ -16,9 +31,12 @@ export class TaskNode extends Node {
       >
         <h1>A form!</h1>
         <form>
-          <input />
+          <input
+            value={this.value}
+            onChange={(ev) => (this.value = ev.target.value)}
+          />
         </form>
       </div>
     );
-  };
+  });
 }

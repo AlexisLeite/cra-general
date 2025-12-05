@@ -32,9 +32,14 @@ export class Node<Gateways = TDirection> {
       selected: computed,
       _gateways: observable,
       toggleEdition: action,
+      setState: action,
     });
 
     this.initializeGateways();
+  }
+
+  setState<K extends keyof TNodeState>(prop: K, value: TNodeState[K]) {
+    this.state[prop] = value;
   }
 
   protected initializeGateways() {

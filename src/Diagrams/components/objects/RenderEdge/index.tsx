@@ -73,10 +73,10 @@ export const RenderEdge: React.FC<RenderEdgeProps> = ({
 
       <path
         d={d}
-        stroke={color}
-        strokeWidth={width}
         fill="none"
-        style={{ '--hover-stroke': color } as any}
+        style={
+          { '--hover-stroke': color, stroke: color, strokeWidth: width } as any
+        }
         strokeDasharray={strokeDasharray}
         markerStart={
           startType !== 'none' ? `url(#${startMarkerId})` : undefined

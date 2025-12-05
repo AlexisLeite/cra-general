@@ -7,19 +7,23 @@ import { Coordinates } from './store/primitives/Coordinates';
 import json from '../saves/temp.json';
 import { TaskNode } from './custom/bpmn/TaskNode';
 import { toJS } from 'mobx';
+import { EdgeWithLoad } from './custom/bpmn/EdgeWithLoad';
 
 Diagram.registerClass(TaskNode);
+Diagram.registerClass(EdgeWithLoad);
 
 const d = new Diagram();
+d.setDefaultEdge(EdgeWithLoad);
+
 (window as any).d = d;
 (window as any).toJS = toJS;
 
 export function extremosYCuadricula(conectados = false) {
   let cols = 8;
-  const nodes = 50;
+  const nodes = 5;
 
   function x(n: number) {
-    return (n % cols) * 550;
+    return (n % cols) * 850;
   }
   function y(n: number) {
     return Math.floor(n / cols) * 700;

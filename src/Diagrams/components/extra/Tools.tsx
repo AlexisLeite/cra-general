@@ -4,12 +4,13 @@ import { TfiHandDrag } from 'react-icons/tfi';
 import { TfiLayoutSidebarNone } from 'react-icons/tfi';
 import { PiGridFourThin } from 'react-icons/pi';
 import { Diagram } from '../../store/Diagram';
-import { SVGAttributes } from 'react';
+import { SVGAttributes, useEffect, useState } from 'react';
 import { TfiSaveAlt } from 'react-icons/tfi';
 import { downloadFile } from '../../util/downloadFile';
 import { PiFolder } from 'react-icons/pi';
 import { readFile } from '../../util/readFile';
 import { IoText } from 'react-icons/io5';
+import { PiTestTubeFill } from 'react-icons/pi';
 
 interface IconBaseProps extends SVGAttributes<SVGElement> {
   size?: string | number;
@@ -30,11 +31,61 @@ const MiSnapToGrid = (props: IconBaseProps) => (
   </svg>
 );
 
+const Benchmark = ({ onFinish }: { onFinish: () => unknown }) => {
+  const [time, setTime] = useState(30);
+
+  useEffect(() => {
+    console.time('start-bench');
+    const i = setInterval(() => {
+      setTime((t) => {
+        const v = t - 1;
+
+        if (!v) {
+          console.timeEnd('start-bench');
+          onFinish();
+        }
+
+        return v;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(i);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        right: 0,
+        top: 0,
+        background: 'lime',
+        color: 'black',
+        padding: '6px',
+        fontSize: '20px',
+        fontWeight: 'bold',
+      }}
+    >
+      {time}
+    </div>
+  );
+};
+
 export const Tools = observer(() => {
   const d = Diagram.use();
+  const [bench, setBench] = useState(false);
 
   return (
     <div className="toolbar">
+      {bench && (
+        <Benchmark
+          onFinish={() => {
+            setBench(false);
+          }}
+        />
+      )}
       <TfiHandDrag
         className={`tool ${d.eventsEnabled ? 'selected' : ''}`}
         onClick={() => {
@@ -88,6 +139,14 @@ export const Tools = observer(() => {
           if (content) d.import(content);
         }}
         title="Open"
+      />
+      <div className="separator"></div>
+      <PiTestTubeFill
+        className={`tool`}
+        onClick={async () => {
+          setBench(true);
+        }}
+        title="Bench"
       />
     </div>
   );
