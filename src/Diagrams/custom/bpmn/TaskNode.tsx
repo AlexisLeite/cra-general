@@ -24,6 +24,8 @@ export class TaskNode extends Node {
   }
 
   Render = observer(() => {
-    return <div onKeyDownCapture={(ev) => ev.stopPropagation()}></div>;
+    return (
+      <div onKeyDownCapture={(ev) => ev.stopPropagation()}>{this.state.id}</div>
+    );
   });
 }

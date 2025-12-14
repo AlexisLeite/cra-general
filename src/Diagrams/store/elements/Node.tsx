@@ -161,15 +161,18 @@ export class Node<Gateways = TDirection> {
     this.state.stroke = o.stroke;
     this.state.strokewWidth = o.strokewWidth;
 
-    this._gateways.clear();
-
     o.gateways.forEach((c) => {
+      const incomingEdges =
+        this._gateways.get(c.id as any)?.incomingEdges || [];
+
       this._gateways.set(
         c.id as any,
         new (Diagram.getClass(c.class))(this, {
           id: c.id,
         }) as Gateway,
       );
+
+      this._gateways.get(c.id as any)!.state.incomingEdges = incomingEdges;
     });
     o.gateways.forEach((c) => {
       this._gateways.get(c.id as any)?.deserialize(c);

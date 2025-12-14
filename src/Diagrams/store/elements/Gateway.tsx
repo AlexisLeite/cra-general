@@ -7,7 +7,7 @@ import { Coordinates } from '../primitives/Coordinates';
 import { makeAutoObservable } from 'mobx';
 
 export class Gateway {
-  protected state: TGatewayState;
+  state: TGatewayState;
 
   constructor(
     public parent: Node<any>,
