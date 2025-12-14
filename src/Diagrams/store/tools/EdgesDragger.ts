@@ -58,6 +58,14 @@ export class EdgesDragger {
     const mouseCanvas = this.diagram.canvas.inverseFit(new Coordinates(ev));
     const delta = mouseCanvas.nonObserved.substract(this.drag.startMouseCanvas);
 
+    const isHorizontal = this.drag.pointA.x === this.drag.pointB.x;
+
+    if (isHorizontal) {
+      delta.y = 0;
+    } else {
+      delta.x = 0;
+    }
+
     // Apply delta to original points; persist via assign() as requested.
     this.drag.pointA.assign(this.drag.startPointA.copy().sum(delta));
     this.drag.pointB.assign(this.drag.startPointB.copy().sum(delta));
