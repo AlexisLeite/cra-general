@@ -28,7 +28,7 @@ export class Canvas {
     return this._scale;
   }
 
-  element: SVGElement | null = null;
+  element: HTMLElement | null = null;
   get elementPosition() {
     if (!this.element) {
       return new Coordinates([0, 0]);
@@ -67,18 +67,6 @@ export class Canvas {
 
   constructor(public diagram: Diagram) {
     makeAutoObservable(this, { element: false });
-  }
-
-  private findCanvas(el: HTMLElement) {
-    let current: Element = el;
-
-    while (current) {
-      if (current !== this.element) {
-        current = current.parentElement!;
-      } else {
-        return current;
-      }
-    }
   }
 
   public get dragging() {
@@ -214,7 +202,7 @@ export class Canvas {
 
       const disp2 = B.copy()
         .multiply(scale)
-        .sum(disp.multiply(scale))
+        .sum(disp.copy().multiply(scale))
         .substract(B_.copy().multiply(scale_))
         .divide(scale_);
 
@@ -287,22 +275,24 @@ export class Canvas {
   }
 
   protected setDisplacementStyles(element = this.element) {
-    const translation = this._displacement.copy(false).multiply(this.scale);
+    if (element) {
+      const translation = this._displacement.copy(false).multiply(this.scale);
 
-    element!.dataset.setStyles = 'true';
-    element!.style.width = `${this.size.x}px`;
-    element!.style.height = `${this.size.y}px`;
-    element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
-    element!.style.transformOrigin = '0 0';
-    element!.style.willChange = 'transform';
+      element!.dataset.setStyles = 'true';
+      element!.style.width = `${this.size.x}px`;
+      element!.style.height = `${this.size.y}px`;
+      element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
+      element!.style.transformOrigin = '0 0';
+      element!.style.willChange = 'transform';
+    }
   }
 
   private unsetRefs = () => {};
-  useRef = (el: SVGElement | null) => {
+  useRef = (el: HTMLElement | null) => {
     this.element = el;
     this.unsetRefs();
 
-    if (el instanceof SVGElement) {
+    if (el instanceof HTMLElement) {
       this.setDisplacementStyles();
 
       const fn1 = this.handleMouseDown.bind(this);

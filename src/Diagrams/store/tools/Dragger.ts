@@ -55,6 +55,10 @@ export class Dragger {
           },
         );
 
+        if (this.interval) {
+          clearInterval(this.interval);
+        }
+
         this.interval = setInterval(
           this.handleDragInterval.bind(this),
           30,

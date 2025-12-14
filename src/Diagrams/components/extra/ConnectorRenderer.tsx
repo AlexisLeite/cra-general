@@ -1,23 +1,26 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { RenderEdge } from '../objects/RenderEdge';
+import { makeScalableComponent } from '../objects/makeScalableComponent';
 
-export const ConnectorRenderer = observer(() => {
-  const d = Diagram.use();
+export const ConnectorRenderer = makeScalableComponent(
+  observer(() => {
+    const d = Diagram.use();
 
-  const points = d.connector.arrowSteps;
+    const points = d.connector.arrowSteps;
 
-  if (!points.length) {
-    return null;
-  }
+    if (!points.length) {
+      return null;
+    }
 
-  return (
-    <>
-      <RenderEdge
-        points={points}
-        width={2 * d.canvas.scale}
-        arrowSize={8 * d.canvas.scale}
-      />
-    </>
-  );
-});
+    return (
+      <>
+        <RenderEdge
+          points={points}
+          width={2 * d.canvas.scale}
+          arrowSize={8 * d.canvas.scale}
+        />
+      </>
+    );
+  }),
+);

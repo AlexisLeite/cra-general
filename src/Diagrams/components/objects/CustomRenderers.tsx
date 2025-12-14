@@ -21,7 +21,7 @@ const RenderNode = observer(({ node }: { node: Node }) => {
         top: `${node.box.y}px`,
         width: `${node.box.width}px`,
         height: `${node.box.height}px`,
-        zIndex: node.state.hover ? 1 : 0,
+        zIndex: node.state.hover ? 2 : 1,
       }}
     >
       <div>
@@ -45,26 +45,18 @@ const RenderNodes = observer(() => {
   );
 });
 
-export const RenderCustomRenderers = observer(
-  ({ diagram }: { diagram: Diagram }) => {
-    const translation = diagram.canvas.displacement
-      .copy(false)
-      .multiply(diagram.canvas.scale);
-
-    return (
-      <div
-        style={{
-          width: `${diagram.canvas.size.x}px`,
-          height: `${diagram.canvas.size.y}px`,
-          transform: `translate(${translation.x}px, ${translation.y}px) scale(${diagram.canvas.scale}) translateZ(0)`,
-          transformOrigin: '0 0',
-          willChange: 'transform',
-        }}
-        onWheel={(ev) => diagram.canvas.handleWheel(ev.nativeEvent, true)}
-        onMouseDown={(ev) => diagram.canvas.handleMouseDown(ev)}
-      >
-        <RenderNodes />
-      </div>
-    );
-  },
-);
+export const RenderCustomRenderers = observer(() => {
+  const diagram = Diagram.use();
+  return (
+    <div
+      style={{
+        width: `${diagram.canvas.size.x}px`,
+        height: `${diagram.canvas.size.y}px`,
+      }}
+      onWheel={(ev) => diagram.canvas.handleWheel(ev.nativeEvent, true)}
+      onMouseDown={(ev) => diagram.canvas.handleMouseDown(ev)}
+    >
+      <RenderNodes />
+    </div>
+  );
+});

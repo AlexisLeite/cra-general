@@ -44,7 +44,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = ({
         : 'none';
 
   return (
-    <g className="edge">
+    <g className={className || 'edge'}>
       <defs>
         <EdgeMarker
           id={startMarkerId}
@@ -82,7 +82,6 @@ export const RenderEdge: React.FC<RenderEdgeProps> = ({
           startType !== 'none' ? `url(#${startMarkerId})` : undefined
         }
         markerEnd={endType !== 'none' ? `url(#${endMarkerId})` : undefined}
-        className={className}
       />
 
       {draggable && <EdgeMidpoints points={points} onMouseDown={() => {}} />}

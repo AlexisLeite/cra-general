@@ -6,31 +6,25 @@ import { Tools } from './extra/Tools';
 
 import './index.css';
 import { Measurement } from './extra/Measurement';
-import { Svg } from './extra/Svg';
 import { Cross } from './objects/Cross';
 import { Coordinates } from '../store/primitives/Coordinates';
 import { Selection } from './extra/Selection';
-import { Shapes } from './objects/Shapes';
+import { shapes } from './objects/Shapes';
 import { Grid } from './objects/Grid';
-import { RenderCustomRenderers } from './objects/CustomRenderers';
+import { Canvas } from './Canvas';
+import { Stage } from '../layout/HStack';
+import { CollapsiblePanel } from '../layout/CollapsiblePanel';
 
 export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
   return (
     <diagram.Context>
-      <div className="canvas__frame">
-        <Svg
-          style={diagram.canvas.getDisplacementStyles()}
-          shapeRendering="geometricPrecision"
-        >
+      <Stage>
+        <CollapsiblePanel title="Tools" defaultWidth={280}>
+          Hello world
+        </CollapsiblePanel>
+        <Canvas>
           <Grid />
-        </Svg>
-        <RenderCustomRenderers diagram={diagram} />
-        <Svg
-          ref={diagram.canvas.useRef}
-          shapeRendering="geometricPrecision"
-          style={{ pointerEvents: 'none' }}
-        >
-          <Shapes />
+          {shapes()}
           <Cross
             coordinates={new Coordinates([5000, 5000])}
             stroke="#0000ff"
@@ -40,10 +34,10 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
           <ConnectorRenderer />
           <Measurement />
           <Selection />
-        </Svg>
-        <Stats />
-        <Tools />
-      </div>
+        </Canvas>
+      </Stage>
+      <Tools />
+      <Stats />
     </diagram.Context>
   );
 });

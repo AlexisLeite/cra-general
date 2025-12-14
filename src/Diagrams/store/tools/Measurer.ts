@@ -43,13 +43,13 @@ export class Measurer {
 
   protected handleMouseDown(ev: AnyMouseEvent) {
     if (this._enabled) {
-      this.startPoint = new Coordinates(ev);
-      this.endPoint = new Coordinates(ev);
+      this.startPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));
+      this.endPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));
     }
   }
   protected handleMouseMove(ev: AnyMouseEvent) {
     if (this.startPoint && this._enabled) {
-      this.endPoint = new Coordinates(ev);
+      this.endPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));
     }
   }
   protected handleMouseUp() {

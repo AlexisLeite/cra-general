@@ -1,0 +1,5 @@
+import { PropsWithChildren } from 'react';
+
+export function Toolbar({ children }: PropsWithChildren) {
+  return <div className="toolbar">{children}</div>;
+}

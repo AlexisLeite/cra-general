@@ -1,26 +1,18 @@
-import { forwardRef, SVGProps, useState } from 'react';
+import { forwardRef, SVGProps } from 'react';
 
 export const Svg = forwardRef<any, SVGProps<SVGSVGElement>>(
   ({ children, className, style }, ref) => {
-    const [viewBox, setViewBox] = useState('0 0 400 200');
-
     return (
       <svg
         className={className}
         width="100%"
         height="100%"
-        viewBox={viewBox}
-        style={style}
-        ref={(el) => {
-          try {
-            (ref as any)(el);
-          } catch (_) {}
-
-          if (el instanceof SVGElement && !el.dataset.set) {
-            el.dataset.set = 'true';
-            const rect = el.getBoundingClientRect();
-            setViewBox(`0 0 ${rect.width} ${rect.height}`);
-          }
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          pointerEvents: 'none',
+          ...style,
         }}
         xmlns="http://www.w3.org/2000/svg"
       >

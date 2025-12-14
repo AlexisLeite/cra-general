@@ -6,6 +6,8 @@ import { getRectPath } from '../../util/shapes';
 import { Node } from '../../store/elements/Node';
 import { Edge } from '../../store/elements/Edge';
 import { GatewayRender } from '../extra/GatewayRender';
+import { makeScalableComponent } from './makeScalableComponent';
+import { RenderCustomRenderers } from './CustomRenderers';
 
 const ShapeWrap = observer(({ node }: { node: Node }) => {
   return (
@@ -58,23 +60,32 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
   );
 });
 
-export const Shapes = observer(() => {
-  const d = Diagram.use();
-  return (
-    <>
-      {d.nodes
-        .map((c) =>
-          d.selectedNodes.find((s) => s === c) ? null : (
-            <ShapeWrap node={c} key={c.id} />
-          ),
-        )
-        .filter(Boolean)}
-      {d.selectedNodes.map((c) => (
-        <ShapeWrap node={c} key={c.id} />
-      ))}
-      {d.edges.map((c) => (
-        <DiagramEdge edge={c} key={c.id} />
-      ))}
-    </>
-  );
-});
+const ScalableShapes = makeScalableComponent(
+  observer(() => {
+    const d = Diagram.use();
+    return (
+      <>
+        {d.nodes
+          .map((c) =>
+            d.selectedNodes.find((s) => s === c) ? null : (
+              <ShapeWrap node={c} key={c.id} />
+            ),
+          )
+          .filter(Boolean)}
+        {d.selectedNodes.map((c) => (
+          <ShapeWrap node={c} key={c.id} />
+        ))}
+        {d.edges.map((c) => (
+          <DiagramEdge edge={c} key={c.id} />
+        ))}
+      </>
+    );
+  }),
+);
+
+export function shapes() {
+  return [
+    <ScalableShapes key="ScalableShapes" />,
+    <RenderCustomRenderers key="RenderCustomRenderers" />,
+  ];
+}

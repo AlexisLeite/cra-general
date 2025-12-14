@@ -1,36 +1,98 @@
 :root {
-  --bg: #111;
-  --text: #e5e7eb;
+  /* Base */
+  --bg: #0b0f14;
+  /* darker, cleaner base */
+  --text: #f3f4f6;
+  /* brighter text */
 
-  --gateway-fill: #444;
-  --gateway-hover: #444;
+  /* Gateways */
+  --gateway-fill: #4b5563;
+  --gateway-hover: #6b7280;
 
-  --node-fill: #252b38;
-  --node-stroke: #252b38;
-  --node-color: white;
+  /* Nodes */
+  --node-fill: #1f2937;
+  /* noticeably brighter than bg */
+  --node-stroke: #9ca3af;
+  /* strong separation */
+  --node-color: #ffffff;
   --node-font-size: 18px;
 
-  --edge-stroke: rgb(77, 77, 77);
+  /* Edges */
+  --edge-stroke: rgb(180, 185, 195);
 
-  --edge-dragger-stroke: rgb(77, 77, 77);
-  --edge-dragger-hover-stroke: rgb(133, 133, 133);
+  /* Edge dragger */
+  --edge-dragger-stroke: rgb(200, 205, 215);
+  --edge-dragger-hover-stroke: rgb(255, 255, 255);
 
-  --node-select-shadow: rgba(251, 255, 0, 0.5);
+  /* Selection */
+  --node-select-shadow: rgba(253, 224, 71, 0.75);
 
-  --grid-thin: #202020d2;
-  --grid-strong: #444444b4;
+  /* Grid */
+  --grid-thin: #374252;
+  --grid-strong: #4b5563;
 
-  --stats-bg: black;
-  --stats-color: #eaeaea;
+  /* Stats / panels */
+  --stats-bg: #020617;
+  --stats-color: #f9fafb;
 
-  --toolbar-border: #333;
-  --toolbar-tool-border: #111;
+  /* Toolbar */
+  --toolbar-border: #6b7280;
+  --toolbar-tool-border: #020617;
 
-  --tool-selected-bg: #243b53;
-  --tool-active-bg: #19212e;
+  /* Tool states */
+  --tool-selected-bg: #2563eb;
+  --tool-active-bg: #1e40af;
 
-  --selection-border: #474758;
-  --selection-fill: #2b2b8133;
+  /* Selection rectangle */
+  --selection-border: #60a5fa;
+  --selection-fill: #60a5fa33;
+}
+
+
+
+body.light {
+  --bg: #f7f8fa;
+  --text: #1f2937;
+
+  /* Gateways */
+  --gateway-fill: #d1d5db;
+  --gateway-hover: #9ca3af;
+
+  /* Nodes */
+  --node-fill: #ffffff;
+  --node-stroke: #c7cdd6;
+  --node-color: #1f2937;
+  --node-font-size: 18px;
+
+  /* Edges */
+  --edge-stroke: rgb(160, 165, 175);
+
+  /* Edge dragger */
+  --edge-dragger-stroke: rgb(160, 165, 175);
+  --edge-dragger-hover-stroke: rgb(90, 95, 105);
+
+  /* Selection */
+  --node-select-shadow: rgba(59, 130, 246, 0.45);
+
+  /* Grid */
+  --grid-thin: #e5e7eb;
+  --grid-strong: #cbd5e1;
+
+  /* Stats / panels */
+  --stats-bg: #ffffff;
+  --stats-color: #111827;
+
+  /* Toolbar */
+  --toolbar-border: #d1d5db;
+  --toolbar-tool-border: #cbd5e1;
+
+  /* Tool states */
+  --tool-selected-bg: #e0ecff;
+  --tool-active-bg: #c7dbff;
+
+  /* Selection rectangle */
+  --selection-border: #93c5fd;
+  --selection-fill: #93c5fd33;
 }
 
 .grid_line {
@@ -48,14 +110,7 @@
 
 .canvas__frame {
   background: var(--bg);
-  position: fixed;
-  inset: 0;
   overflow: hidden;
-
-  &>*:not(.diagram__stats, .diagram__node_tools, .toolbar) {
-    position: absolute;
-    inset: 0;
-  }
 }
 
 .avoid-selection * {
@@ -223,6 +278,98 @@
   }
 }
 
+.stage {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: 100%;
+  position: fixed;
+  inset: 0;
+}
+
+.h_stack>* {
+  height: 100%;
+}
+
+.h_stack> :last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.collapsible_panel {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  max-width: 360px;
+  flex-shrink: 0;
+
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--toolbar-border);
+  overflow: hidden;
+
+  position: relative;
+}
+
+.collapsible_panel.collapsed {
+  min-width: unset;
+  max-width: unset;
+}
+
+.collapsible_panel__header {
+  color: inherit;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.collapsible_panel__title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.collapsible_panel__content {
+  border-top: 1px solid var(--toolbar-border);
+  padding: 10px;
+}
+
+.collapsible_panel__resizer {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 10px;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.collapsible_panel--resizer-left .collapsible_panel__resizer {
+  inset: 0 auto 0 0;
+  border-left: 3px solid transparent;
+  border-color: transparent;
+  transition: border-color 500ms;
+}
+
+.collapsible_panel--resizer-left .collapsible_panel__resizer:hover {
+  border-left: 3px solid #93c5fd;
+}
+
+.collapsible_panel--resizer-right .collapsible_panel__resizer {
+  border-right: 3px solid transparent;
+  border-color: transparent;
+  transition: border-color 500ms;
+}
+
+.collapsible_panel--resizer-right .collapsible_panel__resizer:hover {
+  border-right: 3px solid #93c5fd;
+}
+
+.collapsible_panel.collapsed .collapsible_panel__content {
+  display: none;
+}
+
 .toolbar {
   inset: unset;
 
@@ -300,4 +447,16 @@
   width: 12px;
   height: 12px;
   fill: var(--edge-stroke);
+}
+
+.measurement {
+  marker path {
+    stroke: red;
+    stroke-width: 3px;
+  }
+
+  path {
+    stroke: var(--edge-stroke);
+    stroke-width: 1px;
+  }
 }

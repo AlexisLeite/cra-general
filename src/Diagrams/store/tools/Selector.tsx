@@ -29,10 +29,12 @@ export class Selector {
   get() {
     if (!this.startPoint) return new Dimensions();
 
-    return new Dimensions([
-      ...this.startPoint.raw,
-      ...this.endPoint!.copy().substract(this.startPoint).raw,
-    ]);
+    return this.diagram.canvas.inverseFit(
+      new Dimensions([
+        ...this.startPoint.raw,
+        ...this.endPoint!.copy().substract(this.startPoint).raw,
+      ]),
+    );
   }
 
   constructor(public diagram: Diagram) {
@@ -86,7 +88,7 @@ export class Selector {
         this.endPoint = new Coordinates(ev);
 
         this.diagram.nodes.forEach((c) => {
-          if (this.diagram.canvas.inverseFit(this.get()).collides(c.box)) {
+          if (this.get().collides(c.box)) {
             this.diagram.selectNode(c, false, true);
             this.selected = true;
           } else {
