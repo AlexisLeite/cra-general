@@ -70,7 +70,7 @@ export class Edge {
     this.state.stroke = o.stroke;
     this.state.strokeWidth = o.strokeWidth;
 
-    this.state.steps = o.steps.map((c) => new Coordinates(c));
+    this.state.steps = o.steps.map((c) => new EdgePoint(c));
     this.state.to = this.state.from.diagram
       .getNodeById(o.toParentId)!
       .getGateway(o.to as any)!;

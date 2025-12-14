@@ -79,4 +79,4 @@ export async function restoreSaved() {
   d.import(JSON.stringify(json as any));
 }
 
-extremosYCuadricula();
+restoreSaved();

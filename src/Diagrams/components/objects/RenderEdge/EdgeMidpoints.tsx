@@ -3,7 +3,7 @@ import { Coordinates } from '../../../store/primitives/Coordinates';
 import { getSegmentMidpoints } from './util';
 
 interface EdgeMidpointsProps {
-  onMouseDown: (ev: React.MouseEvent) => unknown;
+  onMouseDown: (index: number, ev: React.MouseEvent) => unknown;
   points: Coordinates[];
 }
 
@@ -27,7 +27,7 @@ export const EdgeMidpoints: React.FC<EdgeMidpointsProps> = ({
             rx={4}
             className="edge_drag_point"
             onMouseDownCapture={(e) => {
-              onMouseDown(e);
+              onMouseDown(index, e);
             }}
           />
         );

@@ -14,4 +14,8 @@ export class EdgePoint extends Coordinates {
   public static fromCoordinates(c: Coordinates) {
     return new EdgePoint(c);
   }
+
+  copy() {
+    return new EdgePoint(super.copy());
+  }
 }

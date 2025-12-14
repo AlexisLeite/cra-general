@@ -24,10 +24,7 @@ export const Stats = observer(() => {
 displacement: ${displacement}
 scale: ${scale}
 mouse: ${mouse}
-mouse-fit: ${
-          d.canvas.inverseFit(mouse.copy().substract(d.canvas.elementPosition))
-            .round
-        }
+mouse-fit: ${d.canvas.inverseFit(mouse).round}
 ${selected ? `selected: ${selected}` : ''}
 ${
   measure

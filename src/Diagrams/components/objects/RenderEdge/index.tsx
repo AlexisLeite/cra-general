@@ -17,7 +17,8 @@ export const RenderEdge: React.FC<RenderEdgeProps> = ({
 
   endStroke = color,
   startStroke = color,
-  onChange,
+
+  onMidpointMouseDown,
 
   draggable,
 }) => {
@@ -84,7 +85,14 @@ export const RenderEdge: React.FC<RenderEdgeProps> = ({
         markerEnd={endType !== 'none' ? `url(#${endMarkerId})` : undefined}
       />
 
-      {draggable && <EdgeMidpoints points={points} onMouseDown={() => {}} />}
+      {draggable && (
+        <EdgeMidpoints
+          points={points}
+          onMouseDown={(midpointIndex, ev) => {
+            onMidpointMouseDown?.(midpointIndex, ev);
+          }}
+        />
+      )}
     </g>
   );
 };

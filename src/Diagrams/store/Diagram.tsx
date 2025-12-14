@@ -15,6 +15,7 @@ import { Measurer } from './tools/Measurer';
 import { Selector } from './tools/Selector';
 import { Dragger } from './tools/Dragger';
 import { Hotkeys } from './tools/Hotkeys';
+import { EdgesDragger } from './tools/EdgesDragger';
 import { Edge } from './elements/Edge';
 import { Gateway } from './elements/Gateway';
 import { Creator } from './tools/Creator';
@@ -55,6 +56,7 @@ export class Diagram {
   creator = new Creator(this);
   connector = new NodesConnector(this);
   dragger = new Dragger(this);
+  edgesDragger = new EdgesDragger(this);
   hotkeys = new Hotkeys(this);
   measurer = new Measurer(this);
   selector = new Selector(this);

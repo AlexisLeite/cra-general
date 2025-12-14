@@ -1,3 +1,4 @@
+import type React from 'react';
 import { Coordinates } from '../../../store/primitives/Coordinates';
 import { EdgeArrowHead, EdgeLineStyle } from '../../../store/types';
 
@@ -7,7 +8,6 @@ export interface RenderEdgeProps {
   width?: number;
   arrowSize?: number;
   className?: string;
-  onChange?: (points: Coordinates[]) => void;
 
   endStroke?: string;
   startStroke?: string;
@@ -17,6 +17,8 @@ export interface RenderEdgeProps {
   lineStyle?: EdgeLineStyle;
 
   draggable?: boolean;
+
+  onMidpointMouseDown?: (midpointIndex: number, ev: React.MouseEvent) => void;
 }
 
 export interface MidpointInfo extends Coordinates {

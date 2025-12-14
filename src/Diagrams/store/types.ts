@@ -4,6 +4,7 @@ import type { Dimensions } from './primitives/Dimensions';
 import type { Coordinates } from './primitives/Coordinates';
 import type { Gateway } from './elements/Gateway';
 import type { Edge } from './elements/Edge';
+import { EdgePoint } from './elements/EdgePoint';
 
 export type TNodeState = {
   id: string;
@@ -41,7 +42,7 @@ export type TEdgeState = {
   to: Gateway;
 
   determinant: Coordinates[];
-  steps: Coordinates[];
+  steps: EdgePoint[];
 } & Partial<{
   arrowHeadEnd: EdgeArrowHead;
   arrowHeadStart: EdgeArrowHead;
