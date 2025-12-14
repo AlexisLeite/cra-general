@@ -1,6 +1,7 @@
 import { action, computed, makeObservable, observable } from 'mobx';
 import { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
+import { EdgePoint } from './EdgePoint';
 
 let id = Number.MIN_SAFE_INTEGER;
 
@@ -54,7 +55,7 @@ export class Edge {
   }
 
   setSteps(steps: Coordinates[]) {
-    this.state.steps = steps;
+    this.state.steps = steps.map((c) => EdgePoint.fromCoordinates(c));
   }
 
   public get to() {
