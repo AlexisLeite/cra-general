@@ -7,7 +7,7 @@ export class TaskNode extends Node {
     super(...props);
 
     this.state.Renderer = this.Render;
-    this.setDimentions([500, 600]);
+    this.setDimentions([300, 150]);
 
     makeObservable(this, { value: observable });
   }
@@ -24,19 +24,6 @@ export class TaskNode extends Node {
   }
 
   Render = observer(() => {
-    return (
-      <div
-        onMouseDownCapture={(ev) => ev.stopPropagation()}
-        onKeyDownCapture={(ev) => ev.stopPropagation()}
-      >
-        <h1>A form!</h1>
-        <form>
-          <input
-            value={this.value}
-            onChange={(ev) => (this.value = ev.target.value)}
-          />
-        </form>
-      </div>
-    );
+    return <div onKeyDownCapture={(ev) => ev.stopPropagation()}></div>;
   });
 }

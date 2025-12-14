@@ -111,12 +111,15 @@ export class Canvas {
   }
 
   handleMouseDown(ev: AnyMouseEvent) {
-    const fn1 = this.handleMouseMove.bind(this);
-    const fn2 = this.handleMouseUp.bind(this);
+    const fn1 = (ev: MouseEvent) => {
+      this.handleMouseMove(ev);
+    };
+    const fn2 = (ev: MouseEvent) => this.handleMouseUp(ev);
 
     document.addEventListener('mousemove', fn1);
     document.addEventListener('mouseup', fn2);
 
+    this.unsubscribeMouse();
     this.unsubscribeMouse = () => {
       document.removeEventListener('mousemove', fn1);
       document.removeEventListener('mouseup', fn2);

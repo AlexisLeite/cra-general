@@ -134,6 +134,7 @@ export class NodesConnector {
     document.addEventListener('mousemove', fn1);
     document.addEventListener('mouseup', fn2);
 
+    this.unsubscribeEvents();
     this.unsubscribeEvents = () => {
       document.removeEventListener('mousemove', fn1);
       document.removeEventListener('mouseup', fn2);

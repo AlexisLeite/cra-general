@@ -31,7 +31,11 @@ export class Gateway {
   }
 
   canConnect(from: Gateway): boolean {
-    return !this.state.incomingEdges.find((c) => c.from === from);
+    return (
+      (this.state.maxIncomingConnections === undefined ||
+        this.state.maxIncomingConnections > this.state.incomingEdges.length) &&
+      !this.state.incomingEdges.find((c) => c.from === from)
+    );
   }
 
   addIncomingEdge(edge: Edge) {
