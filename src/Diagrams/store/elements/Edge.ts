@@ -43,7 +43,7 @@ export class Edge {
   }
 
   get steps() {
-    return this.state.steps.map((c) => c.copy());
+    return this.state.steps;
   }
 
   get stroke() {
@@ -55,7 +55,7 @@ export class Edge {
   }
 
   setSteps(steps: Coordinates[]) {
-    this.state.steps = steps.map((c) => EdgePoint.fromCoordinates(c));
+    this.state.steps = steps.map((c) => new EdgePoint(c));
   }
 
   public get to() {

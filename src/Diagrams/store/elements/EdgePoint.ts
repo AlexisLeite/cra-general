@@ -11,10 +11,6 @@ export class EdgePoint extends Coordinates {
     makeObservable(this, { mode: observable });
   }
 
-  public static fromCoordinates(c: Coordinates) {
-    return new EdgePoint(c);
-  }
-
   copy() {
     return new EdgePoint(super.copy());
   }
