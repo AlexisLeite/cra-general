@@ -9,7 +9,6 @@ import {
 } from './paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
-import { reducePath } from './paths/reducePath';
 import { TDirection } from '../types';
 
 export class NodesConnector {
@@ -142,20 +141,28 @@ export class NodesConnector {
   }
 
   protected handleMouseMove(ev: MouseEvent) {
+    const box = this.diagram.canvas.frameDimensions;
     this.arrowTo = new Coordinates(ev);
-
-    const box = this.diagram.canvas.elementDimensions;
+    const displacementPoint = this.arrowTo
+      .copy()
+      .substract(this.diagram.canvas.framePosition);
 
     const displacement = new Coordinates([0, 0]);
 
-    if (this.arrowTo.x < box.x) {
-      displacement.sum([(box.x - this.arrowTo.x) * 0.1, 0]);
-    } else if (this.arrowTo.x > box.width) {
-      displacement.substract([(this.arrowTo.x - box.width) * 0.1, 0]);
-    } else if (this.arrowTo.y < box.y) {
-      displacement.sum([0, (box.y - this.arrowTo.y) * 0.1]);
-    } else if (this.arrowTo.y > box.height) {
-      displacement.substract([0, (this.arrowTo.y - box.height) * 0.1]);
+    if (displacementPoint.x < 100) {
+      displacement.sum([(100 - displacementPoint.x) * 0.1, 0]);
+    } else if (displacementPoint.x > box.width - 100) {
+      displacement.substract([
+        (100 - Math.abs(displacementPoint.x - box.width)) * 0.1,
+        0,
+      ]);
+    } else if (displacementPoint.y < 100) {
+      displacement.sum([0, (100 - displacementPoint.y) * 0.1]);
+    } else if (displacementPoint.y > box.height - 100) {
+      displacement.substract([
+        0,
+        (100 - Math.abs(displacementPoint.y - box.height)) * 0.1,
+      ]);
     }
 
     if (displacement.norm > 0) {
@@ -194,12 +201,7 @@ export class NodesConnector {
         this.candidateGateway.canConnect(this.startGateway) &&
         this.arrowSteps.length
       ) {
-        const edge = this.diagram.connect(
-          this.startGateway,
-          this.candidateGateway,
-        );
-        const simplified = reducePath(this.arrowSteps);
-        edge.setSteps(simplified.map((c) => this.diagram.canvas.inverseFit(c)));
+        this.diagram.connect(this.startGateway, this.candidateGateway);
       }
     } finally {
       this._arrowSteps = [];

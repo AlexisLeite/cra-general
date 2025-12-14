@@ -250,12 +250,14 @@ export class Canvas {
     if (value instanceof Coordinates) {
       return value
         .copy()
+        .substract(this.framePosition)
         .divide(this.scale)
         .substract([this._displacement.x, this._displacement.y]) as T;
     }
 
     return value
       .copy()
+      .substract(this.framePosition.toDimensions(new Coordinates([0, 0])))
       .divide(this.scale)
       .substract([this._displacement.x, this._displacement.y, 0, 0]) as T;
   }

@@ -1,7 +1,8 @@
 import { PiGridFourThin } from 'react-icons/pi';
+import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 
-export function ShowGridTool() {
+export const ShowGridTool = observer(function ShowGridTool() {
   const d = Diagram.use();
 
   return (
@@ -11,4 +12,4 @@ export function ShowGridTool() {
       title="Show grid"
     />
   );
-}
+});

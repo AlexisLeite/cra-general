@@ -1,7 +1,8 @@
 import { TfiRulerAlt } from 'react-icons/tfi';
+import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 
-export function RulerTool() {
+export const RulerTool = observer(function RulerTool() {
   const d = Diagram.use();
 
   return (
@@ -13,4 +14,4 @@ export function RulerTool() {
       title="Ruler"
     />
   );
-}
+});

@@ -1,8 +1,9 @@
 import { TfiSaveAlt } from 'react-icons/tfi';
+import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 import { downloadFile } from '../../../util/downloadFile';
 
-export function DownloadTool() {
+export const DownloadTool = observer(function DownloadTool() {
   const d = Diagram.use();
 
   return (
@@ -14,4 +15,4 @@ export function DownloadTool() {
       title="Download"
     />
   );
-}
+});

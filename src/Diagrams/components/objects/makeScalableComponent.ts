@@ -6,3 +6,11 @@ export function makeScalableComponent<T extends object>(c: T): T {
   Object.assign(c, { __scalable: true });
   return c;
 }
+export function makeBackScalableComponent<T extends object>(c: T): T {
+  if (!c) {
+    return c;
+  }
+
+  Object.assign(c, { __scalableBack: true });
+  return c;
+}

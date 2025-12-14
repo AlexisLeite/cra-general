@@ -1,4 +1,5 @@
 import { SVGAttributes } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 
 interface IconBaseProps extends SVGAttributes<SVGElement> {
@@ -21,7 +22,7 @@ const MiSnapToGrid = (props: IconBaseProps) => (
   </svg>
 );
 
-export function SnapToGridTool() {
+export const SnapToGridTool = observer(function SnapToGridTool() {
   const d = Diagram.use();
 
   return (
@@ -31,4 +32,4 @@ export function SnapToGridTool() {
       title="Snap to grid"
     />
   );
-}
+});

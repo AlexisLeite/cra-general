@@ -1,6 +1,11 @@
 import { PiTestTubeFill } from 'react-icons/pi';
+import { observer } from 'mobx-react-lite';
 
-export function BenchTool({ onBench }: { onBench: () => void }) {
+export const BenchTool = observer(function BenchTool({
+  onBench,
+}: {
+  onBench: () => void;
+}) {
   return (
     <PiTestTubeFill
       className="tool"
@@ -10,4 +15,4 @@ export function BenchTool({ onBench }: { onBench: () => void }) {
       title="Bench"
     />
   );
-}
+});

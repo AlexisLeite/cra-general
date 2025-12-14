@@ -1,7 +1,8 @@
 import { CiLight } from 'react-icons/ci';
+import { observer } from 'mobx-react-lite';
 import { Theme } from '../Theme';
 
-export function ThemeTool() {
+export const ThemeTool = observer(function ThemeTool() {
   return (
     <CiLight
       className={`tool ${Theme.instance.get() ? 'selected' : ''}`}
@@ -11,4 +12,4 @@ export function ThemeTool() {
       title="Theme"
     />
   );
-}
+});

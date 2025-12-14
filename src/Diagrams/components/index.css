@@ -113,6 +113,10 @@ body.light {
   overflow: hidden;
 }
 
+.canvas__frame .foreground {
+  z-index: 2;
+}
+
 .avoid-selection * {
   user-select: none;
 }

@@ -20,7 +20,7 @@ function _findBestPathBetweenNodes(
    */
 
   const path2 = [
-    A.coordinates,
+    A.coordinates.copy(),
     originSteppedBack,
     new Coordinates([
       (originSteppedBack.x + targetSteppedBack.x) / 2,
@@ -31,7 +31,7 @@ function _findBestPathBetweenNodes(
       targetSteppedBack.y,
     ]),
     targetSteppedBack,
-    B.coordinates,
+    B.coordinates.copy(),
   ];
 
   if (!pathCollidesNodes(path2.slice(1, -1), [A.parent, B.parent])) {
@@ -43,7 +43,7 @@ function _findBestPathBetweenNodes(
    */
 
   const path3 = [
-    A.coordinates,
+    A.coordinates.copy(),
     originSteppedBack,
     new Coordinates([
       originSteppedBack.x,
@@ -54,7 +54,7 @@ function _findBestPathBetweenNodes(
       (originSteppedBack.y + targetSteppedBack.y) / 2,
     ]),
     targetSteppedBack,
-    B.coordinates,
+    B.coordinates.copy(),
   ];
 
   if (!pathCollidesNodes(path3.slice(1, -1), [A.parent, B.parent])) {
@@ -73,11 +73,11 @@ function _findBestPathBetweenNodes(
 
   function checkPath0() {
     const path0 = [
-      A.coordinates,
+      A.coordinates.copy(),
       originSteppedBack,
       new Coordinates([targetSteppedBack.x, originSteppedBack.y]),
       targetSteppedBack,
-      B.coordinates,
+      B.coordinates.copy(),
     ];
 
     if (!pathCollidesNodes(path0.slice(1, -1), [A.parent, B.parent])) {
@@ -91,11 +91,11 @@ function _findBestPathBetweenNodes(
    */
   function checkPath1() {
     const path1 = [
-      A.coordinates,
+      A.coordinates.copy(),
       originSteppedBack,
       new Coordinates([originSteppedBack.x, targetSteppedBack.y]),
       targetSteppedBack,
-      B.coordinates,
+      B.coordinates.copy(),
     ];
 
     if (!pathCollidesNodes(path1.slice(1, -1), [A.parent, B.parent])) {
@@ -144,7 +144,7 @@ function _findBestPathBetweenNodes(
     ...around,
     new Coordinates([around.at(-1)!.x, targetSteppedBack.y]),
     targetSteppedBack,
-    B.coordinates,
+    B.coordinates.copy(),
   ];
 
   if (!pathCollidesNodes(path4.slice(1, -1), [A.parent, B.parent])) {
@@ -160,7 +160,7 @@ function _findBestPathBetweenNodes(
     ...around,
     new Coordinates([targetSteppedBack.x, around.at(-1)!.y]),
     targetSteppedBack,
-    B.coordinates,
+    B.coordinates.copy(),
   ];
 
   if (!pathCollidesNodes(path4_1.slice(1, -1), [A.parent, B.parent])) {
@@ -176,7 +176,7 @@ function _findBestPathBetweenNodes(
     ...around,
     new Coordinates([around.at(-1)!.x, targetSteppedBack.y]),
     targetSteppedBack,
-    B.coordinates,
+    B.coordinates.copy(),
   ];
 
   if (!pathCollidesNodes(path5.slice(1, -1), [A.parent, B.parent])) {
@@ -192,7 +192,7 @@ function _findBestPathBetweenNodes(
     ...around,
     new Coordinates([targetSteppedBack.x, around.at(-1)!.y]),
     targetSteppedBack,
-    B.coordinates,
+    B.coordinates.copy(),
   ];
 
   if (!pathCollidesNodes(path5_1.slice(1, -1), [A.parent, B.parent])) {
@@ -204,7 +204,7 @@ function _findBestPathBetweenNodes(
    */
   around = getPathAroundNode(gridSize, B, 'a').reverse();
   const path6 = [
-    A.coordinates,
+    A.coordinates.copy(),
     originSteppedBack,
     new Coordinates([around[0].x, originSteppedBack.y]),
     ...around,
@@ -218,7 +218,7 @@ function _findBestPathBetweenNodes(
    */
   around = getPathAroundNode(gridSize, B, 'b').reverse();
   const path6_1 = [
-    A.coordinates,
+    A.coordinates.copy(),
     originSteppedBack,
     new Coordinates([around[0].x, originSteppedBack.y]),
     ...around,
@@ -246,5 +246,5 @@ export function findBestPathBetweenNodes(
     return res;
   }
 
-  return [A.coordinates, B.coordinates];
+  return [A.coordinates.copy(), B.coordinates.copy()];
 }

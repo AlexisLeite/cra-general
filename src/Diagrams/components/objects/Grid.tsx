@@ -1,11 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
-import { makeScalableComponent } from './makeScalableComponent';
+import { makeBackScalableComponent } from './makeScalableComponent';
 
 // Define the factor for the major line spacing (e.g., every 10 minor lines)
 const MAJOR_GRID_FACTOR = 10;
 
-export const Grid = makeScalableComponent(
+export const Grid = makeBackScalableComponent(
   observer(() => {
     const d = Diagram.use();
 

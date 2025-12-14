@@ -6,10 +6,7 @@ import { Tools } from './extra/Tools';
 
 import './index.css';
 import { Measurement } from './extra/Measurement';
-import { Cross } from './objects/Cross';
-import { Coordinates } from '../store/primitives/Coordinates';
 import { Selection } from './extra/Selection';
-import { shapes } from './objects/Shapes';
 import { Grid } from './objects/Grid';
 import { Canvas } from './Canvas';
 import { Stage } from '../layout/HStack';
@@ -24,13 +21,6 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
         </CollapsiblePanel>
         <Canvas>
           <Grid />
-          {shapes()}
-          <Cross
-            coordinates={new Coordinates([5000, 5000])}
-            stroke="#0000ff"
-            size={20}
-            strokeWidth={2}
-          />
           <ConnectorRenderer />
           <Measurement />
           <Selection />

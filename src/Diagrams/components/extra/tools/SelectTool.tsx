@@ -1,7 +1,8 @@
 import { TfiLayoutSidebarNone } from 'react-icons/tfi';
+import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 
-export function SelectTool() {
+export const SelectTool = observer(function SelectTool() {
   const d = Diagram.use();
 
   return (
@@ -13,4 +14,4 @@ export function SelectTool() {
       title="Select"
     />
   );
-}
+});
