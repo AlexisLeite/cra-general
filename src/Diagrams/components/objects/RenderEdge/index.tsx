@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite';
 import { Cross } from '../Cross';
 import { EdgePoint } from '../../../store/elements/EdgePoint';
 import { Coordinates } from '../../../store/primitives/Coordinates';
+import { ToolsStates } from '../../extra/Tools';
 
 export * from './types';
 
@@ -108,9 +109,10 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           markerEnd={endType !== 'none' ? `url(#${endMarkerId})` : undefined}
         />
 
-        {points.map((c, i) => (
-          <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
-        ))}
+        {ToolsStates.instance.showDragHints &&
+          points.map((c, i) => (
+            <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
+          ))}
 
         {edge && draggable && (
           <EdgeMidpoints

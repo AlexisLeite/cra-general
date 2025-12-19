@@ -10,6 +10,18 @@ import { ThemeTool } from './tools/ThemeTool';
 import { MoveTool } from './tools/MoveTool';
 import { Separator } from './tools/Separator';
 import { Toolbar } from './Toolbar';
+import { makeAutoObservable } from 'mobx';
+import { LetterTool } from './tools/LetterTool';
+
+export class ToolsStates {
+  static instance = new ToolsStates();
+
+  showDragHints = false;
+
+  private constructor() {
+    makeAutoObservable(this);
+  }
+}
 
 export const Tools = observer(() => {
   return (
@@ -27,6 +39,16 @@ export const Tools = observer(() => {
       <OpenTool />
       <Separator />
       <ThemeTool />
+      <Separator />
+      <LetterTool
+        title="Toggle drag hints"
+        letters="EH"
+        active={ToolsStates.instance.showDragHints}
+        onClick={() => {
+          ToolsStates.instance.showDragHints =
+            !ToolsStates.instance.showDragHints;
+        }}
+      />
     </Toolbar>
   );
 });

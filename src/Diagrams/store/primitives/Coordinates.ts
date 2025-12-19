@@ -157,6 +157,17 @@ export class Coordinates {
     return this;
   }
 
+  snapToGrid(gridSize: number, dimension: 'x' | 'y' | 'both' = 'both') {
+    if (dimension !== 'y') {
+      this.x = Math.round(this.x / gridSize) * gridSize;
+    }
+    if (dimension !== 'x') {
+      this.y = Math.round(this.y / gridSize) * gridSize;
+    }
+
+    return this;
+  }
+
   substract(another: Coordinates | [number, number]) {
     if (another.length !== 2) {
       throw new Error('Invalid number of coordinates');

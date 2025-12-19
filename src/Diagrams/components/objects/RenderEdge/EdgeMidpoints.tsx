@@ -25,7 +25,7 @@ export const EdgeMidpoints: React.FC<EdgeMidpointsProps> = ({
 
         return (
           <rect
-            key={mid.toString()}
+            key={mid.id}
             x={x - 6}
             y={y - 6}
             rx={4}

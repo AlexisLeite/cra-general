@@ -55,7 +55,9 @@ export class Edge {
   }
 
   setSteps(steps: Coordinates[]) {
-    this.state.steps = steps.map((c) => new EdgePoint(c));
+    this.state.steps = steps.map((c) =>
+      c instanceof EdgePoint ? c : new EdgePoint(c),
+    );
 
     this.state.steps[0].mode = 'static';
     this.state.steps.at(-1)!.mode = 'static';

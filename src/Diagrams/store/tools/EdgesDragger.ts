@@ -5,8 +5,11 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Midpoint } from '../../components/objects/RenderEdge';
 import { MouseEvent } from 'react';
 import { EdgePoint } from '../elements/EdgePoint';
+import { Edge } from '../elements/Edge';
+import { findBestPathBetweenNodes } from './paths/findBestPathBetweenNodes';
 
 type DragContext = {
+  edge: Edge;
   midpoint: Midpoint;
   startMouseCanvas: Coordinates;
   startPointA: Coordinates;
@@ -23,10 +26,9 @@ export class EdgesDragger {
 
   protected drag: DragContext | null = null;
 
-  startDrag(midpoint: Midpoint, ev: MouseEvent) {
+  startDrag(edge: Edge, midpoint: Midpoint, ev: MouseEvent) {
     ev.preventDefault();
 
-    midpoint.edge.steps.forEach((c) => (c.mode = 'auto'));
     midpoint.points.forEach((c) => ((c as EdgePoint).mode = 'manual'));
 
     const startMouseCanvas = this.diagram.canvas.inverseFit(
@@ -36,12 +38,7 @@ export class EdgesDragger {
     const startPointA = midpoint.points[0].copy().nonObserved;
     const startPointB = midpoint.points[1].copy().nonObserved;
 
-    this.drag = {
-      midpoint,
-      startMouseCanvas,
-      startPointA,
-      startPointB,
-    };
+    this.drag = { edge, midpoint, startMouseCanvas, startPointA, startPointB };
   }
 
   protected handleMouseMove(ev: AnyMouseEvent) {
@@ -63,6 +60,19 @@ export class EdgesDragger {
 
     a.assign(this.drag.startPointA.copy().sum(delta));
     b.assign(this.drag.startPointB.copy().sum(delta));
+
+    if (this.diagram.snapToGrid) {
+      a.snapToGrid(this.diagram.gridSize, isHorizontal ? 'x' : 'y');
+      b.snapToGrid(this.diagram.gridSize, isHorizontal ? 'x' : 'y');
+    }
+
+    this.drag.edge.setSteps(
+      findBestPathBetweenNodes(
+        this.diagram,
+        this.drag.edge.from,
+        this.drag.edge.to,
+      ),
+    );
   }
 
   protected handleMouseUp() {

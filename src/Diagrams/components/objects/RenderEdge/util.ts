@@ -5,7 +5,7 @@ import { Midpoint } from './types';
 
 const ALIGNMENT_THRESHOLD = 0.1;
 
-export function areSegmentsAligned(
+export function arePointsAligned(
   p1: Coordinates,
   p2: Coordinates,
   p3: Coordinates,
@@ -36,7 +36,7 @@ export function getSegmentMidpoints(
       continue;
     }
 
-    midpoints.push(new Midpoint(edge, segment));
+    midpoints.push(new Midpoint(String(i), edge, segment));
   }
 
   return midpoints;

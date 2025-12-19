@@ -14,7 +14,6 @@ export const Stats = observer(() => {
     : null;
 
   const measure = Math.round(d.measurer.getMeassurement() || 0);
-  const scaledMeasure = Math.round(measure / d.canvas.scale);
 
   return (
     <div className="diagram__stats">
@@ -30,7 +29,6 @@ ${
   measure
     ? `
 measure: ${measure}
-measure-fit: ${scaledMeasure}  
 `.trim()
     : ''
 }

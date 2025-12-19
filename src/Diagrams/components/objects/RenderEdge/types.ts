@@ -28,6 +28,7 @@ export interface RenderEdgeProps {
 
 export class Midpoint extends Coordinates {
   constructor(
+    public id: string,
     public edge: Edge,
     public points: [Coordinates, Coordinates],
     items?: AnyMouseEvent | Event | Coordinates | number[],
@@ -40,6 +41,6 @@ export class Midpoint extends Coordinates {
   }
 
   copy() {
-    return new Midpoint(this.edge, this.points, super.copy());
+    return new Midpoint(this.id, this.edge, this.points, super.copy());
   }
 }

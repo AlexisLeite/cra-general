@@ -6,8 +6,8 @@ import { pathCollidesNodes } from './pathCollidesNodes';
 import { stepFromGateway } from './stepBackFromGateway';
 import { TDirection } from '../../types';
 import { Node } from '../../elements/Node';
-import { Edge } from '../../elements/Edge';
 import { EdgePoint } from '../../elements/EdgePoint';
+import { arePointsAligned } from '../../../components/objects/RenderEdge/util';
 
 export type Path = { x: number; y: number }[];
 
@@ -251,37 +251,78 @@ type Segment = {
   to: EdgePoint;
 };
 
-function findDynamicSegments(e: Edge): (Segment | EdgePoint)[] {
-  const s: (Segment | EdgePoint)[] = [];
+function getEdgePoint(step: Coordinates) {
+  return step instanceof EdgePoint ? step : new EdgePoint(step);
+}
 
-  let startIndex = 0;
+function filterResultPath(steps: EdgePoint[]) {
+  const result: EdgePoint[] = [];
 
-  const top = e.steps.length - 1;
-
-  for (let i = 0; i <= top; i++) {
-    if (i === 0 || i === top || e.steps[i].mode === 'auto') {
-      if (i === top) {
-        s.push({
-          from: e.steps[startIndex],
-          to: e.steps[i],
-        });
+  let lastStr = '';
+  for (let i = 0; i < steps.length; i++) {
+    if (lastStr === steps[i].toString()) {
+      if (result[result.length - 1].mode === 'auto') {
+        result[result.length - 1] = steps[i];
       }
-
-      continue;
+    } else {
+      lastStr = steps[i].toString();
+      result.push(steps[i]);
     }
 
-    if (i > startIndex + 1) {
-      s.push({
-        from: e.steps[startIndex],
-        to: e.steps[i],
-      });
-    } else {
-      s.push(e.steps[i - 1]);
-      startIndex = i;
+    if (
+      result.length >= 3 &&
+      arePointsAligned(result.at(-3)!, result.at(-2)!, result.at(-1)!)
+    ) {
+      result.splice(result.length - 2, 1);
     }
   }
 
-  return s;
+  return result;
+}
+
+function findDynamicSegments(steps: Coordinates[]): (Segment | EdgePoint)[] {
+  const seenNodes = new Set<string>();
+  const filtered = steps
+    .map((c) => getEdgePoint(c))
+    .filter((c, i) => {
+      if (getEdgePoint(c).mode === 'manual') {
+        if (!seenNodes.has(c.toString())) {
+          seenNodes.add(c.toString());
+          return true;
+        }
+      } else {
+        if (
+          (i === 0 || i === steps.length - 1) &&
+          !seenNodes.has(c.toString())
+        ) {
+          seenNodes.add(c.toString());
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+  const res: (Segment | EdgePoint)[] = [];
+
+  let last = 0;
+  for (let i = 0; i < filtered.length; i++) {
+    const s = filtered[i];
+    if (s.mode === 'manual') {
+      if (last >= i) {
+        res.push(s);
+      } else {
+        res.push({ from: filtered[last], to: s });
+      }
+      last = i;
+    }
+  }
+
+  if (last < filtered.length) {
+    res.push({ from: filtered[last], to: filtered.at(-1)! });
+  }
+
+  return res;
 }
 
 function _findBestPathBetweenNodes(
@@ -295,7 +336,13 @@ function _findBestPathBetweenNodes(
   const targetSteppedBack = stepFromGateway(gridSize, B);
 
   if (edge) {
-    const segments = findDynamicSegments(edge);
+    const path = [
+      originSteppedBack,
+      ...edge.steps.slice(1, -1),
+      targetSteppedBack,
+    ];
+
+    const segments = findDynamicSegments(path);
     segments.splice(1, -1);
 
     const res = [originSteppedBack, ...segments, targetSteppedBack]
@@ -308,17 +355,21 @@ function _findBestPathBetweenNodes(
               checkCollisions: [A.parent, B.parent],
             }),
       )
-      .reduce<Coordinates[]>((acc, cur) => {
+      .reduce<EdgePoint[]>((acc, cur) => {
         if (cur instanceof Coordinates) {
-          acc.push(cur);
+          acc.push(getEdgePoint(cur));
         } else if (cur) {
-          acc.push(...cur);
+          acc.push(...cur.map((c) => getEdgePoint(c)));
         }
 
         return acc;
       }, []);
 
-    return [A.coordinates, ...res, B.coordinates];
+    return [
+      getEdgePoint(A.coordinates),
+      ...filterResultPath(res),
+      getEdgePoint(B.coordinates),
+    ];
   }
 
   return findBestPathBetweenPoints(originSteppedBack, targetSteppedBack, {
