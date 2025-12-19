@@ -433,7 +433,8 @@ body.light {
   }
 }
 
-.edge:hover {
+.edge:hover,
+.edge.dragging {
   .edge_drag_point {
     cursor: pointer;
     fill: var(--edge-dragger-hover-stroke);

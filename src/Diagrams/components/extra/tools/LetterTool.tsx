@@ -13,7 +13,7 @@ export const LetterTool = ({
     <svg
       stroke="currentColor"
       fill="currentColor"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 24 24"
       height="1em"
       width="1em"
@@ -27,10 +27,10 @@ export const LetterTool = ({
         }}
         x="50%"
         y="50%"
-        text-anchor="middle"
-        dominant-baseline="middle"
-        font-size="20"
-        font-family={`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"`}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize="20"
+        fontFamily={`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif"`}
         fill="currentColor"
         stroke="currentColor"
       >

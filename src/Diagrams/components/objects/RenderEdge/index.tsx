@@ -7,6 +7,7 @@ import { Cross } from '../Cross';
 import { EdgePoint } from '../../../store/elements/EdgePoint';
 import { Coordinates } from '../../../store/primitives/Coordinates';
 import { ToolsStates } from '../../extra/Tools';
+import { runInAction } from 'mobx';
 
 export * from './types';
 
@@ -65,7 +66,9 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           : 'none';
 
     return (
-      <g className={className || 'edge'}>
+      <g
+        className={`${className || ''} ${edge?.state.dragging ? 'dragging' : ''} edge`}
+      >
         <defs>
           <EdgeMarker
             id={startMarkerId}
@@ -90,6 +93,21 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           strokeWidth={width + 8}
           fill="none"
           className="edge-hover-area"
+          onMouseOver={() => {
+            runInAction(() => {
+              edge && (edge!.state.hover = true);
+            });
+          }}
+          onMouseOut={(ev) => {
+            if (
+              (ev.target as HTMLElement).closest('.edge') !==
+              (ev.relatedTarget as HTMLElement).closest('.edge')
+            ) {
+              runInAction(() => {
+                edge && (edge!.state.hover = false);
+              });
+            }
+          }}
         />
 
         <path
@@ -114,7 +132,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
             <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
           ))}
 
-        {edge && draggable && (
+        {edge && (edge.state.hover || edge.state.dragging) && draggable && (
           <EdgeMidpoints
             edge={edge}
             points={points}

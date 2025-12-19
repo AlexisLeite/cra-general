@@ -28,6 +28,7 @@ export class EdgesDragger {
 
   startDrag(edge: Edge, midpoint: Midpoint, ev: MouseEvent) {
     ev.preventDefault();
+    edge.state.dragging = true;
 
     midpoint.points.forEach((c) => ((c as EdgePoint).mode = 'manual'));
 
@@ -77,6 +78,7 @@ export class EdgesDragger {
 
   protected handleMouseUp() {
     if (!this.drag) return;
+    this.drag.edge.state.dragging = false;
     this.drag = null;
   }
 }

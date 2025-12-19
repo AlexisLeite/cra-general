@@ -2,16 +2,29 @@ import { Coordinates } from '../primitives/Coordinates';
 import { AnyMouseEvent } from '../Canvas';
 import { makeObservable, observable } from 'mobx';
 
-export class EdgePoint extends Coordinates {
-  mode: 'auto' | 'manual' | 'static' = 'auto';
+export type TEdgePointType = 'auto' | 'manual' | 'static';
 
-  constructor(items?: AnyMouseEvent | Event | Coordinates | number[]) {
-    super(items);
+export class EdgePoint extends Coordinates {
+  mode: TEdgePointType = 'auto';
+
+  constructor(
+    items?:
+      | AnyMouseEvent
+      | Event
+      | Coordinates
+      | number[]
+      | [number, number, TEdgePointType],
+  ) {
+    super(
+      Array.isArray(items) ? (items.slice(0, 2) as [number, number]) : items,
+    );
 
     makeObservable(this, { mode: observable });
 
     if (items instanceof EdgePoint) {
       this.mode = items.mode;
+    } else if (Array.isArray(items) && items.length === 3) {
+      this.mode = items[2] as TEdgePointType;
     }
   }
 

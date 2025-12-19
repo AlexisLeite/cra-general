@@ -1,14 +1,14 @@
 import { action, computed, makeObservable, observable } from 'mobx';
 import { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
-import { EdgePoint } from './EdgePoint';
+import { EdgePoint, TEdgePointType } from './EdgePoint';
 
 let id = Number.MIN_SAFE_INTEGER;
 
 export class Edge {
   id: Readonly<number> = id++;
 
-  constructor(protected state: TEdgeState) {
+  constructor(public state: TEdgeState) {
     makeObservable<Edge, 'state'>(this, {
       state: observable,
       setSteps: action,
@@ -101,7 +101,9 @@ export class Edge {
       arrowHeadStart,
       lineStyle,
       pathType,
-      steps: steps.map((c) => c.raw),
+      steps: steps.map(
+        (c) => [...c.raw, c.mode] as [number, number, TEdgePointType],
+      ),
       stroke,
       strokeWidth,
       to,

@@ -35,6 +35,10 @@ export type EdgeArrowHead =
 export type EdgeLineStyle = 'solid' | 'dashed' | 'dotted';
 
 export type TEdgeState = {
+  dragging: boolean;
+  hover: boolean;
+  selected: boolean;
+
   label: string;
   labelPositioning: Coordinates;
 

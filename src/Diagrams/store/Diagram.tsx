@@ -86,6 +86,8 @@ export class Diagram {
       _showGrid: observable,
       _snapToGrid: observable,
       _gridSize: observable,
+      toggleGrid: action,
+      toggleSnapToGrid: action,
     });
   }
 
@@ -125,6 +127,9 @@ export class Diagram {
 
   connect(from: Gateway, to: Gateway) {
     const edge = new this.edgeClass({
+      hover: false,
+      dragging: false,
+      selected: false,
       from,
       to,
       label: '',
