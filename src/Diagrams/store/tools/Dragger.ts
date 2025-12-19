@@ -31,6 +31,14 @@ export class Dragger {
   protected unsubscribe = () => {};
   protected interval = -1;
 
+  public startDrag(node: Node) {
+    this.draggingNodes = [{ node, startPoint: node.coordinates.copy() }];
+    this.startPoint = Mouse.getInstance().coordinates;
+    this.startPointScaled = this.diagram.canvas.inverseFit(this.startPoint);
+
+    this.handleDragAction();
+  }
+
   protected handleMouseDown(ev: AnyMouseEvent) {
     const nodeG = (ev.target as HTMLElement).closest<SVGGElement>(
       '.diagram__node',
@@ -48,26 +56,31 @@ export class Dragger {
           new Coordinates(ev),
         );
 
-        this.unsubscribe = this.diagram.canvas.on(
-          'scale',
-          ({ newScale, previousScale }) => {
-            this.startPoint.divide(previousScale).multiply(newScale);
-          },
-        );
-
-        if (this.interval) {
-          clearInterval(this.interval);
-        }
-
-        this.interval = setInterval(
-          this.handleDragInterval.bind(this),
-          30,
-        ) as any;
+        this.handleDragAction();
       }
     }
   }
 
+  protected handleDragAction() {
+    this.unsubscribe = this.diagram.canvas.on(
+      'scale',
+      ({ newScale, previousScale }) => {
+        this.startPoint.divide(previousScale).multiply(newScale);
+      },
+    );
+
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
+    this.interval = setInterval(this.handleDragInterval.bind(this), 30) as any;
+  }
+
   private calcDisplacement(distanceFromEdge: number) {
+    if (!this.diagram.rules.displaceWhenDragOnEdges) {
+      return 0;
+    }
+
     return ((100 - distanceFromEdge) / 10) ** 2;
   }
 

@@ -1,5 +1,6 @@
 import {
   MouseEvent,
+  MouseEventHandler,
   ReactNode,
   useCallback,
   useEffect,
@@ -19,6 +20,7 @@ export type CollapsiblePanelProps = {
   minWidth?: number;
   maxWidth?: number;
   children?: ReactNode;
+  onMouseLeave?: MouseEventHandler;
 };
 
 type DragState = {
@@ -165,6 +167,7 @@ export const CollapsiblePanel = observer(function CollapsiblePanel({
   minWidth = 220,
   maxWidth = 480,
   children,
+  onMouseLeave,
 }: CollapsiblePanelProps) {
   const [manager] = useState(
     () =>
@@ -228,7 +231,11 @@ export const CollapsiblePanel = observer(function CollapsiblePanel({
   );
 
   return (
-    <div className={rootClassName} style={rootStyle}>
+    <div
+      onMouseLeave={onMouseLeave}
+      className={rootClassName}
+      style={rootStyle}
+    >
       <div className="collapsible_panel__header" aria-expanded={!isCollapsed}>
         {title != null && (
           <span className="collapsible_panel__title">{title}</span>

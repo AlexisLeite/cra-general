@@ -24,6 +24,14 @@ import { TextNode } from './elements/TextNode';
 const DiagramContext = createContext<Diagram | null>(null);
 
 export class Diagram {
+  rules = {
+    displaceWhenDragOnEdges: true,
+    enableEvents: true,
+    gridSize: 50,
+    toggleGrid: true,
+    snapToGrid: true,
+  };
+
   private static knownClasses = new Map<string, any>();
   static getClass(name: string) {
     return this.knownClasses.get(name);
@@ -42,15 +50,9 @@ export class Diagram {
   protected emitter = new EventEmitter<{
     select: Node;
   }>();
-  protected _enableEvents = true;
-
   get eventsEnabled() {
-    return this._enableEvents;
+    return this.rules.enableEvents;
   }
-
-  protected _gridSize = 50;
-  protected _showGrid = true;
-  protected _snapToGrid = true;
 
   canvas = new Canvas(this);
   creator = new Creator(this);
@@ -67,25 +69,13 @@ export class Diagram {
     Diagram.registerClass(Gateway);
     Diagram.registerClass(TextNode);
 
-    makeObservable<
-      Diagram,
-      | '_enableEvents'
-      | '_selectedNodes'
-      | '_nodes'
-      | '_showGrid'
-      | '_snapToGrid'
-      | '_gridSize'
-    >(this, {
+    makeObservable<Diagram, '_selectedNodes' | '_nodes'>(this, {
       edges: computed,
       _nodes: observable,
       _selectedNodes: observable,
       selectNode: action,
-      _enableEvents: observable,
       enableEvents: action,
       disableEvents: action,
-      _showGrid: observable,
-      _snapToGrid: observable,
-      _gridSize: observable,
       toggleGrid: action,
       toggleSnapToGrid: action,
     });
@@ -153,12 +143,12 @@ export class Diagram {
   }
 
   enableEvents() {
-    this._enableEvents = true;
+    this.rules.enableEvents = true;
     this.disableEventDependantClasses();
   }
 
   disableEvents() {
-    this._enableEvents = false;
+    this.rules.enableEvents = false;
     this.disableEventDependantClasses();
   }
   getNodeById(id: string) {
@@ -166,7 +156,7 @@ export class Diagram {
   }
 
   get gridSize() {
-    return this._gridSize;
+    return this.rules.gridSize;
   }
 
   on = this.emitter.on.bind(this.emitter);
@@ -197,14 +187,14 @@ export class Diagram {
   }
 
   get showGrid() {
-    return this._showGrid;
+    return this.rules.toggleGrid;
   }
   get snapToGrid() {
-    return this._snapToGrid;
+    return this.rules.snapToGrid;
   }
 
   toggleGrid() {
-    this._showGrid = !this._showGrid;
+    this.rules.toggleGrid = !this.rules.toggleGrid;
   }
 
   toggleNodeSelection(node: Node) {
@@ -216,7 +206,7 @@ export class Diagram {
   }
 
   toggleSnapToGrid() {
-    this._snapToGrid = !this._snapToGrid;
+    this.rules.snapToGrid = !this.rules.snapToGrid;
   }
 
   unselectNode(node: Node) {

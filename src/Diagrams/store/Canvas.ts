@@ -67,6 +67,8 @@ export class Canvas {
 
   constructor(public diagram: Diagram) {
     makeAutoObservable(this, { element: false });
+    const fn2 = (ev: MouseEvent) => this.handleMouseUp(ev);
+    document.addEventListener('mouseup', fn2);
   }
 
   public get dragging() {
@@ -114,15 +116,12 @@ export class Canvas {
     const fn1 = (ev: MouseEvent) => {
       this.handleMouseMove(ev);
     };
-    const fn2 = (ev: MouseEvent) => this.handleMouseUp(ev);
 
     document.addEventListener('mousemove', fn1);
-    document.addEventListener('mouseup', fn2);
 
     this.unsubscribeMouse();
     this.unsubscribeMouse = () => {
       document.removeEventListener('mousemove', fn1);
-      document.removeEventListener('mouseup', fn2);
     };
 
     this.emitter.emit('mouseDown', ev);

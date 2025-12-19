@@ -10,15 +10,13 @@ import { Selection } from './extra/Selection';
 import { Grid } from './objects/Grid';
 import { Canvas } from './Canvas';
 import { Stage } from '../layout/HStack';
-import { CollapsiblePanel } from '../layout/CollapsiblePanel';
+import { ShapesShowcase } from './ShapesShowcase';
 
 export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
   return (
     <diagram.Context>
       <Stage>
-        <CollapsiblePanel title="Tools" defaultWidth={280}>
-          Hello world
-        </CollapsiblePanel>
+        <ShapesShowcase />
         <Canvas>
           <Grid />
           <ConnectorRenderer />
