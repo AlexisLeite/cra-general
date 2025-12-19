@@ -3,7 +3,7 @@ import { AnyMouseEvent } from '../Canvas';
 import { makeObservable, observable } from 'mobx';
 
 export class EdgePoint extends Coordinates {
-  mode: 'auto' | 'manual' = 'auto';
+  mode: 'auto' | 'manual' | 'static' = 'auto';
 
   constructor(items?: AnyMouseEvent | Event | Coordinates | number[]) {
     super(items);

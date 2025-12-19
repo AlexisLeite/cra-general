@@ -1,9 +1,14 @@
 import type React from 'react';
 import { Coordinates } from '../../../store/primitives/Coordinates';
 import { EdgeArrowHead, EdgeLineStyle } from '../../../store/types';
+import type { EdgePoint } from '../../../store/elements/EdgePoint';
+import type { AnyMouseEvent } from '../../../store/Canvas';
+import { makeObservable, observable } from 'mobx';
+import type { Edge } from '../../../store/elements/Edge';
 
 export interface RenderEdgeProps {
-  points: Coordinates[];
+  edge?: Edge;
+  points: (Coordinates | EdgePoint)[];
   color?: string;
   width?: number;
   arrowSize?: number;
@@ -18,14 +23,23 @@ export interface RenderEdgeProps {
 
   draggable?: boolean;
 
-  onMidpointMouseDown?: (midpointIndex: number, ev: React.MouseEvent) => void;
+  onMidpointMouseDown?: (p: Midpoint, ev: React.MouseEvent) => void;
 }
 
-export interface MidpointInfo extends Coordinates {
-  insertIndex: number;
-  startIndex: number;
-  endIndex: number;
-  isHorizontal: boolean;
-  isStartSegment: boolean;
-  isEndSegment: boolean;
+export class Midpoint extends Coordinates {
+  constructor(
+    public edge: Edge,
+    public points: [Coordinates, Coordinates],
+    items?: AnyMouseEvent | Event | Coordinates | number[],
+  ) {
+    super(items);
+
+    this.assign(points[0].copy().sum(points[1]).divide(2));
+
+    makeObservable(this, { points: observable });
+  }
+
+  copy() {
+    return new Midpoint(this.edge, this.points, super.copy());
+  }
 }

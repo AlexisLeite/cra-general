@@ -1,15 +1,13 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
-import type { Node } from '../elements/Node';
-import type { EdgePoint } from '../elements/EdgePoint';
 import type { AnyMouseEvent } from '../Canvas';
 import { Coordinates } from '../primitives/Coordinates';
+import { Midpoint } from '../../components/objects/RenderEdge';
+import { MouseEvent } from 'react';
+import { EdgePoint } from '../elements/EdgePoint';
 
 type DragContext = {
-  nodeA: Node;
-  nodeB: Node;
-  pointA: EdgePoint;
-  pointB: EdgePoint;
+  midpoint: Midpoint;
   startMouseCanvas: Coordinates;
   startPointA: Coordinates;
   startPointB: Coordinates;
@@ -25,27 +23,21 @@ export class EdgesDragger {
 
   protected drag: DragContext | null = null;
 
-  startDrag(
-    nodeA: Node,
-    nodeB: Node,
-    pointA: EdgePoint,
-    pointB: EdgePoint,
-    ev: MouseEvent,
-  ) {
+  startDrag(midpoint: Midpoint, ev: MouseEvent) {
     ev.preventDefault();
+
+    midpoint.edge.steps.forEach((c) => (c.mode = 'auto'));
+    midpoint.points.forEach((c) => ((c as EdgePoint).mode = 'manual'));
 
     const startMouseCanvas = this.diagram.canvas.inverseFit(
       new Coordinates(ev),
     );
 
-    const startPointA = pointA.copy().nonObserved;
-    const startPointB = pointB.copy().nonObserved;
+    const startPointA = midpoint.points[0].copy().nonObserved;
+    const startPointB = midpoint.points[1].copy().nonObserved;
 
     this.drag = {
-      nodeA,
-      nodeB,
-      pointA,
-      pointB,
+      midpoint,
       startMouseCanvas,
       startPointA,
       startPointB,
@@ -55,10 +47,13 @@ export class EdgesDragger {
   protected handleMouseMove(ev: AnyMouseEvent) {
     if (!this.drag) return;
 
+    const a = this.drag.midpoint.points[0];
+    const b = this.drag.midpoint.points[1];
+
     const mouseCanvas = this.diagram.canvas.inverseFit(new Coordinates(ev));
     const delta = mouseCanvas.nonObserved.substract(this.drag.startMouseCanvas);
 
-    const isHorizontal = this.drag.pointA.x === this.drag.pointB.x;
+    const isHorizontal = a.x === b.x;
 
     if (isHorizontal) {
       delta.y = 0;
@@ -66,13 +61,8 @@ export class EdgesDragger {
       delta.x = 0;
     }
 
-    // Apply delta to original points; persist via assign() as requested.
-    this.drag.pointA.assign(this.drag.startPointA.copy().sum(delta));
-    this.drag.pointB.assign(this.drag.startPointB.copy().sum(delta));
-
-    // Optional: mark as manual if your logic expects it.
-    this.drag.pointA.mode = 'manual';
-    this.drag.pointB.mode = 'manual';
+    a.assign(this.drag.startPointA.copy().sum(delta));
+    b.assign(this.drag.startPointB.copy().sum(delta));
   }
 
   protected handleMouseUp() {

@@ -3,11 +3,28 @@ import { RenderEdgeProps } from './types';
 import { EdgeMarker } from './EdgeMarker';
 import { EdgeMidpoints } from './EdgeMidpoints';
 import { observer } from 'mobx-react-lite';
+import { Cross } from '../Cross';
+import { EdgePoint } from '../../../store/elements/EdgePoint';
+import { Coordinates } from '../../../store/primitives/Coordinates';
 
 export * from './types';
 
+function crossColor(p: Coordinates | EdgePoint) {
+  if (p instanceof EdgePoint) {
+    switch (p.mode) {
+      case 'auto':
+        return 'red';
+      case 'manual':
+        return 'green';
+      case 'static':
+        return 'yellow';
+    }
+  }
+}
+
 export const RenderEdge: React.FC<RenderEdgeProps> = observer(
   ({
+    edge,
     points,
     color,
     width = 2,
@@ -91,8 +108,13 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           markerEnd={endType !== 'none' ? `url(#${endMarkerId})` : undefined}
         />
 
-        {draggable && (
+        {points.map((c, i) => (
+          <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
+        ))}
+
+        {edge && draggable && (
           <EdgeMidpoints
+            edge={edge}
             points={points}
             onMouseDown={(midpointIndex, ev) => {
               onMidpointMouseDown?.(midpointIndex, ev);

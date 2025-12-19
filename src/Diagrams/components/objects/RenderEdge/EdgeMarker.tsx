@@ -1,10 +1,10 @@
 import React from 'react';
-import { RenderEdgeProps } from './types';
+import { EdgeArrowHead } from '../../../store/types';
 
 interface EdgeMarkerProps {
   id: string;
   color?: string;
-  type: RenderEdgeProps['startType'];
+  type: EdgeArrowHead;
   width: number;
   arrowSize: number;
   flip?: boolean;

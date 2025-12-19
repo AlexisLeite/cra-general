@@ -51,6 +51,7 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
 
   return (
     <RenderEdge
+      edge={edge}
       points={edge.steps}
       endType={edge.arrowHeadEnd ?? 'arrow'}
       startType={edge.arrowHeadStart ?? 'none'}
@@ -58,18 +59,8 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
       color={edge.stroke}
       width={edge.strokeWidth ?? 2}
       draggable
-      onMidpointMouseDown={(midpointIndex, ev) => {
-        const steps = edge.steps;
-        const pointA = steps[midpointIndex + 1];
-        const pointB = steps[midpointIndex + 2];
-
-        diagram.edgesDragger.startDrag(
-          edge.from.parent,
-          edge.to.parent,
-          pointA,
-          pointB,
-          ev.nativeEvent,
-        );
+      onMidpointMouseDown={(m, ev) => {
+        diagram.edgesDragger.startDrag(m, ev);
       }}
     />
   );

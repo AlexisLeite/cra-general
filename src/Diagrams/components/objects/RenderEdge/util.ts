@@ -1,7 +1,9 @@
+import type { Edge } from '../../../store/elements/Edge';
+import { EdgePoint } from '../../../store/elements/EdgePoint';
 import { Coordinates } from '../../../store/primitives/Coordinates';
-import { MidpointInfo } from './types';
+import { Midpoint } from './types';
 
-const ALIGNMENT_THRESHOLD = 0.001;
+const ALIGNMENT_THRESHOLD = 0.1;
 
 export function areSegmentsAligned(
   p1: Coordinates,
@@ -13,61 +15,28 @@ export function areSegmentsAligned(
   return Math.abs(crossProduct) < ALIGNMENT_THRESHOLD;
 }
 
-export function getSegmentMidpoints(points: Coordinates[]): MidpointInfo[] {
-  if (!points || points.length < 2) {
-    return [];
-  }
+function getPoints(
+  points: Coordinates[],
+  center: number,
+): [Coordinates, Coordinates] {
+  return [points[center - 1], points[center]];
+}
 
-  const midpoints: MidpointInfo[] = [];
-  let startIndex: number = 0;
-  let segmentCount: number = 0;
+export function getSegmentMidpoints(
+  edge: Edge,
+  points: (Coordinates | EdgePoint)[],
+): Midpoint[] {
+  const midpoints: Midpoint[] = [];
 
-  // First pass: count total segments
-  for (let i: number = 1; i < points.length; i++) {
-    const startPoint: Coordinates = points[startIndex];
-    const currentPoint: Coordinates = points[i];
+  for (let i = 1; i < points.length - 1; i++) {
+    const segment = getPoints(points, i);
 
-    if (
-      i === points.length - 1 ||
-      !areSegmentsAligned(startPoint, currentPoint, points[i + 1])
-    ) {
-      segmentCount++;
-      startIndex = i;
+    // Don't consider segments with static points
+    if (segment.find((c) => c instanceof EdgePoint && c.mode === 'static')) {
+      continue;
     }
-  }
 
-  // Second pass: create midpoints with segment info
-  startIndex = 0;
-  let currentSegmentIndex: number = 0;
-
-  for (let i: number = 1; i < points.length; i++) {
-    const startPoint: Coordinates = points[startIndex];
-    const currentPoint: Coordinates = points[i];
-
-    if (
-      i === points.length - 1 ||
-      !areSegmentsAligned(startPoint, currentPoint, points[i + 1])
-    ) {
-      const midX: number = (startPoint.x + currentPoint.x) / 2;
-      const midY: number = (startPoint.y + currentPoint.y) / 2;
-
-      // Determine if segment is horizontal or vertical
-      const dx = Math.abs(currentPoint.x - startPoint.x);
-      const dy = Math.abs(currentPoint.y - startPoint.y);
-      const isHorizontal = dx > dy;
-
-      const mid = new Coordinates([midX, midY]) as MidpointInfo;
-      mid.insertIndex = i;
-      mid.startIndex = startIndex;
-      mid.endIndex = i;
-      mid.isHorizontal = isHorizontal;
-      mid.isStartSegment = currentSegmentIndex === 0;
-      mid.isEndSegment = currentSegmentIndex === segmentCount - 1;
-      midpoints.push(mid);
-
-      startIndex = i;
-      currentSegmentIndex++;
-    }
+    midpoints.push(new Midpoint(edge, segment));
   }
 
   return midpoints;

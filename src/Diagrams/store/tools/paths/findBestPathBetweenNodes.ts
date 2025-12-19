@@ -6,6 +6,8 @@ import { pathCollidesNodes } from './pathCollidesNodes';
 import { stepFromGateway } from './stepBackFromGateway';
 import { TDirection } from '../../types';
 import { Node } from '../../elements/Node';
+import { Edge } from '../../elements/Edge';
+import { EdgePoint } from '../../elements/EdgePoint';
 
 export type Path = { x: number; y: number }[];
 
@@ -244,13 +246,80 @@ function findBestPathBetweenPoints(
   return null;
 }
 
+type Segment = {
+  from: EdgePoint;
+  to: EdgePoint;
+};
+
+function findDynamicSegments(e: Edge): (Segment | EdgePoint)[] {
+  const s: (Segment | EdgePoint)[] = [];
+
+  let startIndex = 0;
+
+  const top = e.steps.length - 1;
+
+  for (let i = 0; i <= top; i++) {
+    if (i === 0 || i === top || e.steps[i].mode === 'auto') {
+      if (i === top) {
+        s.push({
+          from: e.steps[startIndex],
+          to: e.steps[i],
+        });
+      }
+
+      continue;
+    }
+
+    if (i > startIndex + 1) {
+      s.push({
+        from: e.steps[startIndex],
+        to: e.steps[i],
+      });
+    } else {
+      s.push(e.steps[i - 1]);
+      startIndex = i;
+    }
+  }
+
+  return s;
+}
+
 function _findBestPathBetweenNodes(
   gridSize: number,
   A: Gateway,
   B: Gateway,
 ): Coordinates[] | null {
+  const edge = A.outgoingEdges.find((c) => c.to === B);
+
   const originSteppedBack = stepFromGateway(gridSize, A);
   const targetSteppedBack = stepFromGateway(gridSize, B);
+
+  if (edge) {
+    const segments = findDynamicSegments(edge);
+    segments.splice(1, -1);
+
+    const res = [originSteppedBack, ...segments, targetSteppedBack]
+      .map((c) =>
+        c instanceof Coordinates
+          ? c
+          : findBestPathBetweenPoints(c.from, c.to, {
+              preferOrientation: B.orientation,
+              gridSize,
+              checkCollisions: [A.parent, B.parent],
+            }),
+      )
+      .reduce<Coordinates[]>((acc, cur) => {
+        if (cur instanceof Coordinates) {
+          acc.push(cur);
+        } else if (cur) {
+          acc.push(...cur);
+        }
+
+        return acc;
+      }, []);
+
+    return [A.coordinates, ...res, B.coordinates];
+  }
 
   return findBestPathBetweenPoints(originSteppedBack, targetSteppedBack, {
     preferOrientation: B.orientation,
