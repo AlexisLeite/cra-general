@@ -9,7 +9,7 @@ import {
 } from '../elements/Events';
 import { Node } from '../elements/Node';
 import { Canvas } from '../Canvas';
-import { bind, documentBind, timerBind } from '../../util/bindCb';
+import { bind, documentBind } from '../../util/bindCb';
 
 type SelectionMode = 'area' | 'element';
 
@@ -38,6 +38,7 @@ export class Selector {
       sm || (this.selectionMode === 'area' ? 'element' : 'area');
   }
 
+  protected startNode: Node | null = null;
   protected endPoint: Coordinates | null = null;
   protected startPoint: Coordinates | null = null;
   protected _selection = new Set<Node>();
@@ -49,7 +50,7 @@ export class Selector {
   protected moved = false;
 
   get() {
-    if (!this.startPoint) return new Dimensions();
+    if (!this.startPoint || !this.endPoint) return new Dimensions();
 
     return this.diagram.canvas.inverseFit(
       new Dimensions([
@@ -81,10 +82,8 @@ export class Selector {
     this._selection.forEach((c) => c.unselect());
   }
 
-  private timerBind = () => {};
   private mouseBind = () => {};
   protected handleMouseDown(ev: DMouseDownEvent) {
-    this.timerBind();
     this.mouseBind();
 
     this.mouseBind = bind(
@@ -93,40 +92,36 @@ export class Selector {
     );
 
     this.endPoint = null;
-    this.startPoint = null;
+    this.startPoint = new Coordinates(ev);
 
     if (this.selectionMode === 'area') {
       ev.cancel();
       ev.stopImmediatePropagation();
 
-      this.startPoint = new Coordinates(ev);
       this.endPoint = new Coordinates(ev);
     } else {
       if (ev.src instanceof Node) {
-        this.timerBind = timerBind(() => {
-          if (ev.src instanceof Node) {
-            const wasSelected = ev.src.selected;
-            if (!ev.shift && !ev.ctrl) {
-              this.clearSelection();
-
-              if (wasSelected) {
-                ev.src.select();
-              }
-            }
-          }
-        }, 500);
-
-        ev.src.select();
+        if (ev.ctrl && ev.src.selected) {
+          ev.src.unselect();
+        } else {
+          ev.src.select();
+          this.startNode = ev.src;
+        }
       } else if (ev.src instanceof Canvas) {
         this.clearSelection();
       }
     }
   }
+
   protected handleMouseMove(ev: AnyMouseEvent) {
-    this.timerBind();
+    this.moved =
+      this.moved ||
+      !!(
+        this.startPoint &&
+        (this.startPoint?.copy().substract(new Coordinates(ev)).norm || 0) > 20
+      );
 
     if (this.selectionMode === 'area' && this.startPoint) {
-      this.moved = true;
       this.endPoint = new Coordinates(ev);
 
       this.diagram.nodes.forEach((c) => {
@@ -138,13 +133,20 @@ export class Selector {
       });
     }
   }
-  protected handleMouseUp() {
-    if (this.startPoint && !this.moved) {
+
+  protected handleMouseUp(ev: AnyMouseEvent) {
+    this.mouseBind();
+
+    if (this.startPoint && !this.moved && !ev.shiftKey && !ev.ctrlKey) {
       this.clearSelection();
+      if (this.startNode) {
+        this.startNode.select();
+      }
     }
 
     this.moved = false;
     this.endPoint = null;
     this.startPoint = null;
+    this.startNode = null;
   }
 }
