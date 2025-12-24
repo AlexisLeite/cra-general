@@ -2,11 +2,11 @@ import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
 import { Midpoint } from '../../components/objects/RenderEdge';
-import { MouseEvent } from 'react';
 import { EdgePoint } from '../elements/EdgePoint';
 import { Edge } from '../elements/Edge';
 import { findBestPathBetweenNodes } from './paths/findBestPathBetweenNodes';
-import { DMouseMoveEvent, DMouseUpEvent } from '../elements/Events';
+import { AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
+import { bind, documentBind } from '../../util/bindCb';
 
 type DragContext = {
   edge: Edge;
@@ -20,32 +20,45 @@ export class EdgesDragger {
   constructor(public diagram: Diagram) {
     makeAutoObservable(this);
 
-    this.diagram.canvas.onEvent(
-      DMouseMoveEvent,
-      this.handleMouseMove.bind(this),
-    );
-    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
+    document.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    this.diagram.onEvent(DEdgeDragStartEvent, this.startDrag.bind(this));
   }
 
   protected drag: DragContext | null = null;
 
-  startDrag(edge: Edge, midpoint: Midpoint, ev: MouseEvent) {
-    ev.preventDefault();
-    edge.state.dragging = true;
+  uns = () => {};
+  startDrag(ev: DEdgeDragStartEvent) {
+    if (!ev.cancelled) {
+      ev.stopImmediatePropagation();
+      this.uns();
 
-    midpoint.points.forEach((c) => ((c as EdgePoint).mode = 'manual'));
+      const edge = ev.src;
+      const midpoint = ev.midPoint;
 
-    const startMouseCanvas = this.diagram.canvas.inverseFit(
-      new Coordinates(ev),
-    );
+      edge.state.dragging = true;
 
-    const startPointA = midpoint.points[0].copy().nonObserved;
-    const startPointB = midpoint.points[1].copy().nonObserved;
+      midpoint.points.forEach((c) => ((c as EdgePoint).mode = 'manual'));
 
-    this.drag = { edge, midpoint, startMouseCanvas, startPointA, startPointB };
+      const startMouseCanvas = this.diagram.canvas.inverseFit(
+        new Coordinates(ev),
+      );
+
+      const startPointA = midpoint.points[0].copy().nonObserved;
+      const startPointB = midpoint.points[1].copy().nonObserved;
+
+      this.drag = {
+        edge,
+        midpoint,
+        startMouseCanvas,
+        startPointA,
+        startPointB,
+      };
+
+      this.uns = bind(documentBind(this, 'mousemove', this.handleMouseMove));
+    }
   }
 
-  protected handleMouseMove(ev: DMouseMoveEvent) {
+  protected handleMouseMove(ev: AnyMouseEvent) {
     if (!this.drag) return;
 
     const a = this.drag.midpoint.points[0];
@@ -81,6 +94,7 @@ export class EdgesDragger {
 
   protected handleMouseUp() {
     if (!this.drag) return;
+
     this.drag.edge.state.dragging = false;
     this.drag = null;
   }

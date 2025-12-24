@@ -8,6 +8,8 @@ import {
   DNodeSelectionEvent,
 } from '../elements/Events';
 import { Node } from '../elements/Node';
+import { Canvas } from '../Canvas';
+import { bind, documentBind, timerBind } from '../../util/bindCb';
 
 type SelectionMode = 'area' | 'element';
 
@@ -79,8 +81,17 @@ export class Selector {
     this._selection.forEach((c) => c.unselect());
   }
 
-  unsubscribe = () => {};
+  private timerBind = () => {};
+  private mouseBind = () => {};
   protected handleMouseDown(ev: DMouseDownEvent) {
+    this.timerBind();
+    this.mouseBind();
+
+    this.mouseBind = bind(
+      documentBind(this, 'mousemove', this.handleMouseMove),
+      documentBind(this, 'mouseup', this.handleMouseUp),
+    );
+
     this.endPoint = null;
     this.startPoint = null;
 
@@ -88,32 +99,32 @@ export class Selector {
       ev.cancel();
       ev.stopImmediatePropagation();
 
-      this.unsubscribe();
-
       this.startPoint = new Coordinates(ev);
       this.endPoint = new Coordinates(ev);
-
-      const fn1 = this.handleMouseMove.bind(this);
-      const fn2 = this.handleMouseUp.bind(this);
-
-      document.addEventListener('mousemove', fn1);
-      document.addEventListener('mouseup', fn2);
-
-      this.unsubscribe = () => {
-        document.removeEventListener('mousemove', fn1);
-        document.removeEventListener('mouseup', fn2);
-      };
     } else {
       if (ev.src instanceof Node) {
-        if (!ev.shift && !ev.ctrl && !ev.src.selected) {
-          this.clearSelection();
-        }
+        this.timerBind = timerBind(() => {
+          if (ev.src instanceof Node) {
+            const wasSelected = ev.src.selected;
+            if (!ev.shift && !ev.ctrl) {
+              this.clearSelection();
+
+              if (wasSelected) {
+                ev.src.select();
+              }
+            }
+          }
+        }, 500);
 
         ev.src.select();
+      } else if (ev.src instanceof Canvas) {
+        this.clearSelection();
       }
     }
   }
   protected handleMouseMove(ev: AnyMouseEvent) {
+    this.timerBind();
+
     if (this.selectionMode === 'area' && this.startPoint) {
       this.moved = true;
       this.endPoint = new Coordinates(ev);

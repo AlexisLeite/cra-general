@@ -5,6 +5,7 @@ import type { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 import { DMouseDownEvent, DScaleEvent } from '../elements/Events';
+import { bind, documentBind } from '../../util/bindCb';
 
 /**
  * Conditions for dragging:
@@ -35,7 +36,7 @@ export class Dragger {
   protected draggingNodes: { node: Node; startPoint: Coordinates }[] = [];
   protected startPoint: Coordinates = new Coordinates();
   protected startPointScaled: Coordinates = new Coordinates();
-  protected unsubscribeMouseMove = () => {};
+  protected unsubscribeScaleEvent = () => {};
   protected unsubscribeMouseUp = () => {};
   protected interval = -1;
 
@@ -71,22 +72,18 @@ export class Dragger {
 
           this.handleDragAction();
 
-          const hmup = () => {
-            this.handleMouseUp();
-          };
-          document.addEventListener('mouseup', hmup);
           this.unsubscribeMouseUp();
-          this.unsubscribeMouseUp = () => {
-            document.removeEventListener('mouseup', hmup);
-          };
+          this.unsubscribeMouseUp = bind(
+            documentBind(this, 'mouseup', this.handleMouseUp),
+          );
         }
       }
     }
   }
 
   protected handleDragAction() {
-    this.unsubscribeMouseMove();
-    this.unsubscribeMouseMove = this.diagram.onEvent(
+    this.unsubscribeScaleEvent();
+    this.unsubscribeScaleEvent = this.diagram.onEvent(
       DScaleEvent,
       ({ newScale, previousScale }) => {
         this.startPoint.divide(previousScale).multiply(newScale);
@@ -184,7 +181,7 @@ export class Dragger {
 
   protected handleMouseUp() {
     this.draggingNodes = [];
-    this.unsubscribeMouseMove();
+    this.unsubscribeScaleEvent();
     this.unsubscribeMouseUp();
     clearInterval(this.interval);
   }

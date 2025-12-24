@@ -3,6 +3,7 @@ import type { Element } from './Element';
 import type { Coordinates } from '../primitives/Coordinates';
 import type { Node } from './Node';
 import type { Edge } from './Edge';
+import type { Midpoint } from '../../components/objects/RenderEdge';
 
 import { MouseInformation } from './EventsMouseInformation';
 
@@ -225,14 +226,18 @@ export class DEdgeSelectionEvent extends DSelectionEvent {
   }
 }
 
-Object.assign(window, {
-  DClickEvent,
-  DMouseDownEvent,
-  DMouseUpEvent,
-  DMouseMoveEvent,
-  DWheelEvent,
-  DKeyDownEvent,
-  DKeyPressEvent,
-  DKeyUpEvent,
-  DScaleEvent,
-});
+export abstract class DDragEvent extends DMouseEvent {
+  protected readonly __brand!: void;
+}
+
+export class DEdgeDragStartEvent extends DDragEvent {
+  protected readonly __brand!: void;
+
+  constructor(
+    public src: Edge,
+    public midPoint: Midpoint,
+    public originalEvent: AnyMouseEvent,
+  ) {
+    super(src, originalEvent);
+  }
+}

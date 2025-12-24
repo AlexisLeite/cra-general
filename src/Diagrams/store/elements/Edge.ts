@@ -3,7 +3,9 @@ import { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
 import { EdgePoint, TEdgePointType } from './EdgePoint';
 import { Element } from './Element';
-import { AnyMouseEvent, DClickEvent } from './Events';
+import { AnyMouseEvent, DClickEvent, DEdgeDragStartEvent } from './Events';
+import { Midpoint } from '../../components/objects/RenderEdge';
+import { MouseEvent } from 'react';
 
 let id = Number.MIN_SAFE_INTEGER;
 
@@ -126,5 +128,11 @@ export class Edge extends Element {
     if (!ev.cancelled) {
       this.state.selected = true;
     }
+  }
+
+  dragStart(midpoint: Midpoint, ev: MouseEvent) {
+    ev.nativeEvent.stopImmediatePropagation();
+
+    this.emit(new DEdgeDragStartEvent(this, midpoint, ev));
   }
 }

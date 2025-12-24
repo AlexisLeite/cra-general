@@ -9,7 +9,7 @@ export const RulerTool = observer(function RulerTool() {
     <TfiRulerAlt
       className={`tool ${d.measurer.enabled ? 'selected' : ''}`}
       onClick={() => {
-        d.measurer.enable();
+        d.measurer.toggle();
       }}
       title="Ruler"
     />

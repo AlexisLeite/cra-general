@@ -47,8 +47,6 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
 });
 
 const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
-  const diagram = Diagram.use();
-
   return (
     <RenderEdge
       edge={edge}
@@ -60,7 +58,7 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
       width={edge.strokeWidth ?? 2}
       draggable
       onMidpointMouseDown={(m, ev) => {
-        diagram.edgesDragger.startDrag(edge, m, ev);
+        edge.dragStart(m, ev);
       }}
     />
   );

@@ -21,7 +21,7 @@ export class Hotkeys {
 
             this.revertHotkey.set(ev.code, () => {
               if (measure) {
-                this.diagram.measurer.enable();
+                this.diagram.measurer.toggle();
               } else {
                 this.diagram.selector.toggleSelectionMode(
                   selectInArea ? 'area' : 'element',
@@ -38,7 +38,7 @@ export class Hotkeys {
             }
             break;
           case 'KeyR':
-            this.diagram.measurer.enable();
+            this.diagram.measurer.toggle();
             break;
           case 'ControlLeft':
             ev.cancel();

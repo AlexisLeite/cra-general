@@ -151,6 +151,7 @@ export class Diagram extends Element {
   export() {
     return JSON.stringify(this.serialize());
   }
+
   serialize() {
     return {
       position: {

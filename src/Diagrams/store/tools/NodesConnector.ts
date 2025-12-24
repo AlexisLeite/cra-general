@@ -10,6 +10,7 @@ import {
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import { TDirection } from '../types';
+import { bind, documentBind } from '../../util/bindCb';
 
 export class NodesConnector {
   constructor(public diagram: Diagram) {
@@ -122,23 +123,17 @@ export class NodesConnector {
     }
   }
 
-  protected unsubscribeEvents = () => {};
+  protected u = () => {};
   startConnectionFrom(gateway: Gateway, ev: RMEv) {
     ev.nativeEvent.stopImmediatePropagation();
     this.startGateway = gateway;
     this.arrowTo = new Coordinates(ev);
 
-    const fn1 = this.handleMouseMove.bind(this);
-    const fn2 = this.handleMouseUp.bind(this);
-
-    document.addEventListener('mousemove', fn1);
-    document.addEventListener('mouseup', fn2);
-
-    this.unsubscribeEvents();
-    this.unsubscribeEvents = () => {
-      document.removeEventListener('mousemove', fn1);
-      document.removeEventListener('mouseup', fn2);
-    };
+    this.u();
+    this.u = bind(
+      documentBind(this, 'mousemove', this.handleMouseMove),
+      documentBind(this, 'mouseup', this.handleMouseUp),
+    );
   }
 
   protected handleMouseMove(ev: MouseEvent) {
@@ -211,7 +206,7 @@ export class NodesConnector {
       this.candidateGateway = null;
       this.previousArrowTo = null;
       this.previousCandidateGateway = null;
-      this.unsubscribeEvents();
+      this.u();
     }
   }
 }
