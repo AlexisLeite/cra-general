@@ -8,7 +8,6 @@ import {
 import { createContext, ReactNode, useContext } from 'react';
 import { Canvas } from './Canvas';
 import { Node } from './elements/Node';
-import { EventEmitter } from '../util/EventEmitter';
 import { NodesConnector } from './tools/NodesConnector';
 import { Coordinates } from './primitives/Coordinates';
 import { Measurer } from './tools/Measurer';
@@ -20,10 +19,11 @@ import { Edge } from './elements/Edge';
 import { Gateway } from './elements/Gateway';
 import { Creator } from './tools/Creator';
 import { TextNode } from './elements/TextNode';
+import { Element } from './elements/Element';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
-export class Diagram {
+export class Diagram extends Element {
   rules = {
     displaceWhenDragOnEdges: true,
     enableEvents: true,
@@ -47,9 +47,6 @@ export class Diagram {
 
   protected _nodes = new Map<string, Node>();
   protected _selectedNodes = new Set<Node>();
-  protected emitter = new EventEmitter<{
-    select: Node;
-  }>();
   get eventsEnabled() {
     return this.rules.enableEvents;
   }
@@ -64,6 +61,8 @@ export class Diagram {
   selector = new Selector(this);
 
   constructor() {
+    super(null);
+
     Diagram.registerClass(Node);
     Diagram.registerClass(Edge);
     Diagram.registerClass(Gateway);
@@ -100,10 +99,10 @@ export class Diagram {
   }
 
   add<T extends Node>(node: T): T {
+    node.parent = this;
     node.setDiagram(this);
     node.on('select', () => {
       this.selectNode(node);
-      this.emitter.emit('select', node);
     });
     this._nodes.set(node.id, node);
 
@@ -116,7 +115,7 @@ export class Diagram {
   }
 
   connect(from: Gateway, to: Gateway) {
-    const edge = new this.edgeClass({
+    const edge = new this.edgeClass(this, {
       hover: false,
       dragging: false,
       selected: false,
@@ -158,8 +157,6 @@ export class Diagram {
   get gridSize() {
     return this.rules.gridSize;
   }
-
-  on = this.emitter.on.bind(this.emitter);
 
   get selectedNode(): Node | null {
     if (this._selectedNodes.size === 1) {
@@ -213,7 +210,7 @@ export class Diagram {
     this._selectedNodes.delete(node);
   }
 
-  unselectAll() {
+  clearSelection() {
     this._selectedNodes.clear();
   }
 
@@ -247,7 +244,7 @@ export class Diagram {
       this._selectedNodes.clear();
 
       state.nodes.forEach((nodeState) => {
-        const node = new (Diagram.getClass(nodeState.class))({
+        const node = new (Diagram.getClass(nodeState.class))(this, {
           id: nodeState.id,
         }) as Node;
         this.add(node);

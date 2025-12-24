@@ -1,10 +1,14 @@
 import { Diagram } from '../Diagram';
 
 import { makeAutoObservable } from 'mobx';
-import type { AnyMouseEvent, ScaleEvent } from '../Canvas';
 import type { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
+import {
+  DMouseDownEvent,
+  DMouseUpEvent,
+  DScaleEvent,
+} from '../elements/Events';
 
 /**
  * Conditions for dragging:
@@ -20,9 +24,12 @@ export class Dragger {
   constructor(public diagram: Diagram) {
     makeAutoObservable(this);
 
-    this.diagram.canvas.on('mouseDown', this.handleMouseDown.bind(this), 500);
-    this.diagram.canvas.on('mouseUp', this.handleMouseUp.bind(this));
-    this.diagram.canvas.on('scale', this.handleScale.bind(this));
+    this.diagram.canvas.onEvent(
+      DMouseDownEvent,
+      this.handleMouseDown.bind(this),
+    );
+    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
+    this.diagram.canvas.onEvent(DScaleEvent, this.handleScale.bind(this));
   }
 
   protected draggingNodes: { node: Node; startPoint: Coordinates }[] = [];
@@ -39,8 +46,8 @@ export class Dragger {
     this.handleDragAction();
   }
 
-  protected handleMouseDown(ev: AnyMouseEvent) {
-    const nodeG = (ev.target as HTMLElement).closest<SVGGElement>(
+  protected handleMouseDown(ev: DMouseDownEvent) {
+    const nodeG = (ev.originalEvent.target as HTMLElement).closest<SVGGElement>(
       '.diagram__node',
     );
     if (nodeG) {
@@ -51,9 +58,9 @@ export class Dragger {
           startPoint: c.coordinates.copy(),
         }));
 
-        this.startPoint = new Coordinates(ev);
+        this.startPoint = new Coordinates(ev.originalEvent);
         this.startPointScaled = this.diagram.canvas.inverseFit(
-          new Coordinates(ev),
+          new Coordinates(ev.originalEvent),
         );
 
         this.handleDragAction();
@@ -62,8 +69,8 @@ export class Dragger {
   }
 
   protected handleDragAction() {
-    this.unsubscribe = this.diagram.canvas.on(
-      'scale',
+    this.unsubscribe = this.diagram.canvas.onEvent(
+      DScaleEvent,
       ({ newScale, previousScale }) => {
         this.startPoint.divide(previousScale).multiply(newScale);
       },
@@ -165,7 +172,7 @@ export class Dragger {
     clearInterval(this.interval);
   }
 
-  protected handleScale(ev: ScaleEvent) {
+  protected handleScale(ev: DScaleEvent) {
     if (this.draggingNodes.length) {
     }
   }

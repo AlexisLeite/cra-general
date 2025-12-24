@@ -67,7 +67,13 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
 
     return (
       <g
-        className={`${className || ''} ${edge?.state.dragging ? 'dragging' : ''} edge`}
+        className={[
+          'edge',
+          edge?.state.dragging && 'dragging',
+          edge?.state.selected && 'selected',
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
         <defs>
           <EdgeMarker
@@ -93,6 +99,9 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           strokeWidth={width + 8}
           fill="none"
           className="edge-hover-area"
+          onClick={(ev) => {
+            edge?.click(ev);
+          }}
           onMouseOver={() => {
             runInAction(() => {
               edge && (edge!.state.hover = true);
@@ -100,8 +109,9 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           }}
           onMouseOut={(ev) => {
             if (
-              (ev.target as HTMLElement).closest('.edge') !==
-              (ev.relatedTarget as HTMLElement).closest('.edge')
+              ev.target &&
+              (ev.target as HTMLElement)?.closest('.edge') !==
+                (ev.relatedTarget as HTMLElement)?.closest('.edge')
             ) {
               runInAction(() => {
                 edge && (edge!.state.hover = false);

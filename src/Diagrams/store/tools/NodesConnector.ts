@@ -79,7 +79,7 @@ export class NodesConnector {
           this.candidateGateway!,
         );
       } else {
-        const fakeNode = new Node({
+        const fakeNode = new Node(null, {
           id: 'fake',
           label: '',
           box: new Dimensions([

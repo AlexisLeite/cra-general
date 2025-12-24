@@ -27,28 +27,28 @@ export function extremosYCuadricula(conectados = false) {
   }
 
   d.add(
-    new Node({
+    new Node(null, {
       id: 'lefttop',
       label: 'Left Top',
       box: new Dimensions([0, 0, 200, 100]),
     }),
   );
   d.add(
-    new Node({
+    new Node(null, {
       id: 'leftright',
       label: 'Left Right',
       box: new Dimensions([10000 - 200, 0, 200, 100]),
     }),
   );
   d.add(
-    new Node({
+    new Node(null, {
       id: 'leftbottom',
       label: 'Left Bottom',
       box: new Dimensions([0, 10000 - 80, 200, 100]),
     }),
   );
   d.add(
-    new Node({
+    new Node(null, {
       id: 'rightbottom',
       label: 'Right Top',
       box: new Dimensions([10000 - 200, 10000 - 80, 200, 100]),
@@ -57,7 +57,7 @@ export function extremosYCuadricula(conectados = false) {
 
   for (let i = 0; i < nodes; i++) {
     d.add(
-      new TaskNode({
+      new TaskNode(null, {
         id: 'task' + i,
         label: 'Task ' + i,
         box: new Dimensions([x(i) + 5000, y(i) + 5000, 200, 100]),

@@ -42,7 +42,7 @@ export const ShapesShowcase = () => {
         onMouseDown={() => {
           const id = getId(d, 'task');
 
-          const task = new TaskNode({
+          const task = new TaskNode(null, {
             id: `task${id}`,
             label: `Task ${id}`,
             movable: true,

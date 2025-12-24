@@ -1,8 +1,12 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
-import { AnyMouseEvent } from '../Canvas';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
+import {
+  DMouseDownEvent,
+  DMouseMoveEvent,
+  DMouseUpEvent,
+} from '../elements/Events';
 
 export class Selector {
   protected _selectionMode = false;
@@ -40,13 +44,20 @@ export class Selector {
   constructor(public diagram: Diagram) {
     makeAutoObservable(this);
 
-    this.diagram.canvas.on('mouseDown', this.handleMouseDown.bind(this), 100);
-    this.diagram.canvas.on('mouseMove', this.handleMouseMove.bind(this));
-    this.diagram.canvas.on('mouseUp', this.handleMouseUp.bind(this));
+    this.diagram.canvas.onEvent(
+      DMouseDownEvent,
+      this.handleMouseDown.bind(this),
+      100,
+    );
+    this.diagram.canvas.onEvent(
+      DMouseMoveEvent,
+      this.handleMouseMove.bind(this),
+    );
+    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
   }
 
   protected unselectOthersTimeout = -1;
-  protected handleMouseDown(ev: AnyMouseEvent) {
+  protected handleMouseDown(ev: DMouseDownEvent) {
     this.moved = false;
     this.selected = false;
     this.endPoint = null;
@@ -71,17 +82,17 @@ export class Selector {
       if (nodeG) {
         const node = this.diagram.getNodeById(nodeG.dataset.id!);
         if (node) {
-          ev.preventDefault();
-          if (ev.ctrlKey) {
+          ev.cancel();
+          if (ev.ctrl) {
             this.diagram.toggleNodeSelection(node);
           } else {
-            this.diagram.selectNode(node, !ev.shiftKey && !node.selected);
+            this.diagram.selectNode(node, !ev.shift && !node.selected);
           }
         }
       }
     }
   }
-  protected handleMouseMove(ev: AnyMouseEvent) {
+  protected handleMouseMove(ev: DMouseMoveEvent) {
     if (this._selectionMode) {
       this.moved = true;
       if (this.startPoint && this._selectionMode) {
@@ -101,7 +112,7 @@ export class Selector {
   protected handleMouseUp() {
     if (this._selectionMode) {
       if (this.startPoint && !this.moved && !this.selected) {
-        this.diagram.unselectAll();
+        this.diagram.clearSelection();
       }
 
       this.moved = false;

@@ -1,7 +1,11 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
-import { AnyMouseEvent } from '../Canvas';
 import { Coordinates } from '../primitives/Coordinates';
+import {
+  DMouseDownEvent,
+  DMouseMoveEvent,
+  DMouseUpEvent,
+} from '../elements/Events';
 
 export class Measurer {
   protected _enabled = false;
@@ -23,9 +27,15 @@ export class Measurer {
   constructor(public diagram: Diagram) {
     makeAutoObservable(this);
 
-    this.diagram.canvas.on('mouseDown', this.handleMouseDown.bind(this));
-    this.diagram.canvas.on('mouseMove', this.handleMouseMove.bind(this));
-    this.diagram.canvas.on('mouseUp', this.handleMouseUp.bind(this));
+    this.diagram.canvas.onEvent(
+      DMouseDownEvent,
+      this.handleMouseDown.bind(this),
+    );
+    this.diagram.canvas.onEvent(
+      DMouseMoveEvent,
+      this.handleMouseMove.bind(this),
+    );
+    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
   }
 
   protected endPoint: Coordinates | null = null;
@@ -41,13 +51,13 @@ export class Measurer {
     return this.endPoint?.copy().substract(this.startPoint!).norm;
   }
 
-  protected handleMouseDown(ev: AnyMouseEvent) {
+  protected handleMouseDown(ev: DMouseDownEvent) {
     if (this._enabled) {
       this.startPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));
       this.endPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));
     }
   }
-  protected handleMouseMove(ev: AnyMouseEvent) {
+  protected handleMouseMove(ev: DMouseMoveEvent) {
     if (this.startPoint && this._enabled) {
       this.endPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));
     }

@@ -1,6 +1,7 @@
 import { Coordinates } from '../primitives/Coordinates';
-import { AnyMouseEvent } from '../Canvas';
 import { makeObservable, observable } from 'mobx';
+import { Element } from './Element';
+import { AnyMouseEvent } from './Events';
 
 export type TEdgePointType = 'auto' | 'manual' | 'static';
 
@@ -8,6 +9,7 @@ export class EdgePoint extends Coordinates {
   mode: TEdgePointType = 'auto';
 
   constructor(
+    public parent: Element | null,
     items?:
       | AnyMouseEvent
       | Event
@@ -29,7 +31,7 @@ export class EdgePoint extends Coordinates {
   }
 
   copy() {
-    return new EdgePoint(super.copy());
+    return new EdgePoint(this.parent, super.copy());
   }
 
   toString(includeMode = false): string {

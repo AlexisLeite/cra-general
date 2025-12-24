@@ -4,9 +4,10 @@ import type { Edge } from './Edge';
 import type { Node } from './Node';
 import { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
-import { makeAutoObservable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
+import { Element } from './Element';
 
-export class Gateway {
+export class Gateway extends Element {
   state: TGatewayState;
 
   constructor(
@@ -17,6 +18,8 @@ export class Gateway {
     > &
       Partial<TGatewayState>,
   ) {
+    super(parent);
+
     this.state = {
       stroke: 'transparent',
       strokeWidth: 10,
@@ -27,7 +30,11 @@ export class Gateway {
       ...state,
     };
 
-    makeAutoObservable(this);
+    makeObservable(this, {
+      addIncomingEdge: action,
+      addOutgoingEdge: action,
+      state: observable,
+    });
   }
 
   canConnect(from: Gateway): boolean {
@@ -122,7 +129,7 @@ export class Gateway {
     this.state.position.assign(c.coordinates);
 
     c.outEdges.forEach((edgeState) => {
-      const edge = new (Diagram.getClass(edgeState.class))({
+      const edge = new (Diagram.getClass(edgeState.class))(this, {
         from: this,
       }) as Edge;
       edge.deserialize(edgeState);

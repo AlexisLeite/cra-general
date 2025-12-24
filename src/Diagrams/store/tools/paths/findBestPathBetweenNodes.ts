@@ -252,7 +252,7 @@ type Segment = {
 };
 
 function getEdgePoint(step: Coordinates) {
-  return step instanceof EdgePoint ? step : new EdgePoint(step);
+  return step instanceof EdgePoint ? step : new EdgePoint(null, step);
 }
 
 function filterResultPath(steps: EdgePoint[]) {

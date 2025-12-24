@@ -1,28 +1,27 @@
-import { makeAutoObservable } from 'mobx';
-import { MouseEvent as MV } from 'react';
+import { makeObservable } from 'mobx';
 import { Coordinates } from './primitives/Coordinates';
 import { Dimensions } from './primitives/Dimensions';
 import { Diagram } from './Diagram';
-import { EventEmitter } from '../util/EventEmitter';
+import { Element } from './elements/Element';
+import {
+  AnyMouseEvent,
+  DMouseDownEvent,
+  DMouseMoveEvent,
+  DMouseUpEvent,
+  DScaleEvent,
+  DWheelEvent,
+} from './elements/Events';
 
-export type AnyMouseEvent = MV | MouseEvent;
 export type ScaleEvent = {
   previousScale: number;
   newScale: number;
   displacement: Coordinates;
 };
 
-export class Canvas {
+export class Canvas extends Element {
   protected _displacement: Coordinates = new Coordinates([-5000, -5000]);
   _scale: number = 1;
   size = new Coordinates([1000000, 1000000]);
-  protected emitter = new EventEmitter<{
-    mouseDown: AnyMouseEvent;
-    mouseMove: AnyMouseEvent;
-    mouseUp: AnyMouseEvent;
-    wheel: Event;
-    scale: ScaleEvent;
-  }>();
 
   get scale() {
     return this._scale;
@@ -66,7 +65,9 @@ export class Canvas {
   }
 
   constructor(public diagram: Diagram) {
-    makeAutoObservable(this, { element: false });
+    super(diagram);
+
+    makeObservable(this, {});
     const fn2 = (ev: MouseEvent) => this.handleMouseUp(ev);
     document.addEventListener('mouseup', fn2);
   }
@@ -112,7 +113,7 @@ export class Canvas {
     return c.copy().substract(this._displacement.copy().substract(previous));
   }
 
-  handleMouseDown(ev: AnyMouseEvent) {
+  handleMouseDown(originalEvent: AnyMouseEvent) {
     const fn1 = (ev: MouseEvent) => {
       this.handleMouseMove(ev);
     };
@@ -124,28 +125,25 @@ export class Canvas {
       document.removeEventListener('mousemove', fn1);
     };
 
-    this.emitter.emit('mouseDown', ev);
+    const ev = this.emit(new DMouseDownEvent(this, originalEvent));
 
-    if (
-      !ev.defaultPrevented &&
-      (this.diagram.eventsEnabled || ev.button === 1)
-    ) {
-      this.diagram.unselectAll();
+    if (!ev.cancelled && originalEvent.button === 1) {
+      this.diagram.clearSelection();
       this.displacementStart = this._displacement.copy();
-      this.eventStart = new Coordinates(ev);
+      this.eventStart = new Coordinates(originalEvent);
     }
   }
 
-  protected handleMouseMove(ev: MouseEvent) {
-    this.emitter.emit('mouseMove', ev);
+  protected handleMouseMove(originalEvent: MouseEvent) {
+    const ev = this.emit(new DMouseMoveEvent(this, originalEvent));
 
-    if (!ev.defaultPrevented && this.eventStart) {
+    if (!ev.cancelled && this.eventStart) {
       this._dragging = true;
       this._displacement.assign(
         this.displacementStart!.copy().substract(
           this.eventStart
             .copy()
-            .substract([ev.clientX, ev.clientY])
+            .substract([originalEvent.clientX, originalEvent.clientY])
             .divide(this.scale),
         ),
       );
@@ -154,10 +152,10 @@ export class Canvas {
     }
   }
 
-  protected handleMouseUp(ev: MouseEvent) {
-    this.emitter.emit('mouseUp', ev);
+  protected handleMouseUp(originalEvent: MouseEvent) {
+    const ev = this.emit(new DMouseUpEvent(this, originalEvent));
 
-    if (!ev.defaultPrevented && this.eventStart) {
+    if (!ev.cancelled && this.eventStart) {
       this._dragging = false;
       this.eventStart = null;
     }
@@ -165,20 +163,20 @@ export class Canvas {
     this.unsubscribeMouse();
   }
 
-  handleWheel(ev: Event, isPassive = false) {
-    this.emitter.emit('wheel', ev);
+  handleWheel(originalEvent: WheelEvent, isPassive = false) {
+    const ev = this.emit(new DWheelEvent(this, originalEvent));
 
-    if (!ev.defaultPrevented) {
-      if (!isPassive) ev.preventDefault();
+    if (!ev.cancelled) {
+      if (!isPassive) originalEvent.preventDefault();
 
-      const negative = (ev as WheelEvent).deltaY < 0;
+      const negative = originalEvent.deltaY < 0;
       const rounded = Math.floor(this.scale * 100) / 100;
 
       this.setScale(
         this.scale -
-          (ev as WheelEvent).deltaY /
+          originalEvent.deltaY /
             ((rounded >= 0.2 && negative) || rounded > 0.21 ? 1000 : 10000),
-        new Coordinates(ev),
+        new Coordinates(originalEvent),
       );
     }
   }
@@ -213,11 +211,15 @@ export class Canvas {
       this.bound();
 
       this.setDisplacementStyles();
-      this.emitter.emit('scale', {
-        previousScale: scale,
-        newScale: this.scale,
-        displacement: this.displacement.copy().substract(previous),
-      });
+
+      this.emit(
+        new DScaleEvent(
+          this,
+          this.displacement.copy().substract(previous),
+          this.scale,
+          scale,
+        ),
+      );
     }
   }
 
@@ -263,8 +265,6 @@ export class Canvas {
       .divide(this.scale)
       .substract([this._displacement.x, this._displacement.y, 0, 0]) as T;
   }
-
-  on = this.emitter.on.bind(this.emitter);
 
   getDisplacementStyles() {
     const translation = this._displacement.copy(false).multiply(this.scale);

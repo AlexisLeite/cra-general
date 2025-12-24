@@ -5,8 +5,9 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { EventEmitter } from '../../util/EventEmitter';
 import { Gateway } from './Gateway';
+import { Element } from './Element';
 
-export class Node<Gateways = TDirection> {
+export class Node<Gateways = TDirection> extends Element {
   diagram: Diagram | null = null;
   protected emitter = new EventEmitter<{
     select: Node;
@@ -20,8 +21,11 @@ export class Node<Gateways = TDirection> {
   }
 
   constructor(
+    parent: Element | null,
     state: Pick<TNodeState, 'Renderer' | 'id' | 'label'> & Partial<TNodeState>,
   ) {
+    super(parent);
+
     this.state = {
       ...state,
       box: state.box ?? new Dimensions([0, 0, 100, 80]),

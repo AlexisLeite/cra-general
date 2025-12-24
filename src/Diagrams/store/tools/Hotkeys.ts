@@ -1,10 +1,11 @@
 import type { Diagram } from '../Diagram';
+import { DKeyDownEvent } from '../elements/Events';
 
 export class Hotkeys {
   protected revertHotkey = new Map<string, () => unknown>();
 
   constructor(public diagram: Diagram) {
-    document.addEventListener('keydown', (ev) => {
+    diagram.onEvent(DKeyDownEvent, (ev) => {
       if (!this.revertHotkey.has(ev.code)) {
         switch (ev.code) {
           case 'Space':
@@ -30,7 +31,7 @@ export class Hotkeys {
             this.diagram.enableEvents();
             break;
           case 'KeyS':
-            if (!ev.ctrlKey) {
+            if (!ev.ctrl) {
               this.diagram.selector.enableSelectionMode();
             }
             break;
@@ -38,7 +39,7 @@ export class Hotkeys {
             this.diagram.measurer.enable();
             break;
           case 'ControlLeft':
-            ev.preventDefault();
+            ev.cancel();
             this.diagram.toggleSnapToGrid();
             this.revertHotkey.set(ev.code, () => {
               this.diagram.toggleSnapToGrid();

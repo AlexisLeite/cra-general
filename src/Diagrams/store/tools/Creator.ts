@@ -1,9 +1,9 @@
-import { makeAutoObservable } from 'mobx';
-import { AnyMouseEvent } from '../Canvas';
+import { makeAutoObservable, runInAction } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { TextNode } from '../elements/TextNode';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
+import { DMouseUpEvent } from '../elements/Events';
 
 export type TCreationMode = 'none' | 'text';
 
@@ -11,7 +11,7 @@ export class Creator {
   creationMode: TCreationMode = 'none';
 
   constructor(public diagram: Diagram) {
-    this.diagram.canvas.on('mouseUp', this.handleMouseUp.bind(this));
+    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
     makeAutoObservable(this);
   }
 
@@ -24,18 +24,20 @@ export class Creator {
     return id;
   }
 
-  handleMouseUp(ev: AnyMouseEvent) {
+  handleMouseUp(ev: DMouseUpEvent) {
     if (this.creationMode !== 'none') {
-      ev.preventDefault();
+      ev.cancel();
 
       switch (this.creationMode) {
         case 'text':
           const node = this.diagram.add(
-            new TextNode({
+            new TextNode(null, {
               id: this.getId(),
               label: 'No label',
               box: new Dimensions([
-                ...this.diagram.canvas.inverseFit(new Coordinates(ev)).raw,
+                ...this.diagram.canvas.inverseFit(
+                  new Coordinates(ev.originalEvent),
+                ).raw,
                 100,
                 100,
               ]),
@@ -44,6 +46,9 @@ export class Creator {
           this.diagram.selectNode(node);
       }
     }
-    this.creationMode = 'none';
+
+    runInAction(() => {
+      this.creationMode = 'none';
+    });
   }
 }

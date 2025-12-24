@@ -1,12 +1,12 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
-import type { AnyMouseEvent } from '../Canvas';
 import { Coordinates } from '../primitives/Coordinates';
 import { Midpoint } from '../../components/objects/RenderEdge';
 import { MouseEvent } from 'react';
 import { EdgePoint } from '../elements/EdgePoint';
 import { Edge } from '../elements/Edge';
 import { findBestPathBetweenNodes } from './paths/findBestPathBetweenNodes';
+import { DMouseMoveEvent, DMouseUpEvent } from '../elements/Events';
 
 type DragContext = {
   edge: Edge;
@@ -20,8 +20,11 @@ export class EdgesDragger {
   constructor(public diagram: Diagram) {
     makeAutoObservable(this);
 
-    this.diagram.canvas.on('mouseMove', this.handleMouseMove.bind(this));
-    this.diagram.canvas.on('mouseUp', this.handleMouseUp.bind(this));
+    this.diagram.canvas.onEvent(
+      DMouseMoveEvent,
+      this.handleMouseMove.bind(this),
+    );
+    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
   }
 
   protected drag: DragContext | null = null;
@@ -42,7 +45,7 @@ export class EdgesDragger {
     this.drag = { edge, midpoint, startMouseCanvas, startPointA, startPointB };
   }
 
-  protected handleMouseMove(ev: AnyMouseEvent) {
+  protected handleMouseMove(ev: DMouseMoveEvent) {
     if (!this.drag) return;
 
     const a = this.drag.midpoint.points[0];

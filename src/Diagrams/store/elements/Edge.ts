@@ -2,13 +2,20 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
 import { EdgePoint, TEdgePointType } from './EdgePoint';
+import { Element } from './Element';
+import { AnyMouseEvent, DClickEvent } from './Events';
 
 let id = Number.MIN_SAFE_INTEGER;
 
-export class Edge {
+export class Edge extends Element {
   id: Readonly<number> = id++;
 
-  constructor(public state: TEdgeState) {
+  constructor(
+    parent: Element | null,
+    public state: TEdgeState,
+  ) {
+    super(parent);
+
     makeObservable<Edge, 'state'>(this, {
       state: observable,
       setSteps: action,
@@ -56,7 +63,7 @@ export class Edge {
 
   setSteps(steps: Coordinates[]) {
     this.state.steps = steps.map((c) =>
-      c instanceof EdgePoint ? c : new EdgePoint(c),
+      c instanceof EdgePoint ? c : new EdgePoint(this, c),
     );
 
     this.state.steps[0].mode = 'static';
@@ -75,7 +82,7 @@ export class Edge {
     this.state.stroke = o.stroke;
     this.state.strokeWidth = o.strokeWidth;
 
-    this.state.steps = o.steps.map((c) => new EdgePoint(c));
+    this.state.steps = o.steps.map((c) => new EdgePoint(this, c));
     this.state.to = this.state.from.diagram
       .getNodeById(o.toParentId)!
       .getGateway(o.to as any)!;
@@ -110,5 +117,14 @@ export class Edge {
       toParentId,
       class: this.constructor.name,
     };
+  }
+
+  click(originalEvent: AnyMouseEvent) {
+    const ev = new DClickEvent(this, originalEvent);
+    this.emit(ev);
+
+    if (!ev.cancelled) {
+      this.state.selected = true;
+    }
   }
 }
