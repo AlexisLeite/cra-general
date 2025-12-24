@@ -3,14 +3,13 @@ import { Diagram } from '../../store/Diagram';
 import { Node } from '../../store/elements/Node';
 
 const RenderNode = observer(({ node }: { node: Node }) => {
-  const diagram = Diagram.use();
   const R = node.state.Renderer!;
 
   return (
     <div
       onMouseOver={() => node.setState('hover', true)}
       onMouseOut={() => node.setState('hover', false)}
-      onMouseDown={(ev) => diagram.canvas.handleMouseDown(ev)}
+      onMouseDownCapture={(ev) => node.mouseDown(ev)}
       key={node.id}
       data-id={node.id}
       className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
@@ -53,8 +52,6 @@ export const RenderCustomRenderers = observer(() => {
         width: `${diagram.canvas.size.x}px`,
         height: `${diagram.canvas.size.y}px`,
       }}
-      onWheel={(ev) => diagram.canvas.handleWheel(ev.nativeEvent, true)}
-      onMouseDown={(ev) => diagram.canvas.handleMouseDown(ev)}
     >
       <RenderNodes />
     </div>

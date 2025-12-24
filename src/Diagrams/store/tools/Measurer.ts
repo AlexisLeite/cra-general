@@ -11,13 +11,11 @@ export class Measurer {
   protected _enabled = false;
 
   public enable() {
-    this.diagram.disableEvents();
     this._enabled = true;
   }
 
   public disable() {
     this._enabled = false;
-    this.handleMouseUp();
   }
 
   get enabled() {

@@ -7,9 +7,9 @@ export const SelectTool = observer(function SelectTool() {
 
   return (
     <TfiLayoutSidebarNone
-      className={`tool ${d.selector.selectionModeEnabled ? 'selected' : ''}`}
+      className={`tool ${d.selector.selectionMode === 'area' ? 'selected' : ''}`}
       onClick={() => {
-        d.selector.enableSelectionMode();
+        d.selector.toggleSelectionMode();
       }}
       title="Select"
     />

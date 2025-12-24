@@ -3,21 +3,18 @@ import type { TDirection, TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
-import { EventEmitter } from '../../util/EventEmitter';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
+import { AnyMouseEvent, DMouseDownEvent, DNodeSelectionEvent } from './Events';
 
 export class Node<Gateways = TDirection> extends Element {
   diagram: Diagram | null = null;
-  protected emitter = new EventEmitter<{
-    select: Node;
-  }>();
   protected _gateways = new Map<Gateways, Gateway>();
   public ref: SVGElement | HTMLElement | null = null;
   public state: TNodeState;
 
   public get selected() {
-    return this.diagram?.isNodeSelected(this);
+    return this.state.selected;
   }
 
   constructor(
@@ -111,8 +108,6 @@ export class Node<Gateways = TDirection> extends Element {
   protected dragEventMouseStartPosition: Coordinates | null = null;
   protected dragEventStartPosition: Coordinates | null = null;
 
-  on = this.emitter.on.bind(this.emitter);
-
   getGateway(which: Gateways) {
     return this._gateways.get(which);
   }
@@ -159,6 +154,7 @@ export class Node<Gateways = TDirection> extends Element {
     this.state.id = o.id;
     this.state.label = o.label;
     this.state.movable = o.movable;
+    this.state.selected = o.selected;
     this.state.selectable = o.selectable;
     this.state.fill = o.fill;
     this.state.labelFontSize = o.labelFontSize;
@@ -192,6 +188,7 @@ export class Node<Gateways = TDirection> extends Element {
       selectable,
       fill,
       labelFontSize,
+      selected,
       stroke,
       strokewWidth,
     } = this.state;
@@ -205,6 +202,7 @@ export class Node<Gateways = TDirection> extends Element {
       label,
       movable,
       selectable,
+      selected,
       gateways,
       fill,
       labelFontSize,
@@ -212,5 +210,23 @@ export class Node<Gateways = TDirection> extends Element {
       strokewWidth,
       class: this.constructor.name,
     };
+  }
+
+  mouseDown(ev: AnyMouseEvent) {
+    ev.stopPropagation();
+
+    this.emit(new DMouseDownEvent(this, ev));
+  }
+
+  select() {
+    if (!this.emit(new DNodeSelectionEvent(this, true)).cancelled) {
+      this.state.selected = true;
+    }
+  }
+
+  unselect() {
+    if (!this.emit(new DNodeSelectionEvent(this, false)).cancelled) {
+      this.state.selected = false;
+    }
   }
 }

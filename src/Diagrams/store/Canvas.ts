@@ -4,7 +4,9 @@ import { Dimensions } from './primitives/Dimensions';
 import { Diagram } from './Diagram';
 import { Element } from './elements/Element';
 import {
+  AnyKeyboardEvent,
   AnyMouseEvent,
+  DKeyDownEvent,
   DMouseDownEvent,
   DMouseMoveEvent,
   DMouseUpEvent,
@@ -68,8 +70,8 @@ export class Canvas extends Element {
     super(diagram);
 
     makeObservable(this, {});
-    const fn2 = (ev: MouseEvent) => this.handleMouseUp(ev);
-    document.addEventListener('mouseup', fn2);
+    document.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    document.addEventListener('keydown', this.keydown.bind(this));
   }
 
   public get dragging() {
@@ -111,74 +113,6 @@ export class Canvas extends Element {
     this.bound();
     this.setDisplacementStyles();
     return c.copy().substract(this._displacement.copy().substract(previous));
-  }
-
-  handleMouseDown(originalEvent: AnyMouseEvent) {
-    const fn1 = (ev: MouseEvent) => {
-      this.handleMouseMove(ev);
-    };
-
-    document.addEventListener('mousemove', fn1);
-
-    this.unsubscribeMouse();
-    this.unsubscribeMouse = () => {
-      document.removeEventListener('mousemove', fn1);
-    };
-
-    const ev = this.emit(new DMouseDownEvent(this, originalEvent));
-
-    if (!ev.cancelled && originalEvent.button === 1) {
-      this.diagram.clearSelection();
-      this.displacementStart = this._displacement.copy();
-      this.eventStart = new Coordinates(originalEvent);
-    }
-  }
-
-  protected handleMouseMove(originalEvent: MouseEvent) {
-    const ev = this.emit(new DMouseMoveEvent(this, originalEvent));
-
-    if (!ev.cancelled && this.eventStart) {
-      this._dragging = true;
-      this._displacement.assign(
-        this.displacementStart!.copy().substract(
-          this.eventStart
-            .copy()
-            .substract([originalEvent.clientX, originalEvent.clientY])
-            .divide(this.scale),
-        ),
-      );
-      this.bound();
-      this.setDisplacementStyles();
-    }
-  }
-
-  protected handleMouseUp(originalEvent: MouseEvent) {
-    const ev = this.emit(new DMouseUpEvent(this, originalEvent));
-
-    if (!ev.cancelled && this.eventStart) {
-      this._dragging = false;
-      this.eventStart = null;
-    }
-
-    this.unsubscribeMouse();
-  }
-
-  handleWheel(originalEvent: WheelEvent, isPassive = false) {
-    const ev = this.emit(new DWheelEvent(this, originalEvent));
-
-    if (!ev.cancelled) {
-      if (!isPassive) originalEvent.preventDefault();
-
-      const negative = originalEvent.deltaY < 0;
-      const rounded = Math.floor(this.scale * 100) / 100;
-
-      this.setScale(
-        this.scale -
-          originalEvent.deltaY /
-            ((rounded >= 0.2 && negative) || rounded > 0.21 ? 1000 : 10000),
-        new Coordinates(originalEvent),
-      );
-    }
   }
 
   setDisplacement(c: Coordinates) {
@@ -291,24 +225,101 @@ export class Canvas extends Element {
     }
   }
 
-  private unsetRefs = () => {};
+  private unsubscribeHandlers = () => {};
   useRef = (el: HTMLElement | null) => {
     this.element = el;
-    this.unsetRefs();
 
     if (el instanceof HTMLElement) {
       this.setDisplacementStyles();
+      this.unsubscribeHandlers();
 
-      const fn1 = this.handleMouseDown.bind(this);
-      const fn2 = this.handleWheel.bind(this);
+      const fn1 = this.mousedown.bind(this);
+      const fn2 = this.keydown.bind(this);
+      const fn3 = this.handleWheel.bind(this);
 
       el.addEventListener('mousedown', fn1);
-      el.addEventListener('wheel', fn2);
+      el.addEventListener('keydown', fn2);
+      el.addEventListener('wheel', fn3);
 
-      this.unsetRefs = () => {
+      this.unsubscribeHandlers = () => {
         el.removeEventListener('mousedown', fn1);
-        el.removeEventListener('wheel', fn2);
+        el.removeEventListener('keydown', fn2);
+        el.removeEventListener('wheel', fn3);
       };
     }
   };
+
+  protected keydown(originalEvent: AnyKeyboardEvent) {
+    this.emit(new DKeyDownEvent(this, originalEvent));
+  }
+
+  mousedown(originalEvent: AnyMouseEvent) {
+    this.unsubscribeMouse();
+    const ev = this.emit(new DMouseDownEvent(this, originalEvent));
+
+    if (
+      !ev.cancelled &&
+      (originalEvent.button === 1 || originalEvent.button === 0)
+    ) {
+      this.displacementStart = this._displacement.copy();
+      this.eventStart = new Coordinates(originalEvent);
+
+      const fn1 = (ev: MouseEvent) => {
+        this.handleMouseMove(ev);
+      };
+
+      document.addEventListener('mousemove', fn1);
+
+      this.unsubscribeMouse = () => {
+        document.removeEventListener('mousemove', fn1);
+      };
+    }
+  }
+
+  protected handleMouseMove(originalEvent: MouseEvent) {
+    const ev = this.emit(new DMouseMoveEvent(this, originalEvent));
+
+    if (!ev.cancelled && this.eventStart) {
+      this._dragging = true;
+      this._displacement.assign(
+        this.displacementStart!.copy().substract(
+          this.eventStart
+            .copy()
+            .substract([originalEvent.clientX, originalEvent.clientY])
+            .divide(this.scale),
+        ),
+      );
+      this.bound();
+      this.setDisplacementStyles();
+    }
+  }
+
+  protected handleMouseUp(originalEvent: MouseEvent) {
+    const ev = this.emit(new DMouseUpEvent(this, originalEvent));
+
+    if (!ev.cancelled && this.eventStart) {
+      this._dragging = false;
+      this.eventStart = null;
+    }
+
+    this.unsubscribeMouse();
+  }
+
+  protected handleWheel(originalEvent: WheelEvent, isPassive = false) {
+    const ev = this.emit(new DWheelEvent(this, originalEvent));
+
+    if (!ev.cancelled) {
+      if (!isPassive) originalEvent.preventDefault();
+
+      const negative = originalEvent.deltaY < 0;
+      const rounded = Math.floor(this.scale * 100) / 100;
+
+      this.setScale(
+        this.scale -
+          originalEvent.deltaY /
+            ((rounded >= 0.2 && negative) || rounded > 0.21 ? 1000 : 10000),
+        new Coordinates(originalEvent),
+      );
+    }
+  }
 }

@@ -1,12 +1,17 @@
-import { MouseEvent as ME, KeyboardEvent as KE } from 'react';
-import { Element } from './Element';
+import type { MouseEvent as ME, KeyboardEvent as KE } from 'react';
+import type { Element } from './Element';
 import type { Coordinates } from '../primitives/Coordinates';
+import type { Node } from './Node';
+import type { Edge } from './Edge';
+
 import { MouseInformation } from './EventsMouseInformation';
 
 export type AnyMouseEvent = ME | MouseEvent;
 export type AnyKeyboardEvent = KE | KeyboardEvent;
 
 export abstract class DEvent {
+  protected abstract readonly __brand: void;
+
   private _cancellable = true;
   private _cancelled = false;
   private _bubbles = true;
@@ -46,6 +51,7 @@ export abstract class DEvent {
 
   public stopImmediatePropagation() {
     this._spreads = false;
+    this.stopPropagation();
   }
 }
 
@@ -74,15 +80,25 @@ export abstract class DMouseEvent extends DEvent {
   }
 }
 
-export class DClickEvent extends DMouseEvent {}
+export class DClickEvent extends DMouseEvent {
+  protected readonly __brand!: void;
+}
 
-export class DMouseDownEvent extends DMouseEvent {}
+export class DMouseDownEvent extends DMouseEvent {
+  protected readonly __brand!: void;
+}
 
-export class DMouseUpEvent extends DMouseEvent {}
+export class DMouseUpEvent extends DMouseEvent {
+  protected readonly __brand!: void;
+}
 
-export class DMouseMoveEvent extends DMouseEvent {}
+export class DMouseMoveEvent extends DMouseEvent {
+  protected readonly __brand!: void;
+}
 
 export class DWheelEvent extends DMouseEvent {
+  protected readonly __brand!: void;
+
   constructor(
     src: Element,
     public originalEvent: WheelEvent,
@@ -131,6 +147,8 @@ export abstract class DKeyboardEvent extends DEvent {
 }
 
 export class DKeyDownEvent extends DKeyboardEvent {
+  protected readonly __brand!: void;
+
   constructor(
     src: Element,
     public originalEvent: AnyKeyboardEvent,
@@ -140,6 +158,8 @@ export class DKeyDownEvent extends DKeyboardEvent {
 }
 
 export class DKeyUpEvent extends DKeyboardEvent {
+  protected readonly __brand!: void;
+
   constructor(
     src: Element,
     public originalEvent: AnyKeyboardEvent,
@@ -149,6 +169,8 @@ export class DKeyUpEvent extends DKeyboardEvent {
 }
 
 export class DKeyPressEvent extends DKeyboardEvent {
+  protected readonly __brand!: void;
+
   constructor(
     src: Element,
     public orignalEvent: AnyKeyboardEvent,
@@ -158,6 +180,8 @@ export class DKeyPressEvent extends DKeyboardEvent {
 }
 
 export class DScaleEvent extends DEvent {
+  protected readonly __brand!: void;
+
   constructor(
     src: Element,
     public displacement: Coordinates,
@@ -165,6 +189,39 @@ export class DScaleEvent extends DEvent {
     public previousScale: number,
   ) {
     super(src);
+  }
+}
+
+export abstract class DSelectionEvent extends DEvent {
+  protected readonly __brand!: void;
+
+  constructor(
+    public src: Element,
+    public selected: boolean,
+  ) {
+    super(src);
+  }
+}
+
+export class DNodeSelectionEvent extends DSelectionEvent {
+  protected readonly __brand!: void;
+
+  constructor(
+    public src: Node<any>,
+    selected: boolean,
+  ) {
+    super(src, selected);
+  }
+}
+
+export class DEdgeSelectionEvent extends DSelectionEvent {
+  protected readonly __brand!: void;
+
+  constructor(
+    public src: Edge,
+    selected: boolean,
+  ) {
+    super(src, selected);
   }
 }
 

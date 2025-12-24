@@ -9,8 +9,8 @@ export const Stats = observer(() => {
   const displacement = d.canvas.displacement.round;
   const scale = Math.round(d.canvas.scale * 100) / 100;
   const mouse = Mouse.getInstance().coordinates;
-  const selected = d.selectedNode
-    ? d.selectedNode.coordinates.copy().round.nonObserved
+  const selected = d.selector.selection[0]
+    ? d.selector.selection[0].coordinates.copy().round.nonObserved
     : null;
 
   const measure = Math.round(d.measurer.getMeassurement() || 0);

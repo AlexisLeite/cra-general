@@ -7,9 +7,9 @@ export const MoveTool = observer(function MoveTool() {
 
   return (
     <TfiHandDrag
-      className={`tool ${d.eventsEnabled ? 'selected' : ''}`}
+      className={`tool ${d.selector.selectionMode === 'element' ? 'selected' : ''}`}
       onClick={() => {
-        d.enableEvents();
+        d.selector.toggleSelectionMode();
       }}
       title="Move"
     />

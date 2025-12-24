@@ -4,11 +4,7 @@ import { makeAutoObservable } from 'mobx';
 import type { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
-import {
-  DMouseDownEvent,
-  DMouseUpEvent,
-  DScaleEvent,
-} from '../elements/Events';
+import { DMouseDownEvent, DScaleEvent } from '../elements/Events';
 
 /**
  * Conditions for dragging:
@@ -24,18 +20,23 @@ export class Dragger {
   constructor(public diagram: Diagram) {
     makeAutoObservable(this);
 
-    this.diagram.canvas.onEvent(
+    this.diagram.onEvent(
       DMouseDownEvent,
       this.handleMouseDown.bind(this),
+      diagram.priorities.Dragger_Mouse_Down,
     );
-    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
-    this.diagram.canvas.onEvent(DScaleEvent, this.handleScale.bind(this));
+    this.diagram.onEvent(
+      DScaleEvent,
+      this.handleScale.bind(this),
+      diagram.priorities.Dragger_Scale,
+    );
   }
 
   protected draggingNodes: { node: Node; startPoint: Coordinates }[] = [];
   protected startPoint: Coordinates = new Coordinates();
   protected startPointScaled: Coordinates = new Coordinates();
-  protected unsubscribe = () => {};
+  protected unsubscribeMouseMove = () => {};
+  protected unsubscribeMouseUp = () => {};
   protected interval = -1;
 
   public startDrag(node: Node) {
@@ -47,29 +48,45 @@ export class Dragger {
   }
 
   protected handleMouseDown(ev: DMouseDownEvent) {
-    const nodeG = (ev.originalEvent.target as HTMLElement).closest<SVGGElement>(
-      '.diagram__node',
-    );
-    if (nodeG) {
-      const node = this.diagram.getNodeById(nodeG.dataset.id!);
-      if (node?.selected) {
-        this.draggingNodes = this.diagram.selectedNodes.map((c) => ({
-          node: c,
-          startPoint: c.coordinates.copy(),
-        }));
+    ev.stopImmediatePropagation();
 
-        this.startPoint = new Coordinates(ev.originalEvent);
-        this.startPointScaled = this.diagram.canvas.inverseFit(
-          new Coordinates(ev.originalEvent),
-        );
+    if (!ev.cancelled) {
+      const nodeG = (
+        ev.originalEvent.target as HTMLElement
+      ).closest<SVGGElement>('.diagram__node');
+      if (nodeG) {
+        const node = this.diagram.getNodeById(nodeG.dataset.id!);
+        if (node?.selected) {
+          this.draggingNodes = [...this.diagram.selector.selection].map(
+            (c) => ({
+              node: c,
+              startPoint: c.coordinates.copy(),
+            }),
+          );
 
-        this.handleDragAction();
+          this.startPoint = new Coordinates(ev.originalEvent);
+          this.startPointScaled = this.diagram.canvas.inverseFit(
+            new Coordinates(ev.originalEvent),
+          );
+
+          this.handleDragAction();
+
+          const hmup = () => {
+            this.handleMouseUp();
+          };
+          document.addEventListener('mouseup', hmup);
+          this.unsubscribeMouseUp();
+          this.unsubscribeMouseUp = () => {
+            document.removeEventListener('mouseup', hmup);
+          };
+        }
       }
     }
   }
 
   protected handleDragAction() {
-    this.unsubscribe = this.diagram.canvas.onEvent(
+    this.unsubscribeMouseMove();
+    this.unsubscribeMouseMove = this.diagram.onEvent(
       DScaleEvent,
       ({ newScale, previousScale }) => {
         this.startPoint.divide(previousScale).multiply(newScale);
@@ -161,14 +178,14 @@ export class Dragger {
                 .substract(compensation),
             ),
         );
-        this.diagram.selectNode(c.node, false, true);
       });
     }
   }
 
   protected handleMouseUp() {
     this.draggingNodes = [];
-    this.unsubscribe();
+    this.unsubscribeMouseMove();
+    this.unsubscribeMouseUp();
     clearInterval(this.interval);
   }
 

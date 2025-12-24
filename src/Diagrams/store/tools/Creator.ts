@@ -3,7 +3,7 @@ import type { Diagram } from '../Diagram';
 import { TextNode } from '../elements/TextNode';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
-import { DMouseUpEvent } from '../elements/Events';
+import { DClickEvent } from '../elements/Events';
 
 export type TCreationMode = 'none' | 'text';
 
@@ -11,7 +11,9 @@ export class Creator {
   creationMode: TCreationMode = 'none';
 
   constructor(public diagram: Diagram) {
-    this.diagram.canvas.onEvent(DMouseUpEvent, this.handleMouseUp.bind(this));
+    this.diagram.onEvent(DClickEvent, (ev) => {
+      this.handleMouseUp(ev);
+    });
     makeAutoObservable(this);
   }
 
@@ -24,8 +26,8 @@ export class Creator {
     return id;
   }
 
-  handleMouseUp(ev: DMouseUpEvent) {
-    if (this.creationMode !== 'none') {
+  handleMouseUp(ev: DClickEvent) {
+    if (!ev.cancelled && this.creationMode !== 'none') {
       ev.cancel();
 
       switch (this.creationMode) {
@@ -43,7 +45,7 @@ export class Creator {
               ]),
             }),
           );
-          this.diagram.selectNode(node);
+          node.select();
       }
     }
 

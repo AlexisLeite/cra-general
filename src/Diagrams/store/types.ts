@@ -17,6 +17,7 @@ export type TNodeState = {
   movable: boolean;
   Renderer: FC<{ node: Node }>;
   selectable: boolean;
+  selected: boolean;
   stroke: string;
   strokewWidth: number;
   hover: boolean;

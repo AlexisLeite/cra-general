@@ -20,17 +20,14 @@ import { Gateway } from './elements/Gateway';
 import { Creator } from './tools/Creator';
 import { TextNode } from './elements/TextNode';
 import { Element } from './elements/Element';
+import { Priorities } from './tools/Priorities';
+import { Rules } from './tools/Rules';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
 export class Diagram extends Element {
-  rules = {
-    displaceWhenDragOnEdges: true,
-    enableEvents: true,
-    gridSize: 50,
-    toggleGrid: true,
-    snapToGrid: true,
-  };
+  public readonly priorities = new Priorities();
+  rules = new Rules(this);
 
   private static knownClasses = new Map<string, any>();
   static getClass(name: string) {
@@ -46,10 +43,6 @@ export class Diagram extends Element {
   }
 
   protected _nodes = new Map<string, Node>();
-  protected _selectedNodes = new Set<Node>();
-  get eventsEnabled() {
-    return this.rules.enableEvents;
-  }
 
   canvas = new Canvas(this);
   creator = new Creator(this);
@@ -68,13 +61,9 @@ export class Diagram extends Element {
     Diagram.registerClass(Gateway);
     Diagram.registerClass(TextNode);
 
-    makeObservable<Diagram, '_selectedNodes' | '_nodes'>(this, {
+    makeObservable<Diagram, '_nodes'>(this, {
       edges: computed,
       _nodes: observable,
-      _selectedNodes: observable,
-      selectNode: action,
-      enableEvents: action,
-      disableEvents: action,
       toggleGrid: action,
       toggleSnapToGrid: action,
     });
@@ -101,9 +90,7 @@ export class Diagram extends Element {
   add<T extends Node>(node: T): T {
     node.parent = this;
     node.setDiagram(this);
-    node.on('select', () => {
-      this.selectNode(node);
-    });
+
     this._nodes.set(node.id, node);
 
     return node;
@@ -136,51 +123,12 @@ export class Diagram extends Element {
     <DiagramContext.Provider value={this}>{children}</DiagramContext.Provider>
   );
 
-  protected disableEventDependantClasses() {
-    this.measurer.disable();
-    this.selector.disableSelectionMode();
-  }
-
-  enableEvents() {
-    this.rules.enableEvents = true;
-    this.disableEventDependantClasses();
-  }
-
-  disableEvents() {
-    this.rules.enableEvents = false;
-    this.disableEventDependantClasses();
-  }
   getNodeById(id: string) {
     return this._nodes.get(id);
   }
 
   get gridSize() {
     return this.rules.gridSize;
-  }
-
-  get selectedNode(): Node | null {
-    if (this._selectedNodes.size === 1) {
-      return this._selectedNodes.values().next().value!;
-    }
-
-    return null;
-  }
-
-  get selectedNodes() {
-    return [...this._selectedNodes];
-  }
-
-  isNodeSelected(node: Node) {
-    return !![...this._selectedNodes.values()].find((c) => c === node);
-  }
-
-  selectNode(node: Node, unselectOthers = true, force = false) {
-    if (node !== this.selectedNode && (this.eventsEnabled || force)) {
-      if (unselectOthers) {
-        this._selectedNodes.clear();
-      }
-      this._selectedNodes.add(node);
-    }
   }
 
   get showGrid() {
@@ -194,24 +142,8 @@ export class Diagram extends Element {
     this.rules.toggleGrid = !this.rules.toggleGrid;
   }
 
-  toggleNodeSelection(node: Node) {
-    if (this._selectedNodes.has(node)) {
-      this._selectedNodes.delete(node);
-    } else {
-      this._selectedNodes.add(node);
-    }
-  }
-
   toggleSnapToGrid() {
     this.rules.snapToGrid = !this.rules.snapToGrid;
-  }
-
-  unselectNode(node: Node) {
-    this._selectedNodes.delete(node);
-  }
-
-  clearSelection() {
-    this._selectedNodes.clear();
   }
 
   public static use = () => useContext(DiagramContext)!;
@@ -241,7 +173,6 @@ export class Diagram extends Element {
       );
 
       this._nodes.clear();
-      this._selectedNodes.clear();
 
       state.nodes.forEach((nodeState) => {
         const node = new (Diagram.getClass(nodeState.class))(this, {

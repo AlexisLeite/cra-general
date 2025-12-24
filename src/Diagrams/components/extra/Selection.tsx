@@ -9,7 +9,7 @@ export const Selection = makeScalableComponent(
   observer(() => {
     const d = Diagram.use();
 
-    if (!d.selector.selectionModeEnabled) {
+    if (!d.selector.selectionMode) {
       return null;
     }
 

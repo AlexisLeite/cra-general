@@ -9,30 +9,32 @@ export class Hotkeys {
       if (!this.revertHotkey.has(ev.code)) {
         switch (ev.code) {
           case 'Space':
-            const selectionMode = this.diagram.selector.selectionModeEnabled;
-            const measurer = this.diagram.measurer.enabled;
+            const measure = this.diagram.measurer.enabled;
+            const selectInArea =
+              !measure && this.diagram.selector.selectionMode === 'area';
 
-            if (selectionMode || measurer) {
-              this.diagram.enableEvents();
-            } else {
-              this.diagram.selector.enableSelectionMode();
+            if (!measure) {
+              this.diagram.selector.toggleSelectionMode(
+                selectInArea ? 'element' : 'area',
+              );
             }
+
             this.revertHotkey.set(ev.code, () => {
-              if (selectionMode) {
-                this.diagram.selector.enableSelectionMode();
-              } else if (measurer) {
+              if (measure) {
                 this.diagram.measurer.enable();
               } else {
-                this.diagram.enableEvents();
+                this.diagram.selector.toggleSelectionMode(
+                  selectInArea ? 'area' : 'element',
+                );
               }
             });
             break;
           case 'KeyM':
-            this.diagram.enableEvents();
+            this.diagram.selector.toggleSelectionMode('element');
             break;
           case 'KeyS':
             if (!ev.ctrl) {
-              this.diagram.selector.enableSelectionMode();
+              this.diagram.selector.toggleSelectionMode('area');
             }
             break;
           case 'KeyR':

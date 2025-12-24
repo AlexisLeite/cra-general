@@ -14,25 +14,46 @@ export class Element {
 
   protected callbacks = new Map<Class<any>, PrioritizedCallback<any>[]>();
 
+  private static getClassHierarchy(ctor: Function): Function[] {
+    const out: Function[] = [];
+    let current: any = ctor;
+
+    while (current && current !== Object) {
+      out.push(current);
+      current = Object.getPrototypeOf(current);
+    }
+
+    return out;
+  }
+
   protected emit(ev: DEvent) {
-    const list = this.callbacks.get(ev.constructor as Class<any>);
+    const entries: PrioritizedCallback[] = [];
 
-    if (list) {
-      for (const { cb } of list) {
-        cb(ev);
-
-        if (!ev.spreads) {
-          return ev;
-        }
+    for (const type of Element.getClassHierarchy(ev.constructor)) {
+      const list = this.callbacks.get(type as Class<any>);
+      if (list) {
+        entries.push(...list);
       }
     }
 
-    if (ev.bubbles) this.parent?.emit(ev);
+    entries.sort((a, b) => b.priority - a.priority);
+
+    for (const { cb } of entries) {
+      cb(ev);
+
+      if (!ev.spreads) {
+        return ev;
+      }
+    }
+
+    if (ev.bubbles) {
+      this.parent?.emit(ev);
+    }
 
     return ev;
   }
 
-  public onEvent<X extends DEvent = DEvent>(
+  public onEvent<X extends DEvent>(
     type: Class<X>,
     cb: Callback<X>,
     priority = 0,
@@ -45,7 +66,6 @@ export class Element {
     }
 
     list.push({ cb, priority });
-    list.sort((a, b) => b.priority - a.priority);
 
     return () => this.offEvent(type, cb as Callback<DEvent>);
   }
