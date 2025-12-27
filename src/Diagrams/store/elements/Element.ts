@@ -1,8 +1,10 @@
+import { computed, makeObservable, observable } from 'mobx';
+import { Diagram } from '../Diagram';
 import { DEvent } from './Events';
 
 export type Callback<X extends DEvent> = (ev: X) => unknown;
 
-type Class<X> = abstract new (...args: any[]) => X;
+export type Class<X> = abstract new (...args: any[]) => X;
 
 interface PrioritizedCallback<X extends DEvent = DEvent> {
   cb: Callback<X>;
@@ -10,7 +12,12 @@ interface PrioritizedCallback<X extends DEvent = DEvent> {
 }
 
 export class Element {
-  constructor(public parent: Element | null) {}
+  constructor(public parent: Element | null) {
+    makeObservable(this, {
+      parent: observable,
+      diagram: computed,
+    });
+  }
 
   protected callbacks = new Map<Class<any>, PrioritizedCallback<any>[]>();
 
@@ -51,6 +58,15 @@ export class Element {
     }
 
     return ev;
+  }
+
+  public get diagram(): Diagram | null {
+    let p = this.parent;
+    while (p !== null && !(p instanceof Diagram)) {
+      p = p.parent;
+    }
+
+    return p;
   }
 
   public onEvent<X extends DEvent>(

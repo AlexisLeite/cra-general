@@ -72,6 +72,21 @@ export abstract class DMouseEvent extends DEvent {
     return this.originalEvent.ctrlKey;
   }
 
+  public get edge() {
+    return this.src.diagram?.getEdgeById(
+      (this.originalEvent.target as HTMLElement)?.closest<HTMLElement>('.edge')
+        ?.dataset.id || '',
+    );
+  }
+
+  public get node() {
+    return this.src.diagram?.getNodeById(
+      (this.originalEvent.target as HTMLElement)?.closest<HTMLElement>(
+        '.diagram__node',
+      )?.dataset.id || '',
+    );
+  }
+
   public get shift() {
     return this.originalEvent.shiftKey;
   }

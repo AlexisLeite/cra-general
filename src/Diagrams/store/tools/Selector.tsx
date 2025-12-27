@@ -3,13 +3,13 @@ import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import {
-  type AnyMouseEvent,
   DMouseDownEvent,
+  DMouseMoveEvent,
+  DMouseUpEvent,
   DNodeSelectionEvent,
 } from '../elements/Events';
 import { Node } from '../elements/Node';
-import { Canvas } from '../Canvas';
-import { bind, documentBind } from '../../util/bindCb';
+import { bind, diagramBind } from '../../util/bindCb';
 
 type SelectionMode = 'area' | 'element';
 
@@ -87,8 +87,18 @@ export class Selector {
     this.cancelMouseBind();
 
     this.cancelMouseBind = bind(
-      documentBind(this, 'mousemove', this.handleMouseMove),
-      documentBind(this, 'mouseup', this.handleMouseUp),
+      diagramBind(
+        this,
+        DMouseMoveEvent,
+        this.handleMouseMove,
+        this.diagram.priorities.Selector_Mouse_Move,
+      ),
+      diagramBind(
+        this,
+        DMouseUpEvent,
+        this.handleMouseUp,
+        this.diagram.priorities.Selector_Mouse_Up,
+      ),
     );
 
     this.endPoint = null;
@@ -99,24 +109,10 @@ export class Selector {
       ev.stopImmediatePropagation();
 
       this.endPoint = new Coordinates(ev);
-    } else {
-      if (ev.src instanceof Node) {
-        if (ev.ctrl && ev.src.selected) {
-          ev.src.unselect();
-        } else {
-          if (!ev.ctrl && !ev.shift && !ev.src.selected) {
-            this.clearSelection();
-          }
-          ev.src.select();
-          this.startNode = ev.src;
-        }
-      } else if (ev.src instanceof Canvas) {
-        this.clearSelection();
-      }
     }
   }
 
-  protected handleMouseMove(ev: AnyMouseEvent) {
+  protected handleMouseMove(ev: DMouseMoveEvent) {
     this.moved =
       this.moved ||
       !!(
@@ -130,21 +126,38 @@ export class Selector {
       this.diagram.nodes.forEach((c) => {
         if (this.get().collides(c.box)) {
           c.select();
-        } else if (!ev.shiftKey) {
+        } else if (!ev.shift) {
           c.unselect();
         }
       });
+
+      for (const edge of this.diagram.edges) {
+        for (let i = 0; i < edge.steps.length - 1; i++) {
+          const box = new Dimensions([
+            ...edge.steps[i].raw,
+            ...edge.steps[i + 1].copy().substract(edge.steps[i]).raw,
+          ]);
+          if (this.get().collides(box)) {
+            edge.select();
+            break;
+          }
+        }
+      }
     }
   }
 
-  protected handleMouseUp(ev: AnyMouseEvent) {
+  protected handleMouseUp(ev: DMouseUpEvent) {
     this.cancelMouseBind();
 
-    if (this.startPoint && !this.moved && !ev.shiftKey && !ev.ctrlKey) {
+    if (this.startPoint && !this.moved && !ev.shift && !ev.ctrl) {
       this.clearSelection();
       if (this.startNode) {
         this.startNode.select();
       }
+    }
+
+    if (this.startPoint && this.moved && this.selectionMode === 'area') {
+      ev.cancel();
     }
 
     this.moved = false;

@@ -1,16 +1,27 @@
-import { action, computed, makeObservable, observable } from 'mobx';
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from 'mobx';
 import type { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
 import { EdgePoint, type TEdgePointType } from './EdgePoint';
 import { Element } from './Element';
-import { type AnyMouseEvent, DClickEvent, DEdgeDragStartEvent } from './Events';
+import {
+  DMouseUpEvent,
+  DEdgeDragStartEvent,
+  DEdgeSelectionEvent,
+  DKeyDownEvent,
+} from './Events';
 import type { Midpoint } from '../../components/objects/RenderEdge';
 import type { MouseEvent } from 'react';
 
 let id = Number.MIN_SAFE_INTEGER;
 
 export class Edge extends Element {
-  id: Readonly<number> = id++;
+  id: Readonly<string> = String(id++);
 
   constructor(
     parent: Element | null,
@@ -30,6 +41,9 @@ export class Edge extends Element {
       stroke: computed,
       strokeWidth: computed,
     });
+
+    this.diagram?.onEvent(DMouseUpEvent, this.handleMouseUp);
+    this.diagram?.onEvent(DKeyDownEvent, this.handleKeyPress);
   }
 
   get arrowHeadEnd() {
@@ -126,18 +140,40 @@ export class Edge extends Element {
     };
   }
 
-  click(originalEvent: AnyMouseEvent) {
-    const ev = new DClickEvent(this, originalEvent);
-    this.emit(ev);
-
-    if (!ev.cancelled) {
-      this.state.selected = true;
-    }
-  }
-
   dragStart(midpoint: Midpoint, ev: MouseEvent) {
     ev.nativeEvent.stopImmediatePropagation();
 
     this.emit(new DEdgeDragStartEvent(this, midpoint, ev));
   }
+
+  select() {
+    runInAction(() => {
+      if (!this.emit(new DEdgeSelectionEvent(this, true)).cancelled) {
+        this.state.selected = true;
+      }
+    });
+  }
+  unselect() {
+    runInAction(() => {
+      if (!this.emit(new DEdgeSelectionEvent(this, false)).cancelled) {
+        this.state.selected = false;
+      }
+    });
+  }
+
+  protected handleMouseUp = (ev: DMouseUpEvent) => {
+    if (!ev.cancelled) {
+      if (ev.edge === this) {
+        this.select();
+      } else if (!ev.ctrl && !ev.shift) {
+        this.unselect();
+      }
+    }
+  };
+
+  protected handleKeyPress = (ev: DKeyDownEvent) => {
+    if (this.state.selected && ev.code === 'Delete') {
+      this.diagram?.disconnect(this);
+    }
+  };
 }

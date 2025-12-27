@@ -46,12 +46,28 @@ export class Gateway extends Element {
   }
 
   addIncomingEdge(edge: Edge) {
-    this.state.incomingEdges.push(edge);
+    if (!this.state.incomingEdges.find((c) => c.id === edge.id)) {
+      this.state.incomingEdges.push(edge);
+    }
   }
 
   addOutgoingEdge(edge: Edge) {
-    this.state.outgoingEdges.push(edge);
-    this.updateEdges();
+    if (!this.state.outgoingEdges.find((c) => c.id === edge.id)) {
+      this.state.outgoingEdges.push(edge);
+      this.updateEdges();
+    }
+  }
+
+  removeIncomingEdge(edge: Edge) {
+    this.state.incomingEdges = this.state.incomingEdges.filter(
+      (c) => c.id !== edge.id,
+    );
+  }
+
+  removeOutgoingEdge(edge: Edge) {
+    this.state.outgoingEdges = this.state.outgoingEdges.filter(
+      (c) => c.id !== edge.id,
+    );
   }
 
   get coordinates() {

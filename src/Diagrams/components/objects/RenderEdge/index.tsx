@@ -66,6 +66,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
 
     return (
       <g
+        data-id={edge?.id}
         className={[
           'edge',
           edge?.state.dragging && 'dragging',
@@ -99,9 +100,6 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           strokeWidth={width + 8}
           fill="none"
           className="edge-hover-area"
-          onClick={(ev) => {
-            edge?.click(ev);
-          }}
           onMouseOver={() => {
             runInAction(() => {
               if (edge) edge!.state.hover = true;

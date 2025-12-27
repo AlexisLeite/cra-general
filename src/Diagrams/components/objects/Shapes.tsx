@@ -10,6 +10,10 @@ import { makeScalableComponent } from './makeScalableComponent';
 import { RenderCustomRenderers } from './CustomRenderers';
 
 const ShapeWrap = observer(({ node }: { node: Node }) => {
+  if (!node.parent) {
+    return null;
+  }
+
   return (
     <>
       {!node.state.Renderer && (

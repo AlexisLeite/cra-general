@@ -4,8 +4,12 @@ import { makeAutoObservable } from 'mobx';
 import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
-import { DMouseDownEvent, DScaleEvent } from '../elements/Events';
-import { bind, documentBind } from '../../util/bindCb';
+import {
+  DMouseDownEvent,
+  DMouseUpEvent,
+  DScaleEvent,
+} from '../elements/Events';
+import { bind, diagramBind } from '../../util/bindCb';
 
 /**
  * Conditions for dragging:
@@ -68,7 +72,12 @@ export class Dragger {
 
         this.unsubscribeMouseUp();
         this.unsubscribeMouseUp = bind(
-          documentBind(this, 'mouseup', this.handleMouseUp),
+          diagramBind(
+            this,
+            DMouseUpEvent,
+            this.handleMouseUp,
+            this.diagram.priorities.Dragger_Mouse_Up,
+          ),
         );
       }
     }

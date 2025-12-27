@@ -43,6 +43,7 @@ export class Diagram extends Element {
   }
 
   protected _nodes = new Map<string, Node>();
+  protected _edges = new Map<string, Edge>();
 
   canvas = new Canvas(this);
   creator = new Creator(this);
@@ -61,8 +62,9 @@ export class Diagram extends Element {
     Diagram.registerClass(Gateway);
     Diagram.registerClass(TextNode);
 
-    makeObservable<Diagram, '_nodes'>(this, {
+    makeObservable<Diagram, '_edges' | '_nodes'>(this, {
       edges: computed,
+      _edges: observable,
       _nodes: observable,
       toggleGrid: action,
       toggleSnapToGrid: action,
@@ -70,17 +72,7 @@ export class Diagram extends Element {
   }
 
   get edges(): Readonly<Edge[]> {
-    const edges = [...this._nodes.values()].reduce<Edge[]>(
-      (acc, cur) => [
-        ...acc,
-        ...[...cur.gateways.values()].reduce<Edge[]>(
-          (acc2, cur2) => [...acc2, ...cur2.outgoingEdges],
-          [],
-        ),
-      ],
-      [],
-    );
-    return edges;
+    return [...this._edges.values()];
   }
 
   get nodes(): Readonly<Node[]> {
@@ -89,7 +81,6 @@ export class Diagram extends Element {
 
   add<T extends Node>(node: T): T {
     node.parent = this;
-    node.setDiagram(this);
 
     this._nodes.set(node.id, node);
 
@@ -101,27 +92,53 @@ export class Diagram extends Element {
     edge.to.addIncomingEdge(edge);
   }
 
-  connect(from: Gateway, to: Gateway) {
-    const edge = new this.edgeClass(this, {
-      hover: false,
-      dragging: false,
-      selected: false,
-      from,
-      to,
-      label: '',
-      labelPositioning: new Coordinates([0, 0]),
-      steps: [],
-    });
+  connect(from: Gateway, to: Gateway, existentEdge?: Edge) {
+    const edge =
+      existentEdge ||
+      new this.edgeClass(this, {
+        hover: false,
+        dragging: false,
+        selected: false,
+        from,
+        to,
+        label: '',
+        labelPositioning: new Coordinates([0, 0]),
+        steps: [],
+      });
 
     from.addOutgoingEdge(edge);
     to.addIncomingEdge(edge);
 
+    this._edges.set(edge.id, edge);
+
     return edge;
+  }
+
+  delete(node: Node<any>) {
+    runInAction(() => {
+      node.gateways.forEach((c) =>
+        c.outgoingEdges.forEach(this.disconnect.bind(this)),
+      );
+      this._nodes.delete(node.id);
+      node.parent = null;
+    });
+  }
+
+  disconnect(edge: Edge) {
+    runInAction(() => {
+      edge.from.removeOutgoingEdge(edge);
+      edge.to.removeIncomingEdge(edge);
+      this._edges.delete(edge.id);
+    });
   }
 
   Context = ({ children }: { children: ReactNode }) => (
     <DiagramContext.Provider value={this}>{children}</DiagramContext.Provider>
   );
+
+  getEdgeById(id: string) {
+    return this._edges.get(id);
+  }
 
   getNodeById(id: string) {
     return this._nodes.get(id);

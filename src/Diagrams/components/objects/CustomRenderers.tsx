@@ -9,7 +9,6 @@ const RenderNode = observer(({ node }: { node: Node }) => {
     <div
       onMouseOver={() => node.setState('hover', true)}
       onMouseOut={() => node.setState('hover', false)}
-      onMouseDownCapture={(ev) => node.mouseDown(ev)}
       key={node.id}
       data-id={node.id}
       className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}

@@ -6,13 +6,17 @@ import { Element } from './elements/Element';
 import {
   type AnyKeyboardEvent,
   type AnyMouseEvent,
+  DClickEvent,
   DKeyDownEvent,
+  DKeyPressEvent,
+  DKeyUpEvent,
   DMouseDownEvent,
   DMouseMoveEvent,
   DMouseUpEvent,
   DScaleEvent,
   DWheelEvent,
 } from './elements/Events';
+import { documentBind } from '../util/bindCb';
 
 export type ScaleEvent = {
   previousScale: number;
@@ -66,12 +70,20 @@ export class Canvas extends Element {
     return new Dimensions([box.x, box.y, box.width, box.height]);
   }
 
-  constructor(public diagram: Diagram) {
-    super(diagram);
+  constructor(parent: Diagram) {
+    super(parent);
 
     makeObservable(this, {});
-    document.addEventListener('mouseup', this.handleMouseUp.bind(this));
-    document.addEventListener('keydown', this.keydown.bind(this));
+
+    documentBind(this, 'click', this.handleClick);
+    documentBind(this, 'mouseup', this.handleMouseUp);
+    documentBind(this, 'mousedown', this.handleMouseDown);
+    documentBind(this, 'mousemove', this.handleMouseMove);
+
+    documentBind(this, 'keydown', this.handleKeyDown);
+    documentBind(this, 'keyup', this.handleKeyUp);
+    documentBind(this, 'keypress', this.handleKeyPress);
+    documentBind(this, 'keydown', this.keydown);
   }
 
   public get dragging() {
@@ -81,8 +93,6 @@ export class Canvas extends Element {
   protected _dragging = false;
   displacementStart: null | Coordinates = null;
   eventStart: null | Coordinates = null;
-
-  protected unsubscribeMouse = () => {};
 
   protected bound() {
     const rect = this.element?.parentElement?.getBoundingClientRect();
@@ -254,7 +264,6 @@ export class Canvas extends Element {
   }
 
   mousedown(originalEvent: AnyMouseEvent) {
-    this.unsubscribeMouse();
     const ev = this.emit(new DMouseDownEvent(this, originalEvent));
 
     if (
@@ -263,23 +272,18 @@ export class Canvas extends Element {
     ) {
       this.displacementStart = this._displacement.copy();
       this.eventStart = new Coordinates(originalEvent);
-
-      const fn1 = (ev: MouseEvent) => {
-        this.handleMouseMove(ev);
-      };
-
-      document.addEventListener('mousemove', fn1);
-
-      this.unsubscribeMouse = () => {
-        document.removeEventListener('mousemove', fn1);
-      };
     }
   }
 
   protected handleMouseMove(originalEvent: MouseEvent) {
     const ev = this.emit(new DMouseMoveEvent(this, originalEvent));
 
-    if (!ev.cancelled && this.eventStart) {
+    if (
+      !ev.cancelled &&
+      this.eventStart &&
+      this.displacementStart &&
+      this.eventStart
+    ) {
       this._dragging = true;
       this._displacement.assign(
         this.displacementStart!.copy().substract(
@@ -294,15 +298,31 @@ export class Canvas extends Element {
     }
   }
 
+  protected handleClick(originalEvent: MouseEvent) {
+    this.emit(new DClickEvent(this, originalEvent));
+  }
+
   protected handleMouseUp(originalEvent: MouseEvent) {
-    const ev = this.emit(new DMouseUpEvent(this, originalEvent));
+    this.emit(new DMouseUpEvent(this, originalEvent));
 
-    if (!ev.cancelled && this.eventStart) {
-      this._dragging = false;
-      this.eventStart = null;
-    }
+    this._dragging = false;
+    this.eventStart = null;
+  }
 
-    this.unsubscribeMouse();
+  protected handleMouseDown(originalEvent: MouseEvent) {
+    this.emit(new DMouseDownEvent(this, originalEvent));
+  }
+
+  protected handleKeyDown(originalEvent: KeyboardEvent) {
+    this.emit(new DKeyDownEvent(this, originalEvent));
+  }
+
+  protected handleKeyUp(originalEvent: KeyboardEvent) {
+    this.emit(new DKeyUpEvent(this, originalEvent));
+  }
+
+  protected handleKeyPress(originalEvent: KeyboardEvent) {
+    this.emit(new DKeyPressEvent(this, originalEvent));
   }
 
   protected handleWheel(originalEvent: WheelEvent, isPassive = false) {

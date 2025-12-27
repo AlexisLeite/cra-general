@@ -1,4 +1,10 @@
-import { action, computed, makeObservable, observable } from 'mobx';
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from 'mobx';
 import type { TDirection, TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
@@ -6,13 +12,14 @@ import { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
 import {
-  type AnyMouseEvent,
   DMouseDownEvent,
   DNodeSelectionEvent,
+  DKeyDownEvent,
+  type AnyMouseEvent,
+  DMouseUpEvent,
 } from './Events';
 
 export class Node<Gateways = TDirection> extends Element {
-  diagram: Diagram | null = null;
   protected _gateways = new Map<Gateways, Gateway>();
   public ref: SVGElement | HTMLElement | null = null;
   public state: TNodeState;
@@ -41,6 +48,9 @@ export class Node<Gateways = TDirection> extends Element {
     });
 
     this.initializeGateways();
+
+    this.diagram?.onEvent(DKeyDownEvent, this.handleKeyPress);
+    this.diagram?.onEvent(DMouseUpEvent, this.handleMouseUp);
   }
 
   setState<K extends keyof TNodeState>(prop: K, value: TNodeState[K]) {
@@ -116,10 +126,6 @@ export class Node<Gateways = TDirection> extends Element {
     return this._gateways.get(which);
   }
 
-  setDiagram(d: Diagram) {
-    this.diagram = d;
-  }
-
   setDimentions(c: Coordinates | [number, number]) {
     this.state.box.assignDimensions(c);
   }
@@ -181,6 +187,11 @@ export class Node<Gateways = TDirection> extends Element {
     o.gateways.forEach((c) => {
       this._gateways.get(c.id as any)?.deserialize(c);
     });
+    this._gateways.forEach((c) =>
+      c.outgoingEdges.forEach((e) => {
+        this.diagram?.connect(e.from, e.to, e);
+      }),
+    );
   }
 
   serialize() {
@@ -224,13 +235,32 @@ export class Node<Gateways = TDirection> extends Element {
 
   select() {
     if (!this.emit(new DNodeSelectionEvent(this, true)).cancelled) {
-      this.state.selected = true;
+      runInAction(() => {
+        this.state.selected = true;
+      });
     }
   }
 
   unselect() {
     if (!this.emit(new DNodeSelectionEvent(this, false)).cancelled) {
-      this.state.selected = false;
+      runInAction(() => {
+        this.state.selected = false;
+      });
     }
   }
+
+  protected handleMouseUp = (ev: DMouseUpEvent) => {
+    if (!ev.cancelled) {
+      if (ev.node === this) {
+        this.select();
+      } else if (!ev.ctrl && !ev.shift) {
+        this.unselect();
+      }
+    }
+  };
+  protected handleKeyPress = (ev: DKeyDownEvent) => {
+    if (this.state.selected && ev.code === 'Delete') {
+      this.diagram?.delete(this);
+    }
+  };
 }
