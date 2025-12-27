@@ -22,7 +22,6 @@ import { TextNode } from './elements/TextNode';
 import { Element } from './elements/Element';
 import { Priorities } from './tools/Priorities';
 import { Rules } from './tools/Rules';
-import KDBush from 'kdbush';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -44,7 +43,6 @@ export class Diagram extends Element {
   }
 
   protected _nodes = new Map<string, Node>();
-  protected _nodesIndex = new KDBush(1000);
 
   canvas = new Canvas(this);
   creator = new Creator(this);
