@@ -101,10 +101,11 @@ export class Diagram extends Element {
   }
 
   add<T extends Node>(node: T): T {
-    node.parent = this;
+    runInAction(() => {
+      node.setDiagram(this);
+    });
 
     this._nodes.set(node.id, node);
-
     return node;
   }
 

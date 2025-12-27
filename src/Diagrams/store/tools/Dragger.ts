@@ -6,12 +6,11 @@ import { Mouse } from '../../util/Mouse';
 import {
   DDragProposalEvent,
   DMouseDownEvent,
-  DMouseUpEvent,
   DragProposal,
   DScaleEvent,
   DDeleteNodeEvent,
+  DMouseUpEvent,
 } from '../elements/Events';
-import { bind, diagramBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
 import { Selector } from './Selector';
 import { Dimensions } from '../primitives/Dimensions';
@@ -34,6 +33,11 @@ export class Dragger extends DiagramExtension {
       this.diagram.priorities.Mouse_Down_Dragger,
     );
     this.diagram.onEvent(
+      DMouseUpEvent,
+      this.handleMouseUp.bind(this),
+      this.diagram.priorities.Mouse_Up_Dragger,
+    );
+    this.diagram.onEvent(
       DScaleEvent,
       this.handleScale.bind(this),
       this.diagram.priorities.Scale_Dragger,
@@ -54,7 +58,6 @@ export class Dragger extends DiagramExtension {
   protected startPoint: Coordinates = new Coordinates();
   protected startPointScaled: Coordinates = new Coordinates();
   protected unsubscribeScaleEvent = () => {};
-  protected unsubscribeMouseUp = () => {};
   protected interval = -1;
 
   public startDrag(node: Node) {
@@ -77,6 +80,7 @@ export class Dragger extends DiagramExtension {
     const node = ev.node;
     if (!ev.cancelled && node && node.selected) {
       ev.cancel();
+      ev.stopImmediatePropagation();
 
       this.draggingNodes.clear();
       this.diagram.getExtension(Selector).selection.forEach((c) => {
@@ -92,16 +96,6 @@ export class Dragger extends DiagramExtension {
       );
 
       this.handleDragAction();
-
-      this.unsubscribeMouseUp();
-      this.unsubscribeMouseUp = bind(
-        diagramBind(
-          this,
-          DMouseUpEvent,
-          this.handleMouseUp,
-          this.diagram.priorities.Mouse_Up_Dragger,
-        ),
-      );
     }
   }
 
@@ -217,7 +211,7 @@ export class Dragger extends DiagramExtension {
       ) {
         proposals.forEach((c) => {
           if (!c.cancelled) {
-            c.node.setPosition(c.newBox.coordinates);
+            c.node.setPosition(c.get().coordinates);
           }
         });
       }
@@ -227,7 +221,6 @@ export class Dragger extends DiagramExtension {
   protected handleMouseUp() {
     this.draggingNodes.clear();
     this.unsubscribeScaleEvent();
-    this.unsubscribeMouseUp();
     clearInterval(this.interval);
   }
 

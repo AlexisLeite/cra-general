@@ -42,12 +42,16 @@ export class Node<Gateways = TDirection> extends Element {
     });
 
     this.initializeGateways();
+  }
 
-    this.diagram?.onEvent(DKeyDownEvent, this.handleKeyPress);
-    this.diagram?.onEvent(
+  setDiagram(d: Diagram) {
+    this.parent = d;
+
+    this.diagram!.onEvent(DKeyDownEvent, this.handleKeyPress);
+    this.diagram!.onEvent(
       DMouseDownEvent,
       this.handleMouseDown,
-      this.diagram.priorities.Mouse_Down_Node,
+      this.diagram!.priorities.Mouse_Down_Node,
     );
   }
 

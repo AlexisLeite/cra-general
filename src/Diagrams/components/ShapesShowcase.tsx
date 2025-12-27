@@ -3,6 +3,7 @@ import { TaskNode } from '../custom/bpmn/TaskNode';
 import { Diagram } from '../store/Diagram';
 import { Mouse } from '../util/Mouse';
 import { useRef } from 'react';
+import { Dragger } from '../store/tools/Dragger';
 
 const maxIds: Record<string, number> = {};
 function getId(diagram: Diagram, prefix: string) {
@@ -21,6 +22,7 @@ export const ShapesShowcase = () => {
   return (
     <CollapsiblePanel
       title="Tools"
+      id="Showcase"
       defaultWidth={280}
       onMouseLeave={() => {
         uns.current();
@@ -39,7 +41,9 @@ export const ShapesShowcase = () => {
         style={{
           height: '80px',
         }}
-        onMouseDown={() => {
+        onMouseDownCapture={(ev) => {
+          ev.nativeEvent.stopImmediatePropagation();
+
           const id = getId(d, 'task');
 
           const task = new TaskNode(null, {
@@ -56,7 +60,8 @@ export const ShapesShowcase = () => {
           );
           task.setDimentions([200, 100]);
           d.rules.displaceWhenDragOnEdges = false;
-          d.dragger.startDrag(task);
+
+          d.getExtension(Dragger)?.startDrag(task);
         }}
       >
         Task

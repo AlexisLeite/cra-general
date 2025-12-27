@@ -65,31 +65,39 @@ export class Aligner extends DiagramExtension {
         this.clear();
 
         const extensionBoundary = this.diagram.canvas.frameDimensions.norm / 2;
-        const relevantBoundary = (this.gridSize / 5) * 3;
-        const attachBoundary = this.gridSize / 2;
+        const relevantBoundary = (this.gridSize / 5) * 2;
+        const attachBoundary = this.gridSize / 3;
 
         if (ev.elements.length === 1) {
-          const proposals: Partial<
-            Record<
-              CandidateType,
-              {
-                position: number;
-                element: Node<any>;
-                distance: number;
-                range: [number, number];
-              }
-            >
-          > = {};
+          const proposals: Record<
+            CandidateType,
+            {
+              position: number;
+              element: Node<any>;
+              distance: number;
+              range: [number, number];
+            }[]
+          > = {
+            HC: [],
+            HL: [],
+            HR: [],
+            VB: [],
+            VM: [],
+            VT: [],
+          };
           const el = ev.elements[0];
 
           const enabledChecks: Record<CandidateType, boolean> = {
-            HC: true,
             HL: true,
+            HC: true,
             HR: true,
             VB: true,
             VM: true,
             VT: true,
           };
+
+          let minHorizontal = Infinity;
+          let minVertical = Infinity;
 
           for (const candidate of this.diagram.nodes) {
             if (
@@ -98,23 +106,25 @@ export class Aligner extends DiagramExtension {
             ) {
               if (enabledChecks.VM) {
                 const dvm = d(candidate.box.middle.y, el.newBox.middle.y);
-                if (
-                  dvm < relevantBoundary &&
-                  (proposals.VM?.distance ?? Infinity) > dvm
-                ) {
-                  proposals.VM = {
+                if (dvm < relevantBoundary) {
+                  proposals.VM.push({
                     distance: dvm,
                     element: el.node,
                     position: candidate.box.middle.y,
-                    range: [candidate.box.rightMiddle.x, el.node.box.x],
-                  };
+                    range: [candidate.box.rightMiddle.x, el.newBox.x],
+                  });
 
-                  if (dvm < attachBoundary) {
+                  if (
+                    dvm < attachBoundary &&
+                    !proposals.VM.find((c) => c.distance < dvm) &&
+                    dvm < minHorizontal
+                  ) {
+                    minHorizontal = dvm;
                     el.update(
                       new Dimensions([
                         el.newBox.x,
-                        candidate.box.middle.y - candidate.box.height / 2,
-                        ...el.node.box.size.raw,
+                        candidate.box.middle.y - el.newBox.height / 2,
+                        ...el.newBox.size.raw,
                       ]),
                     );
                   }
@@ -123,23 +133,25 @@ export class Aligner extends DiagramExtension {
 
               if (enabledChecks.VT) {
                 const dvt = d(candidate.box.y, el.newBox.y);
-                if (
-                  dvt < relevantBoundary &&
-                  (proposals.VT?.distance ?? Infinity) > dvt
-                ) {
-                  proposals.VT = {
+                if (dvt < relevantBoundary) {
+                  proposals.VT.push({
                     distance: dvt,
                     element: el.node,
                     position: candidate.box.y,
-                    range: [candidate.box.rightMiddle.x, el.node.box.x],
-                  };
+                    range: [candidate.box.rightMiddle.x, el.newBox.x],
+                  });
 
-                  if (dvt < attachBoundary) {
+                  if (
+                    dvt < attachBoundary &&
+                    !proposals.VT.find((c) => c.distance < dvt) &&
+                    dvt < minHorizontal
+                  ) {
+                    minHorizontal = dvt;
                     el.update(
                       new Dimensions([
                         el.newBox.x,
                         candidate.box.y,
-                        ...el.node.box.size.raw,
+                        ...el.newBox.size.raw,
                       ]),
                     );
                   }
@@ -151,23 +163,25 @@ export class Aligner extends DiagramExtension {
                   candidate.box.bottomMiddle.y,
                   el.newBox.bottomMiddle.y,
                 );
-                if (
-                  dvb < relevantBoundary &&
-                  (proposals.VB?.distance ?? Infinity) > dvb
-                ) {
-                  proposals.VB = {
+                if (dvb < relevantBoundary) {
+                  proposals.VB.push({
                     distance: dvb,
                     element: el.node,
                     position: candidate.box.bottomMiddle.y,
-                    range: [candidate.box.rightMiddle.x, el.node.box.x],
-                  };
+                    range: [candidate.box.rightMiddle.x, el.newBox.x],
+                  });
 
-                  if (dvb < attachBoundary) {
+                  if (
+                    dvb < attachBoundary &&
+                    !proposals.VB.find((c) => c.distance < dvb) &&
+                    dvb < minHorizontal
+                  ) {
+                    minHorizontal = dvb;
                     el.update(
                       new Dimensions([
                         el.newBox.x,
-                        candidate.box.bottomMiddle.y - el.node.box.height,
-                        ...el.node.box.size.raw,
+                        candidate.box.bottomMiddle.y - el.newBox.height,
+                        ...el.newBox.size.raw,
                       ]),
                     );
                   }
@@ -176,23 +190,25 @@ export class Aligner extends DiagramExtension {
 
               if (enabledChecks.HL) {
                 const dhl = d(candidate.box.x, el.newBox.x);
-                if (
-                  dhl < relevantBoundary &&
-                  (proposals.HL?.distance ?? Infinity) > dhl
-                ) {
-                  proposals.HL = {
+                if (dhl < relevantBoundary) {
+                  proposals.HL.push({
                     distance: dhl,
                     element: el.node,
                     position: candidate.box.x,
-                    range: [candidate.box.bottomMiddle.y, el.node.box.y],
-                  };
+                    range: [candidate.box.bottomMiddle.y, el.newBox.y],
+                  });
 
-                  if (dhl < attachBoundary) {
+                  if (
+                    dhl < attachBoundary &&
+                    !proposals.HL.find((c) => c.distance < dhl) &&
+                    dhl < minVertical
+                  ) {
+                    minVertical = dhl;
                     el.update(
                       new Dimensions([
                         candidate.box.x,
                         el.newBox.y,
-                        ...el.node.box.size.raw,
+                        ...el.newBox.size.raw,
                       ]),
                     );
                   }
@@ -201,23 +217,25 @@ export class Aligner extends DiagramExtension {
 
               if (enabledChecks.HC) {
                 const dhc = d(candidate.box.middle.x, el.newBox.middle.x);
-                if (
-                  dhc < relevantBoundary &&
-                  (proposals.HC?.distance ?? Infinity) > dhc
-                ) {
-                  proposals.HC = {
+                if (dhc < relevantBoundary) {
+                  proposals.HC.push({
                     distance: dhc,
                     element: el.node,
                     position: candidate.box.middle.x,
-                    range: [candidate.box.bottomMiddle.y, el.node.box.y],
-                  };
+                    range: [candidate.box.bottomMiddle.y, el.newBox.y],
+                  });
 
-                  if (dhc < attachBoundary) {
+                  if (
+                    dhc < attachBoundary &&
+                    !proposals.HL.find((c) => c.distance < dhc) &&
+                    dhc < minVertical
+                  ) {
+                    minVertical = dhc;
                     el.update(
                       new Dimensions([
-                        candidate.box.middle.x - el.node.box.width / 2,
+                        candidate.box.middle.x - el.newBox.width / 2,
                         el.newBox.y,
-                        ...el.node.box.size.raw,
+                        ...el.newBox.size.raw,
                       ]),
                     );
                   }
@@ -229,23 +247,25 @@ export class Aligner extends DiagramExtension {
                   candidate.box.rightMiddle.x,
                   el.newBox.rightMiddle.x,
                 );
-                if (
-                  dhr < relevantBoundary &&
-                  (proposals.HR?.distance ?? Infinity) > dhr
-                ) {
-                  proposals.HR = {
+                if (dhr < relevantBoundary) {
+                  proposals.HR.push({
                     distance: dhr,
                     element: el.node,
                     position: candidate.box.rightMiddle.x,
-                    range: [candidate.box.bottomMiddle.y, el.node.box.y],
-                  };
+                    range: [candidate.box.bottomMiddle.y, el.newBox.y],
+                  });
 
-                  if (dhr < attachBoundary) {
+                  if (
+                    dhr < attachBoundary &&
+                    !proposals.HR.find((c) => c.distance < dhr) &&
+                    dhr < minVertical
+                  ) {
+                    minVertical = dhr;
                     el.update(
                       new Dimensions([
-                        candidate.box.rightMiddle.x - el.node.box.width,
+                        candidate.box.rightMiddle.x - el.newBox.width,
                         el.newBox.y,
-                        ...el.node.box.size.raw,
+                        ...el.newBox.size.raw,
                       ]),
                     );
                   }
@@ -253,6 +273,7 @@ export class Aligner extends DiagramExtension {
               }
             }
           }
+
           /*
           if (this.diagram?.snapToGrid) {
             this.state.box.x =
@@ -265,19 +286,21 @@ export class Aligner extends DiagramExtension {
 
           Object.entries(proposals).forEach(([type, proposal]) => {
             runInAction(() => {
-              if (type.startsWith('H')) {
-                this.proposals.push({
-                  x: proposal.position,
-                  type: 'h',
-                  range: proposal.range,
-                });
-              } else {
-                this.proposals.push({
-                  y: proposal.position,
-                  type: 'v',
-                  range: proposal.range,
-                });
-              }
+              proposal.forEach((p) => {
+                if (type.startsWith('H')) {
+                  this.proposals.push({
+                    x: p.position,
+                    type: 'h',
+                    range: p.range,
+                  });
+                } else {
+                  this.proposals.push({
+                    y: p.position,
+                    type: 'v',
+                    range: p.range,
+                  });
+                }
+              });
             });
           });
         }

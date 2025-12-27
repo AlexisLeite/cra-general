@@ -11,6 +11,7 @@ import { makeAutoObservable } from 'mobx';
 import { observer } from 'mobx-react-lite';
 
 export type CollapsiblePanelProps = {
+  id?: string;
   title?: ReactNode;
   defaultCollapsed?: boolean;
   collapsed?: boolean;
@@ -159,6 +160,7 @@ export class CollapsiblePanelStateManager {
 
 export const CollapsiblePanel = observer(function CollapsiblePanel({
   title,
+  id,
   defaultCollapsed = false,
   collapsed,
   onCollapsedChange,
@@ -235,6 +237,7 @@ export const CollapsiblePanel = observer(function CollapsiblePanel({
       onMouseLeave={onMouseLeave}
       className={rootClassName}
       style={rootStyle}
+      id={id}
     >
       <div className="collapsible_panel__header" aria-expanded={!isCollapsed}>
         {title != null && (

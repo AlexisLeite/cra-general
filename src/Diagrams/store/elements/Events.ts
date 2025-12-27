@@ -289,11 +289,14 @@ export class DEdgeDragStartEvent extends DDragEvent {
 
 export class DragProposal {
   private _cancelled = false;
+  private _updated: Dimensions;
 
   constructor(
     public readonly node: Node<any>,
     public newBox: Dimensions,
-  ) {}
+  ) {
+    this._updated = newBox;
+  }
 
   cancel() {
     this._cancelled = true;
@@ -303,8 +306,12 @@ export class DragProposal {
     return this._cancelled;
   }
 
+  public get() {
+    return this._updated;
+  }
+
   update(box: Dimensions) {
-    this.newBox = box;
+    this._updated = box;
   }
 }
 
