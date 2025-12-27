@@ -4,15 +4,19 @@ import { Coordinates } from '../../primitives/Coordinates';
 import { getPathAroundNode } from './getPathAroundNode';
 import { pathCollidesNodes } from './pathCollidesNodes';
 import { stepFromGateway } from './stepBackFromGateway';
-import { TDirection } from '../../types';
+import type { TDirection } from '../../types';
 import { Node } from '../../elements/Node';
-import { EdgePoint } from '../../elements/EdgePoint';
+import { EdgePoint, type TEdgePointType } from '../../elements/EdgePoint';
 import { arePointsAligned } from '../../../components/objects/RenderEdge/util';
 
 export type Path = { x: number; y: number }[];
 
 function filter(c: (Coordinates | undefined)[]) {
   return c.filter((d): d is Coordinates => Boolean(d));
+}
+
+function filterUndefined(x: any) {
+  return x !== undefined;
 }
 
 function findBestPathBetweenPoints(
@@ -39,34 +43,30 @@ function findBestPathBetweenPoints(
    * 2 - Half horizontal, vertical, half horizontal
    */
 
-  const path2 = filter([
-    gateA,
+  const path2 = [
     origin,
     new Coordinates([(origin.x + target.x) / 2, origin.y]),
     new Coordinates([(origin.x + target.x) / 2, target.y]),
     target,
-    gateB,
-  ]);
+  ];
 
-  if (!pathCollidesNodes(path2.slice(1, -1), checkCollisions || [])) {
-    return path2;
+  if (!pathCollidesNodes(path2, checkCollisions || [])) {
+    return filter([gateA, ...path2, gateB]);
   }
 
   /**
    * 3 - Half vertical, horizontal, half vertical
    */
 
-  const path3 = filter([
-    gateA,
+  const path3 = [
     origin,
     new Coordinates([origin.x, (origin.y + target.y) / 2]),
     new Coordinates([target.x, (origin.y + target.y) / 2]),
     target,
-    gateB,
-  ]);
+  ];
 
-  if (!pathCollidesNodes(path3.slice(1, -1), checkCollisions || [])) {
-    return path3;
+  if (!pathCollidesNodes(path3, checkCollisions || [])) {
+    return filter([gateA, ...path3, gateB]);
   }
 
   /**
@@ -81,15 +81,13 @@ function findBestPathBetweenPoints(
 
   function checkPath0() {
     const path0 = filter([
-      gateA,
       origin,
       new Coordinates([target.x, origin.y]),
       target,
-      gateB,
     ]);
 
-    if (!pathCollidesNodes(path0.slice(1, -1), checkCollisions || [])) {
-      return path0;
+    if (!pathCollidesNodes(path0, checkCollisions || [])) {
+      return filter([gateA, ...path0, gateB]);
     }
     return null;
   }
@@ -99,15 +97,13 @@ function findBestPathBetweenPoints(
    */
   function checkPath1() {
     const path1 = filter([
-      gateA,
       origin,
       new Coordinates([origin.x, target.y]),
       target,
-      gateB,
     ]);
 
-    if (!pathCollidesNodes(path1.slice(1, -1), checkCollisions || [])) {
-      return path1;
+    if (!pathCollidesNodes(path1, checkCollisions || [])) {
+      return filter([gateA, ...path1, gateB]);
     }
 
     return null;
@@ -153,12 +149,10 @@ function findBestPathBetweenPoints(
       ...around,
       new Coordinates([around.at(-1)!.x, target.y]),
       target,
-      B.coordinates.copy(),
-      gateB,
     ]);
 
-    if (!pathCollidesNodes(path4.slice(1, -1), checkCollisions || [])) {
-      return path4;
+    if (!pathCollidesNodes(path4.slice(1), checkCollisions || [])) {
+      return filter([...path4, gateB]);
     }
 
     /**
@@ -170,12 +164,10 @@ function findBestPathBetweenPoints(
       ...around,
       new Coordinates([target.x, around.at(-1)!.y]),
       target,
-      B.coordinates.copy(),
-      gateB,
     ]);
 
-    if (!pathCollidesNodes(path4_1.slice(1, -1), checkCollisions || [])) {
-      return path4_1;
+    if (!pathCollidesNodes(path4_1.slice(1), checkCollisions || [])) {
+      return filter([...path4_1, gateB]);
     }
 
     /**
@@ -187,12 +179,10 @@ function findBestPathBetweenPoints(
       ...around,
       new Coordinates([around.at(-1)!.x, target.y]),
       target,
-      B.coordinates.copy(),
-      gateB,
     ]);
 
-    if (!pathCollidesNodes(path5.slice(1, -1), checkCollisions || [])) {
-      return path5;
+    if (!pathCollidesNodes(path5.slice(1), checkCollisions || [])) {
+      return filter([...path5, gateB]);
     }
 
     /**
@@ -204,12 +194,10 @@ function findBestPathBetweenPoints(
       ...around,
       new Coordinates([target.x, around.at(-1)!.y]),
       target,
-      B.coordinates.copy(),
-      gateB,
     ]);
 
-    if (!pathCollidesNodes(path5_1.slice(1, -1), checkCollisions || [])) {
-      return path5_1;
+    if (!pathCollidesNodes(path5_1.slice(1), checkCollisions || [])) {
+      return filter([...path5_1, gateB]);
     }
 
     /**
@@ -217,30 +205,26 @@ function findBestPathBetweenPoints(
      */
     around = getPathAroundNode(gridSize, B, 'a').reverse();
     const path6 = filter([
-      gateA,
-      A.coordinates.copy(),
       origin,
       new Coordinates([around[0].x, origin.y]),
       ...around,
     ]);
 
-    if (!pathCollidesNodes(path6.slice(1, -1), checkCollisions || [])) {
-      return path6;
+    if (!pathCollidesNodes(path6.slice(0, -1), checkCollisions || [])) {
+      return filter([gateA, ...path6]);
     }
     /**
      * 6_1 - Go around end node to side A, scale Horizontal
      */
     around = getPathAroundNode(gridSize, B, 'b').reverse();
     const path6_1 = filter([
-      gateA,
-      A.coordinates.copy(),
       origin,
       new Coordinates([around[0].x, origin.y]),
       ...around,
     ]);
 
-    if (!pathCollidesNodes(path6_1.slice(1, -1), checkCollisions || [])) {
-      return path6_1;
+    if (!pathCollidesNodes(path6_1.slice(0, -1), checkCollisions || [])) {
+      return filter([gateA, ...path6_1]);
     }
   }
   return null;
@@ -251,8 +235,17 @@ type Segment = {
   to: EdgePoint;
 };
 
-function getEdgePoint(step: Coordinates) {
-  return step instanceof EdgePoint ? step : new EdgePoint(null, step);
+function getEdgePoint(step: Coordinates, mode: TEdgePointType = 'auto') {
+  return step instanceof EdgePoint
+    ? step
+    : new EdgePoint(
+        null,
+        [...step.raw, mode].filter(filterUndefined) as [
+          number,
+          number,
+          TEdgePointType,
+        ],
+      );
 }
 
 function filterResultPath(steps: EdgePoint[]) {
@@ -261,7 +254,7 @@ function filterResultPath(steps: EdgePoint[]) {
   let lastStr = '';
   for (let i = 0; i < steps.length; i++) {
     if (lastStr === steps[i].toString()) {
-      if (result[result.length - 1].mode === 'auto') {
+      if (steps[i].mode === 'manual') {
         result[result.length - 1] = steps[i];
       }
     } else {
@@ -335,7 +328,7 @@ function _findBestPathBetweenNodes(
   const originSteppedBack = stepFromGateway(gridSize, A);
   const targetSteppedBack = stepFromGateway(gridSize, B);
 
-  if (edge) {
+  if (edge?.hasManualSteps) {
     const path = [
       originSteppedBack,
       ...edge.steps.slice(1, -1),

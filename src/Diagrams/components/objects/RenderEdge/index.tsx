@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { RenderEdgeProps } from './types';
+import type { RenderEdgeProps } from './types';
 import { EdgeMarker } from './EdgeMarker';
 import { EdgeMidpoints } from './EdgeMidpoints';
 import { observer } from 'mobx-react-lite';
@@ -9,7 +9,7 @@ import { Coordinates } from '../../../store/primitives/Coordinates';
 import { ToolsStates } from '../../extra/Tools';
 import { runInAction } from 'mobx';
 
-export * from './types';
+export type * from './types';
 
 function crossColor(p: Coordinates | EdgePoint) {
   if (p instanceof EdgePoint) {
@@ -31,7 +31,6 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
     color,
     width = 2,
     arrowSize = 8,
-    className,
     startType = 'none',
     endType = 'arrow',
     lineStyle = 'solid',
@@ -40,11 +39,11 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
     startStroke = color,
 
     onMidpointMouseDown,
+    className,
 
     draggable,
   }) => {
     const makeId = (suffix: string) =>
-      // eslint-disable-next-line react-hooks/rules-of-hooks, react-hooks/exhaustive-deps
       useMemo(
         () => `marker-${suffix}-${Math.random().toString(36).slice(2)}`,
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,6 +70,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           'edge',
           edge?.state.dragging && 'dragging',
           edge?.state.selected && 'selected',
+          className,
         ]
           .filter(Boolean)
           .join(' ')}
@@ -104,7 +104,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           }}
           onMouseOver={() => {
             runInAction(() => {
-              edge && (edge!.state.hover = true);
+              if (edge) edge!.state.hover = true;
             });
           }}
           onMouseOut={(ev) => {
@@ -114,7 +114,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
                 (ev.relatedTarget as HTMLElement)?.closest('.edge')
             ) {
               runInAction(() => {
-                edge && (edge!.state.hover = false);
+                if (edge) edge!.state.hover = false;
               });
             }
           }}
@@ -142,15 +142,17 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
             <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
           ))}
 
-        {edge && (edge.state.hover || edge.state.dragging) && draggable && (
-          <EdgeMidpoints
-            edge={edge}
-            points={points}
-            onMouseDown={(midpointIndex, ev) => {
-              onMidpointMouseDown?.(midpointIndex, ev);
-            }}
-          />
-        )}
+        {edge &&
+          (edge.state.hover || edge.state.dragging || edge.state.selected) &&
+          draggable && (
+            <EdgeMidpoints
+              edge={edge}
+              points={points}
+              onMouseDown={(midpointIndex, ev) => {
+                onMidpointMouseDown?.(midpointIndex, ev);
+              }}
+            />
+          )}
       </g>
     );
   },

@@ -1,9 +1,10 @@
-import { forwardRef, SVGProps } from 'react';
+import { forwardRef, type SVGProps } from 'react';
 
 export const Svg = forwardRef<any, SVGProps<SVGSVGElement>>(
   ({ children, className, style }, ref) => {
     return (
       <svg
+        ref={ref}
         className={className}
         width="100%"
         height="100%"

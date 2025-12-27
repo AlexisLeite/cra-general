@@ -1,4 +1,4 @@
-import { SVGAttributes } from 'react';
+import type { SVGAttributes } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 

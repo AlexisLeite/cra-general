@@ -3,7 +3,7 @@ import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import {
-  AnyMouseEvent,
+  type AnyMouseEvent,
   DMouseDownEvent,
   DNodeSelectionEvent,
 } from '../elements/Events';
@@ -82,11 +82,11 @@ export class Selector {
     this._selection.forEach((c) => c.unselect());
   }
 
-  private mouseBind = () => {};
+  private cancelMouseBind = () => {};
   protected handleMouseDown(ev: DMouseDownEvent) {
-    this.mouseBind();
+    this.cancelMouseBind();
 
-    this.mouseBind = bind(
+    this.cancelMouseBind = bind(
       documentBind(this, 'mousemove', this.handleMouseMove),
       documentBind(this, 'mouseup', this.handleMouseUp),
     );
@@ -104,6 +104,9 @@ export class Selector {
         if (ev.ctrl && ev.src.selected) {
           ev.src.unselect();
         } else {
+          if (!ev.ctrl && !ev.shift && !ev.src.selected) {
+            this.clearSelection();
+          }
           ev.src.select();
           this.startNode = ev.src;
         }
@@ -135,7 +138,7 @@ export class Selector {
   }
 
   protected handleMouseUp(ev: AnyMouseEvent) {
-    this.mouseBind();
+    this.cancelMouseBind();
 
     if (this.startPoint && !this.moved && !ev.shiftKey && !ev.ctrlKey) {
       this.clearSelection();

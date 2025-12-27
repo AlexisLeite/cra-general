@@ -1,7 +1,7 @@
 import { Diagram } from '../Diagram';
 
 import { makeAutoObservable } from 'mobx';
-import type { Node } from '../elements/Node';
+import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 import { DMouseDownEvent, DScaleEvent } from '../elements/Events';
@@ -51,32 +51,25 @@ export class Dragger {
   protected handleMouseDown(ev: DMouseDownEvent) {
     ev.stopImmediatePropagation();
 
-    if (!ev.cancelled) {
-      const nodeG = (
-        ev.originalEvent.target as HTMLElement
-      ).closest<SVGGElement>('.diagram__node');
-      if (nodeG) {
-        const node = this.diagram.getNodeById(nodeG.dataset.id!);
-        if (node?.selected) {
-          this.draggingNodes = [...this.diagram.selector.selection].map(
-            (c) => ({
-              node: c,
-              startPoint: c.coordinates.copy(),
-            }),
-          );
+    if (!ev.cancelled && ev.src instanceof Node) {
+      const node = ev.src;
+      if (node?.selected) {
+        this.draggingNodes = [...this.diagram.selector.selection].map((c) => ({
+          node: c,
+          startPoint: c.coordinates.copy(),
+        }));
 
-          this.startPoint = new Coordinates(ev.originalEvent);
-          this.startPointScaled = this.diagram.canvas.inverseFit(
-            new Coordinates(ev.originalEvent),
-          );
+        this.startPoint = new Coordinates(ev.originalEvent);
+        this.startPointScaled = this.diagram.canvas.inverseFit(
+          new Coordinates(ev.originalEvent),
+        );
 
-          this.handleDragAction();
+        this.handleDragAction();
 
-          this.unsubscribeMouseUp();
-          this.unsubscribeMouseUp = bind(
-            documentBind(this, 'mouseup', this.handleMouseUp),
-          );
-        }
+        this.unsubscribeMouseUp();
+        this.unsubscribeMouseUp = bind(
+          documentBind(this, 'mouseup', this.handleMouseUp),
+        );
       }
     }
   }
@@ -186,8 +179,9 @@ export class Dragger {
     clearInterval(this.interval);
   }
 
-  protected handleScale(ev: DScaleEvent) {
+  protected handleScale(_ev: DScaleEvent) {
     if (this.draggingNodes.length) {
+      /* empty */
     }
   }
 }

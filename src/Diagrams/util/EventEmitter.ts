@@ -1,4 +1,4 @@
-import { Callback, Callbacks, Map, UnSubscriber } from './types';
+import type { Callback, Callbacks, Map, UnSubscriber } from './types';
 
 export type { Callback, Map, UnSubscriber } from './types';
 

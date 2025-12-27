@@ -1,8 +1,8 @@
 import React, {
   forwardRef,
-  MouseEventHandler,
-  ReactNode,
-  SVGProps,
+  type MouseEventHandler,
+  type ReactNode,
+  type SVGProps,
 } from 'react';
 import { Coordinates } from '../../store/primitives/Coordinates';
 import { Diagram } from '../../store/Diagram';

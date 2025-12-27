@@ -31,7 +31,7 @@ export class Creator {
       ev.cancel();
 
       switch (this.creationMode) {
-        case 'text':
+        case 'text': {
           const node = this.diagram.add(
             new TextNode(null, {
               id: this.getId(),
@@ -46,6 +46,7 @@ export class Creator {
             }),
           );
           node.select();
+        }
       }
     }
 

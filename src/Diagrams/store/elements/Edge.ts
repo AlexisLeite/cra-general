@@ -1,11 +1,11 @@
 import { action, computed, makeObservable, observable } from 'mobx';
-import { TEdgeState } from '../types';
+import type { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
-import { EdgePoint, TEdgePointType } from './EdgePoint';
+import { EdgePoint, type TEdgePointType } from './EdgePoint';
 import { Element } from './Element';
-import { AnyMouseEvent, DClickEvent, DEdgeDragStartEvent } from './Events';
-import { Midpoint } from '../../components/objects/RenderEdge';
-import { MouseEvent } from 'react';
+import { type AnyMouseEvent, DClickEvent, DEdgeDragStartEvent } from './Events';
+import type { Midpoint } from '../../components/objects/RenderEdge';
+import type { MouseEvent } from 'react';
 
 let id = Number.MIN_SAFE_INTEGER;
 
@@ -24,6 +24,7 @@ export class Edge extends Element {
       arrowHeadEnd: computed,
       arrowHeadStart: computed,
       from: computed,
+      hasManualSteps: computed,
       pathType: computed,
       steps: computed,
       stroke: computed,
@@ -41,6 +42,10 @@ export class Edge extends Element {
 
   public get from() {
     return this.state.from;
+  }
+
+  public get hasManualSteps() {
+    return this.state.steps.find((c) => c.mode === 'manual');
   }
 
   get lineStyle() {

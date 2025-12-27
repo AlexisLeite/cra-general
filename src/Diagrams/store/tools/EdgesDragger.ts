@@ -1,11 +1,11 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
-import { Midpoint } from '../../components/objects/RenderEdge';
+import type { Midpoint } from '../../components/objects/RenderEdge';
 import { EdgePoint } from '../elements/EdgePoint';
 import { Edge } from '../elements/Edge';
 import { findBestPathBetweenNodes } from './paths/findBestPathBetweenNodes';
-import { AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
+import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
 import { bind, documentBind } from '../../util/bindCb';
 
 type DragContext = {

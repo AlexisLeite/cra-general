@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../store/Diagram';
-import { Children, ReactElement, ReactNode } from 'react';
+import { Children, type ReactElement, type ReactNode } from 'react';
 import { Svg } from './extra/Svg';
 import { arrayOrArray } from '../util/arrayOrArray';
 import { shapes } from './objects/Shapes';

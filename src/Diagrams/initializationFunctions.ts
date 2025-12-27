@@ -16,7 +16,7 @@ d.setDefaultEdge(EdgeWithLoad);
 (window as any).toJS = toJS;
 
 export function extremosYCuadricula(conectados = false) {
-  let cols = 8;
+  const cols = 8;
   const nodes = 5;
 
   function x(n: number) {

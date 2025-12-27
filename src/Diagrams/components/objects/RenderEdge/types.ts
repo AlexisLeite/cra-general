@@ -1,10 +1,10 @@
 import type React from 'react';
 import { Coordinates } from '../../../store/primitives/Coordinates';
-import { EdgeArrowHead, EdgeLineStyle } from '../../../store/types';
+import type { EdgeArrowHead, EdgeLineStyle } from '../../../store/types';
 import type { EdgePoint } from '../../../store/elements/EdgePoint';
 import { makeObservable, observable } from 'mobx';
 import type { Edge } from '../../../store/elements/Edge';
-import { AnyMouseEvent } from '../../../store/elements/Events';
+import type { AnyMouseEvent } from '../../../store/elements/Events';
 
 export interface RenderEdgeProps {
   edge?: Edge;

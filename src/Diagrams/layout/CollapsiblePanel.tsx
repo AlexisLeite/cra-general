@@ -1,7 +1,7 @@
 import {
-  MouseEvent,
-  MouseEventHandler,
-  ReactNode,
+  type MouseEvent,
+  type MouseEventHandler,
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,

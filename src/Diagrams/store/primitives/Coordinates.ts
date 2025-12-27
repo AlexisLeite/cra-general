@@ -1,8 +1,8 @@
 import { action, makeObservable, toJS } from 'mobx';
 import { Dimensions } from './Dimensions';
-import { TDirection } from '../types';
+import type { TDirection } from '../types';
 import type { DirectedPoint } from './DirectedPoint';
-import { AnyMouseEvent, DMouseEvent } from '../elements/Events';
+import { type AnyMouseEvent, DMouseEvent } from '../elements/Events';
 
 async function getDirectedClass() {
   return (await import('./DirectedPoint')).DirectedPoint;
@@ -77,7 +77,8 @@ export class Coordinates {
       throw new Error('Invalid number of coordinates');
     }
 
-    let a = another instanceof Coordinates ? another : new Coordinates(another);
+    const a =
+      another instanceof Coordinates ? another : new Coordinates(another);
 
     this.set(0, a.get(0));
     this.set(1, a.get(1));
@@ -175,7 +176,8 @@ export class Coordinates {
       throw new Error('Invalid number of coordinates');
     }
 
-    let a = another instanceof Coordinates ? another : new Coordinates(another);
+    const a =
+      another instanceof Coordinates ? another : new Coordinates(another);
 
     this.set(0, this.get(0) - a.get(0));
     this.set(1, this.get(1) - a.get(1));
@@ -192,7 +194,7 @@ export class Coordinates {
         throw new Error('Invalid number of coordinates');
       }
 
-      let a =
+      const a =
         another instanceof Coordinates ? another : new Coordinates(another);
 
       this.set(0, this.get(0) + a.get(0));

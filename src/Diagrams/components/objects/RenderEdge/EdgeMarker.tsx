@@ -1,5 +1,5 @@
 import React from 'react';
-import { EdgeArrowHead } from '../../../store/types';
+import type { EdgeArrowHead } from '../../../store/types';
 
 interface EdgeMarkerProps {
   id: string;

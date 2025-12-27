@@ -110,7 +110,7 @@ export class DWheelEvent extends DMouseEvent {
   public get directionX() {
     if (this.originalEvent.deltaX < 0) {
       return 'left';
-    } else if (this.originalEvent.deltaX < 0) {
+    } else if (this.originalEvent.deltaX > 0) {
       return 'right';
     }
     return 'none';
@@ -119,7 +119,7 @@ export class DWheelEvent extends DMouseEvent {
   public get directionY() {
     if (this.originalEvent.deltaY < 0) {
       return 'up';
-    } else if (this.originalEvent.deltaY < 0) {
+    } else if (this.originalEvent.deltaY > 0) {
       return 'down';
     }
     return 'none';
@@ -205,7 +205,7 @@ export abstract class DSelectionEvent extends DEvent {
 }
 
 export class DNodeSelectionEvent extends DSelectionEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     public src: Node<any>,
@@ -216,7 +216,7 @@ export class DNodeSelectionEvent extends DSelectionEvent {
 }
 
 export class DEdgeSelectionEvent extends DSelectionEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     public src: Edge,
@@ -231,7 +231,7 @@ export abstract class DDragEvent extends DMouseEvent {
 }
 
 export class DEdgeDragStartEvent extends DDragEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     public src: Edge,

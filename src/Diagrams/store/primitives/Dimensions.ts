@@ -144,7 +144,7 @@ export class Dimensions {
       throw new Error('Invalid number of Dimensions');
     }
 
-    let a = another instanceof Dimensions ? another : new Dimensions(another);
+    const a = another instanceof Dimensions ? another : new Dimensions(another);
 
     this.set(0, a.get(0));
     this.set(1, a.get(1));
@@ -159,7 +159,8 @@ export class Dimensions {
       throw new Error('Invalid number of Coordinates');
     }
 
-    let a = another instanceof Coordinates ? another : new Coordinates(another);
+    const a =
+      another instanceof Coordinates ? another : new Coordinates(another);
 
     this.set(0, a.get(0));
     this.set(1, a.get(1));
@@ -172,7 +173,8 @@ export class Dimensions {
       throw new Error('Invalid number of Coordinates');
     }
 
-    let a = another instanceof Coordinates ? another : new Coordinates(another);
+    const a =
+      another instanceof Coordinates ? another : new Coordinates(another);
 
     this.set(2, a.get(0));
     this.set(3, a.get(1));
@@ -259,7 +261,7 @@ export class Dimensions {
       throw new Error('Invalid number of Dimensions');
     }
 
-    let a = another instanceof Dimensions ? another : new Dimensions(another);
+    const a = another instanceof Dimensions ? another : new Dimensions(another);
 
     this.set(0, this.get(0) - a.get(0));
     this.set(1, this.get(1) - a.get(1));
@@ -281,7 +283,8 @@ export class Dimensions {
         throw new Error('Invalid number of Dimensions');
       }
 
-      let a = another instanceof Dimensions ? another : new Dimensions(another);
+      const a =
+        another instanceof Dimensions ? another : new Dimensions(another);
 
       this.set(0, this.get(0) + a.get(0));
       this.set(1, this.get(1) + a.get(1));

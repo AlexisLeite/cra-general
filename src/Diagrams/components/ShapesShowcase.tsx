@@ -4,7 +4,7 @@ import { Diagram } from '../store/Diagram';
 import { Mouse } from '../util/Mouse';
 import { useRef } from 'react';
 
-let maxIds: Record<string, number> = {};
+const maxIds: Record<string, number> = {};
 function getId(diagram: Diagram, prefix: string) {
   let n = maxIds[prefix] || 0;
   while (diagram.getNodeById(`${prefix}${n}`)) {

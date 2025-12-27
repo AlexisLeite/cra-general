@@ -19,7 +19,7 @@ export const EdgeMidpoints: React.FC<EdgeMidpointsProps> = ({
 
   return (
     <>
-      {midpoints.map((mid, index) => {
+      {midpoints.map((mid) => {
         const x = mid.x;
         const y = mid.y;
 

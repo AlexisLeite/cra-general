@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useState, type KeyboardEvent } from 'react';
-import { TControllerState, TItem } from './types';
+import type { TControllerState, TItem } from './types';
 
 import './index.scss';
 

@@ -1,5 +1,5 @@
 import { Coordinates } from '../primitives/Coordinates';
-import { AnyMouseEvent } from './Events';
+import type { AnyMouseEvent } from './Events';
 
 export class MouseInformation {
   public constructor(protected originalEvent: AnyMouseEvent) {}

@@ -1,4 +1,4 @@
-import { TDirection } from '../types';
+import type { TDirection } from '../types';
 import { Coordinates } from './Coordinates';
 
 export class DirectedPoint extends Coordinates {

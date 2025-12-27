@@ -5,7 +5,11 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
-import { AnyMouseEvent, DMouseDownEvent, DNodeSelectionEvent } from './Events';
+import {
+  type AnyMouseEvent,
+  DMouseDownEvent,
+  DNodeSelectionEvent,
+} from './Events';
 
 export class Node<Gateways = TDirection> extends Element {
   diagram: Diagram | null = null;
@@ -137,7 +141,7 @@ export class Node<Gateways = TDirection> extends Element {
     }
 
     if (previousBox.substract(this.state.box).norm) {
-      this._gateways.values().forEach((c) => c.updateEdges());
+      [...this._gateways.values()].forEach((c) => c.updateEdges());
     }
   }
 

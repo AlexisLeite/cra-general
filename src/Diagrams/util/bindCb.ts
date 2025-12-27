@@ -1,4 +1,5 @@
-type Unsubscriber = () => void;
+type Callback = () => void;
+type Unsubscriber = Callback;
 
 export function documentBind<K extends keyof DocumentEventMap>(
   target: any,
@@ -14,14 +15,14 @@ export function documentBind<K extends keyof DocumentEventMap>(
   };
 }
 
-export function timerBind(cb: Unsubscriber, time: number) {
+export function timerBind(cb: Callback, time: number) {
   const t = setTimeout(cb, time) as any;
   return () => {
     clearTimeout(t);
   };
 }
 
-export function bind(...uns: Unsubscriber[]) {
+export function bind(...uns: Callback[]) {
   return () => {
     uns.forEach((c) => c());
   };

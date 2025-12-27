@@ -4,8 +4,8 @@ import { Dimensions } from './primitives/Dimensions';
 import { Diagram } from './Diagram';
 import { Element } from './elements/Element';
 import {
-  AnyKeyboardEvent,
-  AnyMouseEvent,
+  type AnyKeyboardEvent,
+  type AnyMouseEvent,
   DKeyDownEvent,
   DMouseDownEvent,
   DMouseMoveEvent,

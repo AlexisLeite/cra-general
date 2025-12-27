@@ -8,7 +8,7 @@ export class Hotkeys {
     diagram.onEvent(DKeyDownEvent, (ev) => {
       if (!this.revertHotkey.has(ev.code)) {
         switch (ev.code) {
-          case 'Space':
+          case 'Space': {
             const measure = this.diagram.measurer.enabled;
             const selectInArea =
               !measure && this.diagram.selector.selectionMode === 'area';
@@ -29,6 +29,7 @@ export class Hotkeys {
               }
             });
             break;
+          }
           case 'KeyM':
             this.diagram.selector.toggleSelectionMode('element');
             break;

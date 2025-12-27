@@ -4,7 +4,7 @@ export const LetterTool = ({
   onClick,
   title,
 }: {
-  letters: String;
+  letters: string;
   onClick: () => unknown;
   active: boolean;
   title: string;

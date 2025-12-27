@@ -1,15 +1,15 @@
-import { MouseEvent as RMEv } from 'react';
+import type { MouseEvent as RMEv } from 'react';
 import type { Diagram } from '../Diagram';
 import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
   findBestPathBetweenNodes,
-  Path,
+  type Path,
 } from './paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
-import { TDirection } from '../types';
+import type { TDirection } from '../types';
 import { bind, documentBind } from '../../util/bindCb';
 
 export class NodesConnector {
@@ -97,7 +97,7 @@ export class NodesConnector {
           fakeNode.getGateway('down')!.coordinates,
         ).y;
 
-        let which: TDirection =
+        const which: TDirection =
           Math.abs(dx) > Math.abs(dy)
             ? dx >= 0
               ? 'right'

@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
-import { AnyMouseEvent, DMouseDownEvent } from '../elements/Events';
+import { type AnyMouseEvent, DMouseDownEvent } from '../elements/Events';
 import { bind, documentBind } from '../../util/bindCb';
 
 export class Measurer {

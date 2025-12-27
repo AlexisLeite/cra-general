@@ -1,7 +1,7 @@
 import { Coordinates } from '../primitives/Coordinates';
 import { makeObservable, observable } from 'mobx';
 import { Element } from './Element';
-import { AnyMouseEvent } from './Events';
+import type { AnyMouseEvent } from './Events';
 
 export type TEdgePointType = 'auto' | 'manual' | 'static';
 
