@@ -167,33 +167,30 @@ export class NodesConnector {
 
     const mouseOnPlane = this.diagram.canvas.inverseFit(this.arrowTo);
 
-    // Collect candidate gateways (collision phase)
-    const candidates = this.diagram.nodes
+    const candidates = this.diagram.nodes.filter((node) => {
+      const padding = this.diagram.gridSize / 2;
+
+      return node.box
+        .translate(new Coordinates([-padding, -padding]))
+        .sum([0, 0, padding * 2, padding * 2])
+        .collides(mouseOnPlane);
+    });
+
+    const candidateGateways = candidates
       .flatMap((node) => node.gateways)
-      .filter((gateway) => {
-        if (gateway === this.startGateway) return false;
+      .filter((gateway) => gateway !== this.startGateway);
 
-        return gateway.coordinates
-          .toDimensions(new Coordinates([20, 20])) // broad hitbox
-          .copy()
-          .translate(new Coordinates([-10, -10])) // padding
-          .collides(mouseOnPlane);
-      });
-
-    // Helper: squared distance (no sqrt, faster)
     const dist2 = (a: Coordinates, b: Coordinates) => {
       const dx = a.x - b.x;
       const dy = a.y - b.y;
       return dx * dx + dy * dy;
     };
 
-    // Pick nearest gateway (selection phase)
-    const nearestGateway = candidates.reduce<Gateway | null>(
+    const nearestGateway = candidateGateways.reduce<Gateway | null>(
       (closest, gateway) => {
         if (!closest) return gateway;
 
         const dCurrent = dist2(gateway.coordinates, mouseOnPlane);
-
         const dClosest = dist2(closest.coordinates, mouseOnPlane);
 
         return dCurrent < dClosest ? gateway : closest;
@@ -201,13 +198,11 @@ export class NodesConnector {
       null,
     );
 
-    // Apply result
     if (nearestGateway) {
       this.candidateGateway = nearestGateway;
-      this.calculateArrowSteps();
+    } else {
+      this.candidateGateway = null;
     }
-
-    this.candidateGateway = null;
     this.calculateArrowSteps();
   }
 
