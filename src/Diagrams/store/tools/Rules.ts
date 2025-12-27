@@ -11,36 +11,27 @@ export class Rules {
   toggleGrid = true;
   snapToGrid = true;
 
+  private handleSelection = (ev: DSelectionEvent) => {
+    if (!this.allowSelection) {
+      ev.cancel();
+      ev.stopImmediatePropagation();
+    }
+  };
+
+  private handleUpdates = (ev: DChangeEvent | DDragEvent) => {
+    if (!this.allowEdition) {
+      ev.cancel();
+      ev.stopImmediatePropagation();
+    }
+  };
+
   constructor(protected d: Diagram) {
-    d.onEvent(
-      DChangeEvent,
-      (ev) => {
-        if (!this.allowEdition) {
-          ev.cancel();
-          ev.stopImmediatePropagation();
-        }
-      },
-      d.priorities.Rules_Mouse_Down,
-    );
-    d.onEvent(
-      DDragEvent,
-      (ev) => {
-        if (!this.allowEdition) {
-          ev.cancel();
-          ev.stopImmediatePropagation();
-        }
-      },
-      d.priorities.Rules_Mouse_Down,
-    );
+    d.onEvent(DChangeEvent, this.handleUpdates, d.priorities.Rules_Mouse_Down);
+    d.onEvent(DDragEvent, this.handleUpdates, d.priorities.Rules_Mouse_Down);
 
     d.onEvent(
       DSelectionEvent,
-      (ev) => {
-        if (!this.allowSelection) {
-          ev.cancel();
-          ev.stopImmediatePropagation();
-        }
-      },
+      this.handleSelection,
       d.priorities.Rules_Selection,
     );
 
