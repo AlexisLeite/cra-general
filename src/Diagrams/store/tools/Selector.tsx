@@ -151,7 +151,13 @@ export class Selector {
   protected handleMouseUp(ev: DMouseUpEvent) {
     this.cancelMouseBind();
 
-    if (this.startPoint && !this.moved && !ev.shift && !ev.ctrl) {
+    if (
+      this.startPoint &&
+      !this.moved &&
+      !ev.shift &&
+      !ev.ctrl &&
+      this.selectionMode === 'area'
+    ) {
       this.clearSelection();
       if (this.startNode) {
         this.startNode.select();

@@ -56,7 +56,13 @@ export abstract class DEvent {
   }
 }
 
-export abstract class DMouseEvent extends DEvent {
+export abstract class DUIEvent extends DEvent {
+  declare protected readonly __brand: void;
+}
+
+export abstract class DMouseEvent extends DUIEvent {
+  declare protected readonly __brand: void;
+
   mouse: MouseInformation;
 
   constructor(
@@ -97,23 +103,23 @@ export abstract class DMouseEvent extends DEvent {
 }
 
 export class DClickEvent extends DMouseEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 }
 
 export class DMouseDownEvent extends DMouseEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 }
 
 export class DMouseUpEvent extends DMouseEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 }
 
 export class DMouseMoveEvent extends DMouseEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 }
 
 export class DWheelEvent extends DMouseEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     src: Element,
@@ -141,7 +147,9 @@ export class DWheelEvent extends DMouseEvent {
   }
 }
 
-export abstract class DKeyboardEvent extends DEvent {
+export abstract class DKeyboardEvent extends DUIEvent {
+  declare protected readonly __brand: void;
+
   constructor(
     src: Element,
     public originalEvent: AnyKeyboardEvent,
@@ -163,7 +171,7 @@ export abstract class DKeyboardEvent extends DEvent {
 }
 
 export class DKeyDownEvent extends DKeyboardEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     src: Element,
@@ -174,7 +182,7 @@ export class DKeyDownEvent extends DKeyboardEvent {
 }
 
 export class DKeyUpEvent extends DKeyboardEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     src: Element,
@@ -185,7 +193,7 @@ export class DKeyUpEvent extends DKeyboardEvent {
 }
 
 export class DKeyPressEvent extends DKeyboardEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 
   constructor(
     src: Element,
@@ -195,8 +203,14 @@ export class DKeyPressEvent extends DKeyboardEvent {
   }
 }
 
-export class DScaleEvent extends DEvent {
-  protected readonly __brand!: void;
+export abstract class DCanvasEvent extends DEvent {
+  declare protected readonly __brand: void;
+}
+
+/** We can add the events DDisplaceEvent, DResizeEvent extends DCanvasEvent */
+
+export class DScaleEvent extends DCanvasEvent {
+  declare protected readonly __brand: void;
 
   constructor(
     src: Element,
@@ -208,8 +222,12 @@ export class DScaleEvent extends DEvent {
   }
 }
 
-export abstract class DSelectionEvent extends DEvent {
-  protected readonly __brand!: void;
+export abstract class DChangeEvent extends DEvent {
+  declare protected readonly __brand: void;
+}
+
+export abstract class DSelectionEvent extends DChangeEvent {
+  declare protected readonly __brand: void;
 
   constructor(
     public src: Element,
@@ -242,7 +260,7 @@ export class DEdgeSelectionEvent extends DSelectionEvent {
 }
 
 export abstract class DDragEvent extends DMouseEvent {
-  protected readonly __brand!: void;
+  declare protected readonly __brand: void;
 }
 
 export class DEdgeDragStartEvent extends DDragEvent {
