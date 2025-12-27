@@ -12,4 +12,6 @@ export class Priorities {
   public Selector_Mouse_Down = 200;
   public Selector_Mouse_Move = 100;
   public Selector_Mouse_Up = 100;
+
+  public Node_Mouse_Down = 150;
 }

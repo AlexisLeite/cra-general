@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
@@ -70,11 +70,13 @@ export class Selector {
     );
 
     this.diagram.onEvent(DNodeSelectionEvent, (ev) => {
-      if (ev.selected) {
-        this._selection.add(ev.src);
-      } else {
-        this._selection.delete(ev.src);
-      }
+      runInAction(() => {
+        if (ev.selected) {
+          this._selection.add(ev.src);
+        } else {
+          this._selection.delete(ev.src);
+        }
+      });
     });
   }
 

@@ -11,13 +11,7 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
-import {
-  DMouseDownEvent,
-  DNodeSelectionEvent,
-  DKeyDownEvent,
-  type AnyMouseEvent,
-  DMouseUpEvent,
-} from './Events';
+import { DMouseDownEvent, DNodeSelectionEvent, DKeyDownEvent } from './Events';
 
 export class Node<Gateways = TDirection> extends Element {
   protected _gateways = new Map<Gateways, Gateway>();
@@ -50,7 +44,11 @@ export class Node<Gateways = TDirection> extends Element {
     this.initializeGateways();
 
     this.diagram?.onEvent(DKeyDownEvent, this.handleKeyPress);
-    this.diagram?.onEvent(DMouseUpEvent, this.handleMouseUp);
+    this.diagram?.onEvent(
+      DMouseDownEvent,
+      this.handleMouseDown,
+      this.diagram.priorities.Node_Mouse_Down,
+    );
   }
 
   setState<K extends keyof TNodeState>(prop: K, value: TNodeState[K]) {
@@ -227,12 +225,6 @@ export class Node<Gateways = TDirection> extends Element {
     };
   }
 
-  mouseDown(ev: AnyMouseEvent) {
-    ev.stopPropagation();
-
-    this.emit(new DMouseDownEvent(this, ev));
-  }
-
   select() {
     if (!this.emit(new DNodeSelectionEvent(this, true)).cancelled) {
       runInAction(() => {
@@ -249,7 +241,7 @@ export class Node<Gateways = TDirection> extends Element {
     }
   }
 
-  protected handleMouseUp = (ev: DMouseUpEvent) => {
+  protected handleMouseDown = (ev: DMouseDownEvent) => {
     if (!ev.cancelled) {
       if (ev.node === this) {
         this.select();

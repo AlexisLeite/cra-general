@@ -55,31 +55,31 @@ export class Dragger {
   protected handleMouseDown(ev: DMouseDownEvent) {
     ev.stopImmediatePropagation();
 
-    if (!ev.cancelled && ev.src instanceof Node) {
-      const node = ev.src;
-      if (node?.selected) {
-        this.draggingNodes = [...this.diagram.selector.selection].map((c) => ({
-          node: c,
-          startPoint: c.coordinates.copy(),
-        }));
+    const node = ev.node;
+    if (!ev.cancelled && node && node.selected) {
+      ev.cancel();
 
-        this.startPoint = new Coordinates(ev.originalEvent);
-        this.startPointScaled = this.diagram.canvas.inverseFit(
-          new Coordinates(ev.originalEvent),
-        );
+      this.draggingNodes = [...this.diagram.selector.selection].map((c) => ({
+        node: c,
+        startPoint: c.coordinates.copy(),
+      }));
 
-        this.handleDragAction();
+      this.startPoint = new Coordinates(ev.originalEvent);
+      this.startPointScaled = this.diagram.canvas.inverseFit(
+        new Coordinates(ev.originalEvent),
+      );
 
-        this.unsubscribeMouseUp();
-        this.unsubscribeMouseUp = bind(
-          diagramBind(
-            this,
-            DMouseUpEvent,
-            this.handleMouseUp,
-            this.diagram.priorities.Dragger_Mouse_Up,
-          ),
-        );
-      }
+      this.handleDragAction();
+
+      this.unsubscribeMouseUp();
+      this.unsubscribeMouseUp = bind(
+        diagramBind(
+          this,
+          DMouseUpEvent,
+          this.handleMouseUp,
+          this.diagram.priorities.Dragger_Mouse_Up,
+        ),
+      );
     }
   }
 
