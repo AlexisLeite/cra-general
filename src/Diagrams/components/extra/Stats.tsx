@@ -2,18 +2,22 @@ import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { Mouse } from '../../util/Mouse';
 import { debug } from '../../store/tools/Debugger';
+import { Measurer } from '../../store/tools/Measurer';
+import { Selector } from '../../store/tools/Selector';
 
 export const Stats = observer(() => {
   const d = Diagram.use();
+  const measurer = d.getExtension(Measurer);
+  const selector = d.getExtension(Selector);
 
   const displacement = d.canvas.displacement.round;
   const scale = Math.round(d.canvas.scale * 100) / 100;
   const mouse = Mouse.getInstance().coordinates;
-  const selected = d.selector.selection[0]
-    ? d.selector.selection[0].coordinates.copy().round.nonObserved
+  const selected = selector?.selection[0]
+    ? selector?.selection[0].coordinates.copy().round.nonObserved
     : null;
 
-  const measure = Math.round(d.measurer.getMeassurement() || 0);
+  const measure = Math.round(measurer?.getMeassurement() || 0);
 
   return (
     <div className="diagram__stats">

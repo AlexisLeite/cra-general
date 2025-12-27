@@ -8,22 +8,43 @@ import {
 import { createContext, type ReactNode, useContext } from 'react';
 import { Canvas } from './Canvas';
 import { Node } from './elements/Node';
-import { NodesConnector } from './tools/NodesConnector';
 import { Coordinates } from './primitives/Coordinates';
-import { Measurer } from './tools/Measurer';
-import { Selector } from './tools/Selector';
-import { Dragger } from './tools/Dragger';
-import { Hotkeys } from './tools/Hotkeys';
-import { EdgesDragger } from './tools/EdgesDragger';
 import { Edge } from './elements/Edge';
 import { Gateway } from './elements/Gateway';
-import { Creator } from './tools/Creator';
 import { TextNode } from './elements/TextNode';
-import { Element } from './elements/Element';
+import { Element, type Class } from './elements/Element';
 import { Priorities } from './tools/Priorities';
 import { Rules } from './tools/Rules';
+import type { DiagramExtension } from './tools/DiagramExtension';
+import { Aligner } from './tools/Aligner';
+import { Creator } from './tools/Creator';
+import { Dragger } from './tools/Dragger';
+import { EdgesDragger } from './tools/EdgesDragger';
+import { Hotkeys } from './tools/Hotkeys';
+import { Measurer } from './tools/Measurer';
+import { Selector } from './tools/Selector';
+import { NodesConnector } from './tools/NodesConnector';
 
 const DiagramContext = createContext<Diagram | null>(null);
+
+const DefaultExtensions = Object.freeze({
+  Aligner,
+  Creator,
+  Dragger,
+  EdgesDragger,
+  Hotkeys,
+  Measurer,
+  Selector,
+  NodesConnector,
+});
+
+export type TDefaultExensions = {
+  [key in keyof typeof DefaultExtensions]: boolean;
+};
+
+export type TDiagramSettings = Partial<{
+  extensions: TDefaultExensions;
+}>;
 
 export class Diagram extends Element {
   public readonly priorities = new Priorities();
@@ -42,25 +63,25 @@ export class Diagram extends Element {
     this.edgeClass = clazz;
   }
 
+  protected _extensions = new Map<Class<DiagramExtension>, DiagramExtension>();
   protected _nodes = new Map<string, Node>();
   protected _edges = new Map<string, Edge>();
 
   canvas = new Canvas(this);
-  creator = new Creator(this);
-  connector = new NodesConnector(this);
-  dragger = new Dragger(this);
-  edgesDragger = new EdgesDragger(this);
-  hotkeys = new Hotkeys(this);
-  measurer = new Measurer(this);
-  selector = new Selector(this);
 
-  constructor() {
+  constructor(settings?: TDiagramSettings) {
     super(null);
 
     Diagram.registerClass(Node);
     Diagram.registerClass(Edge);
     Diagram.registerClass(Gateway);
     Diagram.registerClass(TextNode);
+
+    Object.entries(DefaultExtensions).forEach(([key, clazz]) => {
+      if (settings?.extensions?.[key as keyof TDefaultExensions] !== false) {
+        this.registerExtension(clazz);
+      }
+    });
 
     makeObservable<Diagram, '_edges' | '_nodes'>(this, {
       edges: computed,
@@ -153,6 +174,16 @@ export class Diagram extends Element {
   }
   get snapToGrid() {
     return this.rules.snapToGrid;
+  }
+
+  getExtension<T extends DiagramExtension>(e: Class<T>): T {
+    return this._extensions.get(e) as T;
+  }
+
+  registerExtension(e: Class<DiagramExtension>) {
+    const instance = new e(this);
+    instance.init();
+    this._extensions.set(e, instance);
   }
 
   toggleGrid() {

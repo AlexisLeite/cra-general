@@ -3,9 +3,11 @@ import { Gateway } from '../../store/elements/Gateway';
 import { Shape } from '../objects/Shape';
 import { getCirclePath } from '../../util/shapes';
 import { Diagram } from '../../store/Diagram';
+import { NodesConnector } from '../../store/tools/NodesConnector';
 
 export const GatewayRender = observer(({ gateway }: { gateway: Gateway }) => {
   const d = Diagram.use();
+  const connector = d.getExtension(NodesConnector);
 
   return (
     <Shape
@@ -19,8 +21,8 @@ export const GatewayRender = observer(({ gateway }: { gateway: Gateway }) => {
         },
       ]}
       className="diagram__node__gateway"
-      onMouseDownCapture={d.connector.startConnectionFrom.bind(
-        d.connector,
+      onMouseDownCapture={connector.startConnectionFrom.bind(
+        connector,
         gateway,
       )}
     />

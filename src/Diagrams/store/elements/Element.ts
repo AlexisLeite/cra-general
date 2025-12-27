@@ -4,11 +4,25 @@ import { DEvent } from './Events';
 
 export type Callback<X extends DEvent> = (ev: X) => unknown;
 
-export type Class<X> = abstract new (...args: any[]) => X;
+export type AbstractClass<X> = abstract new (...args: any[]) => X;
+
+export type Class<X> = new (...args: any[]) => X;
 
 interface PrioritizedCallback<X extends DEvent = DEvent> {
   cb: Callback<X>;
   priority: number;
+}
+
+function getClassHierarchy(ctor: Function): Function[] {
+  const out: Function[] = [];
+  let current: any = ctor;
+
+  while (current && current !== Object) {
+    out.push(current);
+    current = Object.getPrototypeOf(current);
+  }
+
+  return out;
 }
 
 export class Element {
@@ -19,25 +33,16 @@ export class Element {
     });
   }
 
-  protected callbacks = new Map<Class<any>, PrioritizedCallback<any>[]>();
-
-  private static getClassHierarchy(ctor: Function): Function[] {
-    const out: Function[] = [];
-    let current: any = ctor;
-
-    while (current && current !== Object) {
-      out.push(current);
-      current = Object.getPrototypeOf(current);
-    }
-
-    return out;
-  }
+  protected callbacks = new Map<
+    AbstractClass<any>,
+    PrioritizedCallback<any>[]
+  >();
 
   protected emit(ev: DEvent) {
     const entries: PrioritizedCallback[] = [];
 
-    for (const type of Element.getClassHierarchy(ev.constructor)) {
-      const list = this.callbacks.get(type as Class<any>);
+    for (const type of getClassHierarchy(ev.constructor)) {
+      const list = this.callbacks.get(type as AbstractClass<any>);
       if (list) {
         entries.push(...list);
       }
@@ -70,7 +75,7 @@ export class Element {
   }
 
   public onEvent<X extends DEvent>(
-    type: Class<X>,
+    type: AbstractClass<X>,
     cb: Callback<X>,
     priority = 0,
   ) {
@@ -86,7 +91,10 @@ export class Element {
     return () => this.offEvent(type, cb as Callback<DEvent>);
   }
 
-  public offEvent<X extends DEvent = DEvent>(type: Class<X>, cb: Callback<X>) {
+  public offEvent<X extends DEvent = DEvent>(
+    type: AbstractClass<X>,
+    cb: Callback<X>,
+  ) {
     const list = this.callbacks.get(type);
     if (!list) return;
 

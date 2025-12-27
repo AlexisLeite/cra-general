@@ -1,15 +1,21 @@
 import { TfiLayoutSidebarNone } from 'react-icons/tfi';
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
+import { Selector } from '../../../store/tools/Selector';
 
 export const SelectTool = observer(function SelectTool() {
   const d = Diagram.use();
+  const selector = d.getExtension(Selector);
+
+  if (!selector) {
+    return null;
+  }
 
   return (
     <TfiLayoutSidebarNone
-      className={`tool ${d.selector.selectionMode === 'area' ? 'selected' : ''}`}
+      className={`tool ${selector.selectionMode === 'area' ? 'selected' : ''}`}
       onClick={() => {
-        d.selector.toggleSelectionMode();
+        selector.toggleSelectionMode();
       }}
       title="Select"
     />

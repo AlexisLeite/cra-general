@@ -47,7 +47,7 @@ export class Node<Gateways = TDirection> extends Element {
     this.diagram?.onEvent(
       DMouseDownEvent,
       this.handleMouseDown,
-      this.diagram.priorities.Node_Mouse_Down,
+      this.diagram.priorities.Mouse_Down_Node,
     );
   }
 

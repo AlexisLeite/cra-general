@@ -8,6 +8,7 @@ import { Edge } from '../../store/elements/Edge';
 import { GatewayRender } from '../extra/GatewayRender';
 import { makeScalableComponent } from './makeScalableComponent';
 import { RenderCustomRenderers } from './CustomRenderers';
+import { Selector } from '../../store/tools/Selector';
 
 const ShapeWrap = observer(({ node }: { node: Node }) => {
   if (!node.parent) {
@@ -71,16 +72,18 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
 const ScalableShapes = makeScalableComponent(
   observer(() => {
     const d = Diagram.use();
+    const selector = d.getExtension(Selector);
+
     return (
       <>
         {d.nodes
           .map((c) =>
-            d.selector.selection.find((s) => s === c) ? null : (
+            selector?.selection.find((s) => s === c) ? null : (
               <ShapeWrap node={c} key={c.id} />
             ),
           )
           .filter(Boolean)}
-        {d.selector.selection.map((c) => (
+        {selector?.selection.map((c) => (
           <ShapeWrap node={c} key={c.id} />
         ))}
         {d.edges.map((c) => (

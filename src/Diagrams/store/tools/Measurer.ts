@@ -1,10 +1,23 @@
-import { makeAutoObservable } from 'mobx';
-import type { Diagram } from '../Diagram';
+import { makeObservable, observable } from 'mobx';
 import { Coordinates } from '../primitives/Coordinates';
 import { type AnyMouseEvent, DMouseDownEvent } from '../elements/Events';
 import { bind, documentBind } from '../../util/bindCb';
+import { DiagramExtension } from './DiagramExtension';
 
-export class Measurer {
+export class Measurer extends DiagramExtension {
+  init() {
+    makeObservable<Measurer, 'endPoint' | 'startPoint' | '_enabled'>(this, {
+      _enabled: observable,
+      endPoint: observable,
+      startPoint: observable,
+    });
+    this.diagram.canvas.onEvent(
+      DMouseDownEvent,
+      this.handleMouseDown.bind(this),
+      this.diagram.priorities.Mouse_Down_Measurer,
+    );
+  }
+
   protected _enabled = false;
 
   public toggle() {
@@ -13,16 +26,6 @@ export class Measurer {
 
   get enabled() {
     return this._enabled;
-  }
-
-  constructor(public diagram: Diagram) {
-    makeAutoObservable(this);
-
-    this.diagram.canvas.onEvent(
-      DMouseDownEvent,
-      this.handleMouseDown.bind(this),
-      diagram.priorities.Measurer_Mouse_Down,
-    );
   }
 
   protected endPoint: Coordinates | null = null;

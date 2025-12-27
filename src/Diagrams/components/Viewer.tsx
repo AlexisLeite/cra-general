@@ -11,6 +11,7 @@ import { Grid } from './objects/Grid';
 import { Canvas } from './Canvas';
 import { Stage } from '../layout/HStack';
 import { ShapesShowcase } from './ShapesShowcase';
+import { AlignmentSuggestions } from './extra/AlignmentSuggestions';
 
 export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
   return (
@@ -21,6 +22,7 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
           <Grid />
           <ConnectorRenderer />
           <Measurement />
+          <AlignmentSuggestions />
           <Selection />
         </Canvas>
       </Stage>

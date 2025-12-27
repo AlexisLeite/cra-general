@@ -1,5 +1,3 @@
-import { makeAutoObservable } from 'mobx';
-import type { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
 import type { Midpoint } from '../../components/objects/RenderEdge';
 import { EdgePoint } from '../elements/EdgePoint';
@@ -7,6 +5,7 @@ import { Edge } from '../elements/Edge';
 import { findBestPathBetweenNodes } from './paths/findBestPathBetweenNodes';
 import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
 import { bind, documentBind } from '../../util/bindCb';
+import { DiagramExtension } from './DiagramExtension';
 
 type DragContext = {
   edge: Edge;
@@ -16,10 +15,8 @@ type DragContext = {
   startPointB: Coordinates;
 };
 
-export class EdgesDragger {
-  constructor(public diagram: Diagram) {
-    makeAutoObservable(this);
-
+export class EdgesDragger extends DiagramExtension {
+  init() {
     document.addEventListener('mouseup', this.handleMouseUp.bind(this));
     this.diagram.onEvent(DEdgeDragStartEvent, this.startDrag.bind(this));
   }

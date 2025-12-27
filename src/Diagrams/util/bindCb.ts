@@ -1,12 +1,12 @@
 import { DEvent } from '../store/elements/Events';
-import { type Callback as EvCB, type Class } from '../store/elements/Element';
+import { type Callback as EvCB, type AbstractClass } from '../store/elements/Element';
 import type { Diagram } from '../store/Diagram';
 type Callback = () => void;
 type Unsubscriber = Callback;
 
 export function diagramBind<X extends DEvent>(
   target: { diagram: Diagram },
-  type: Class<X>,
+  type: AbstractClass<X>,
   cb: EvCB<X>,
   priority?: number,
 ) {

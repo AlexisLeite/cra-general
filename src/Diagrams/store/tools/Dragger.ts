@@ -1,15 +1,19 @@
 import { Diagram } from '../Diagram';
 
-import { makeAutoObservable } from 'mobx';
 import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 import {
+  DDragProposal,
   DMouseDownEvent,
   DMouseUpEvent,
+  DragProposal,
   DScaleEvent,
 } from '../elements/Events';
 import { bind, diagramBind } from '../../util/bindCb';
+import { DiagramExtension } from './DiagramExtension';
+import { Selector } from './Selector';
+import { Dimensions } from '../primitives/Dimensions';
 
 /**
  * Conditions for dragging:
@@ -21,20 +25,22 @@ import { bind, diagramBind } from '../../util/bindCb';
 
 /**
  */
-export class Dragger {
-  constructor(public diagram: Diagram) {
-    makeAutoObservable(this);
-
+export class Dragger extends DiagramExtension {
+  init() {
     this.diagram.onEvent(
       DMouseDownEvent,
       this.handleMouseDown.bind(this),
-      diagram.priorities.Dragger_Mouse_Down,
+      this.diagram.priorities.Mouse_Down_Dragger,
     );
     this.diagram.onEvent(
       DScaleEvent,
       this.handleScale.bind(this),
-      diagram.priorities.Dragger_Scale,
+      this.diagram.priorities.Scale_Dragger,
     );
+  }
+
+  constructor(public parent: Diagram) {
+    super(parent);
   }
 
   protected draggingNodes: { node: Node; startPoint: Coordinates }[] = [];
@@ -52,14 +58,18 @@ export class Dragger {
     this.handleDragAction();
   }
 
+  protected originalEvent: DMouseDownEvent | null = null;
   protected handleMouseDown(ev: DMouseDownEvent) {
     ev.stopImmediatePropagation();
+    this.originalEvent = ev;
 
     const node = ev.node;
     if (!ev.cancelled && node && node.selected) {
       ev.cancel();
 
-      this.draggingNodes = [...this.diagram.selector.selection].map((c) => ({
+      this.draggingNodes = [
+        ...this.diagram.getExtension(Selector).selection,
+      ].map((c) => ({
         node: c,
         startPoint: c.coordinates.copy(),
       }));
@@ -77,7 +87,7 @@ export class Dragger {
           this,
           DMouseUpEvent,
           this.handleMouseUp,
-          this.diagram.priorities.Dragger_Mouse_Up,
+          this.diagram.priorities.Mouse_Up_Dragger,
         ),
       );
     }
@@ -165,19 +175,36 @@ export class Dragger {
         .copy()
         .substract(rescaledStartPoint);
 
-      this.draggingNodes.forEach((c) => {
-        c.node.setPosition(
-          c.startPoint
-            .copy()
-            .sum(
-              mouse
+      const proposals = this.draggingNodes.map(
+        (c) =>
+          new DragProposal(
+            c.node,
+            new Dimensions([
+              ...c.startPoint
                 .copy()
-                .substract(this.startPoint)
-                .divide(this.diagram.canvas.scale)
-                .substract(compensation),
-            ),
-        );
-      });
+                .sum(
+                  mouse
+                    .copy()
+                    .substract(this.startPoint)
+                    .divide(this.diagram.canvas.scale)
+                    .substract(compensation),
+                ).raw,
+              ...c.node.box.size.raw,
+            ]),
+          ),
+      );
+
+      if (
+        !this.emit(
+          new DDragProposal(this, proposals, this.originalEvent!.originalEvent),
+        ).cancelled
+      ) {
+        proposals.forEach((c) => {
+          if (!c.cancelled) {
+            c.node.setPosition(c.newBox.coordinates);
+          }
+        });
+      }
     }
   }
 

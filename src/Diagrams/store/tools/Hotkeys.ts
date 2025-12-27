@@ -1,29 +1,37 @@
-import type { Diagram } from '../Diagram';
 import { DKeyDownEvent } from '../elements/Events';
+import { Measurer } from './Measurer';
+import { Selector } from './Selector';
+import { DiagramExtension } from './DiagramExtension';
 
-export class Hotkeys {
-  protected revertHotkey = new Map<string, () => unknown>();
+export class Hotkeys extends DiagramExtension {
+  private get measurer() {
+    return this.diagram.getExtension(Measurer);
+  }
 
-  constructor(public diagram: Diagram) {
-    diagram.onEvent(DKeyDownEvent, (ev) => {
+  private get selector() {
+    return this.diagram.getExtension(Selector);
+  }
+
+  init() {
+    this.diagram.onEvent(DKeyDownEvent, (ev) => {
       if (!this.revertHotkey.has(ev.code)) {
         switch (ev.code) {
           case 'Space': {
-            const measure = this.diagram.measurer.enabled;
+            const measure = this.measurer.enabled;
             const selectInArea =
-              !measure && this.diagram.selector.selectionMode === 'area';
+              !measure && this.selector.selectionMode === 'area';
 
             if (!measure) {
-              this.diagram.selector.toggleSelectionMode(
+              this.selector.toggleSelectionMode(
                 selectInArea ? 'element' : 'area',
               );
             }
 
             this.revertHotkey.set(ev.code, () => {
               if (measure) {
-                this.diagram.measurer.toggle();
+                this.measurer.toggle();
               } else {
-                this.diagram.selector.toggleSelectionMode(
+                this.selector.toggleSelectionMode(
                   selectInArea ? 'area' : 'element',
                 );
               }
@@ -31,15 +39,15 @@ export class Hotkeys {
             break;
           }
           case 'KeyM':
-            this.diagram.selector.toggleSelectionMode('element');
+            this.selector.toggleSelectionMode('element');
             break;
           case 'KeyS':
             if (!ev.ctrl) {
-              this.diagram.selector.toggleSelectionMode('area');
+              this.selector.toggleSelectionMode('area');
             }
             break;
           case 'KeyR':
-            this.diagram.measurer.toggle();
+            this.measurer.toggle();
             break;
           case 'ControlLeft':
             ev.cancel();
@@ -58,4 +66,6 @@ export class Hotkeys {
       }
     });
   }
+
+  protected revertHotkey = new Map<string, () => unknown>();
 }

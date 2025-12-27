@@ -6,6 +6,7 @@ import type { Edge } from './Edge';
 import type { Midpoint } from '../../components/objects/RenderEdge';
 
 import { MouseInformation } from './EventsMouseInformation';
+import type { Dimensions } from '../primitives/Dimensions';
 
 export type AnyMouseEvent = ME | MouseEvent;
 export type AnyKeyboardEvent = KE | KeyboardEvent;
@@ -274,3 +275,59 @@ export class DEdgeDragStartEvent extends DDragEvent {
     super(src, originalEvent);
   }
 }
+
+export class DragProposal {
+  private _cancelled = false;
+
+  constructor(
+    public readonly node: Node<any>,
+    public newBox: Dimensions,
+  ) {}
+
+  cancel() {
+    this._cancelled = true;
+  }
+
+  public get cancelled() {
+    return this._cancelled;
+  }
+
+  update(box: Dimensions) {
+    this.newBox = box;
+  }
+}
+
+export class DDragProposal extends DDragEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    public src: Element,
+    public elements: DragProposal[],
+    originalEvent: AnyMouseEvent,
+  ) {
+    super(src, originalEvent);
+  }
+}
+
+(window as any).event = {};
+(window as any).event.DEvent = DEvent;
+(window as any).event.DUIEvent = DUIEvent;
+(window as any).event.DMouseEvent = DMouseEvent;
+(window as any).event.DClickEvent = DClickEvent;
+(window as any).event.DMouseDownEvent = DMouseDownEvent;
+(window as any).event.DMouseUpEvent = DMouseUpEvent;
+(window as any).event.DMouseMoveEvent = DMouseMoveEvent;
+(window as any).event.DWheelEvent = DWheelEvent;
+(window as any).event.DKeyboardEvent = DKeyboardEvent;
+(window as any).event.DKeyDownEvent = DKeyDownEvent;
+(window as any).event.DKeyUpEvent = DKeyUpEvent;
+(window as any).event.DKeyPressEvent = DKeyPressEvent;
+(window as any).event.DCanvasEvent = DCanvasEvent;
+(window as any).event.DScaleEvent = DScaleEvent;
+(window as any).event.DChangeEvent = DChangeEvent;
+(window as any).event.DSelectionEvent = DSelectionEvent;
+(window as any).event.DNodeSelectionEvent = DNodeSelectionEvent;
+(window as any).event.DEdgeSelectionEvent = DEdgeSelectionEvent;
+(window as any).event.DDragEvent = DDragEvent;
+(window as any).event.DEdgeDragStartEvent = DEdgeDragStartEvent;
+(window as any).event.DDragProposal = DDragProposal;

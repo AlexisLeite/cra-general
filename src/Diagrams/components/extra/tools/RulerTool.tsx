@@ -1,15 +1,21 @@
 import { TfiRulerAlt } from 'react-icons/tfi';
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
+import { Measurer } from '../../../store/tools/Measurer';
 
 export const RulerTool = observer(function RulerTool() {
   const d = Diagram.use();
+  const measurer = d.getExtension(Measurer);
+
+  if (!measurer) {
+    return null;
+  }
 
   return (
     <TfiRulerAlt
-      className={`tool ${d.measurer.enabled ? 'selected' : ''}`}
+      className={`tool ${measurer.enabled ? 'selected' : ''}`}
       onClick={() => {
-        d.measurer.toggle();
+        measurer.toggle();
       }}
       title="Ruler"
     />

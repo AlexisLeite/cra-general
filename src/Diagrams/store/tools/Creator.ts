@@ -1,20 +1,20 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import type { Diagram } from '../Diagram';
+import { makeObservable, observable, runInAction } from 'mobx';
 import { TextNode } from '../elements/TextNode';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import { DClickEvent } from '../elements/Events';
+import { DiagramExtension } from './DiagramExtension';
 
 export type TCreationMode = 'none' | 'text';
 
-export class Creator {
+export class Creator extends DiagramExtension {
   creationMode: TCreationMode = 'none';
 
-  constructor(public diagram: Diagram) {
+  init() {
     this.diagram.onEvent(DClickEvent, (ev) => {
       this.handleMouseUp(ev);
     });
-    makeAutoObservable(this);
+    makeObservable(this, { creationMode: observable });
   }
 
   protected getId() {

@@ -1,5 +1,4 @@
 import type { MouseEvent as RMEv } from 'react';
-import type { Diagram } from '../Diagram';
 import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
@@ -11,9 +10,10 @@ import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import type { TDirection } from '../types';
 import { bind, documentBind } from '../../util/bindCb';
+import { DiagramExtension } from './DiagramExtension';
 
-export class NodesConnector {
-  constructor(public diagram: Diagram) {
+export class NodesConnector extends DiagramExtension {
+  init() {
     makeObservable<
       NodesConnector,
       | 'arrowTo'

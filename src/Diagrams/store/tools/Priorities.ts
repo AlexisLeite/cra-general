@@ -1,17 +1,17 @@
 export class Priorities {
-  public Dragger_Mouse_Down = 100;
-  public Dragger_Mouse_Move = 200;
-  public Dragger_Mouse_Up = 200;
-  public Dragger_Scale = 100;
+  public Mouse_Down_Dragger = 100;
+  public Mouse_Down_Measurer = 300;
+  public Mouse_Down_Rules = 1000;
+  public Mouse_Down_Selector = 200;
+  public Mouse_Down_Node = 150;
 
-  public Measurer_Mouse_Down = 300;
+  public Mouse_Move_Dragger = 200;
+  public Mouse_Move_Selector = 100;
 
-  public Rules_Mouse_Down = 1000;
-  public Rules_Selection = 1000;
+  public Mouse_Up_Dragger = 200;
+  public Mouse_Up_Selector = 100;
 
-  public Selector_Mouse_Down = 200;
-  public Selector_Mouse_Move = 100;
-  public Selector_Mouse_Up = 100;
+  public Scale_Dragger = 100;
 
-  public Node_Mouse_Down = 150;
+  public Selection_Rules = 1000;
 }

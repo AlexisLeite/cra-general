@@ -1,5 +1,10 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import type { Diagram } from '../Diagram';
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from 'mobx';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import {
@@ -10,6 +15,7 @@ import {
 } from '../elements/Events';
 import { Node } from '../elements/Node';
 import { bind, diagramBind } from '../../util/bindCb';
+import { DiagramExtension } from './DiagramExtension';
 
 type SelectionMode = 'area' | 'element';
 
@@ -31,7 +37,47 @@ type SelectionMode = 'area' | 'element';
       When this mode is enabled, a mouse down event over a node will trigger its
       selection.
  */
-export class Selector {
+export class Selector extends DiagramExtension {
+  init() {
+    makeObservable<
+      Selector,
+      | '_selection'
+      | 'startPoint'
+      | 'endPoint'
+      | 'handleMouseDown'
+      | 'handleMouseUp'
+      | 'handleMouseMove'
+    >(this, {
+      selectionMode: observable,
+      _selection: observable,
+      selection: computed,
+      toggleSelectionMode: action,
+      startPoint: observable,
+      endPoint: observable,
+      box: computed,
+      clearSelection: action,
+      handleMouseDown: action,
+      handleMouseMove: action,
+      handleMouseUp: action,
+    });
+
+    this.diagram.onEvent(
+      DMouseDownEvent,
+      this.handleMouseDown.bind(this),
+      this.diagram.priorities.Mouse_Down_Selector,
+    );
+
+    this.diagram.onEvent(DNodeSelectionEvent, (ev) => {
+      runInAction(() => {
+        if (ev.selected) {
+          this._selection.add(ev.src);
+        } else {
+          this._selection.delete(ev.src);
+        }
+      });
+    });
+  }
+
   public selectionMode: SelectionMode = 'element';
   public toggleSelectionMode(sm?: SelectionMode) {
     this.selectionMode =
@@ -49,7 +95,7 @@ export class Selector {
 
   protected moved = false;
 
-  get() {
+  get box() {
     if (!this.startPoint || !this.endPoint) return new Dimensions();
 
     return this.diagram.canvas.inverseFit(
@@ -58,26 +104,6 @@ export class Selector {
         ...this.endPoint!.copy().substract(this.startPoint).raw,
       ]),
     );
-  }
-
-  constructor(public diagram: Diagram) {
-    makeAutoObservable(this);
-
-    this.diagram.onEvent(
-      DMouseDownEvent,
-      this.handleMouseDown.bind(this),
-      this.diagram.priorities.Selector_Mouse_Down,
-    );
-
-    this.diagram.onEvent(DNodeSelectionEvent, (ev) => {
-      runInAction(() => {
-        if (ev.selected) {
-          this._selection.add(ev.src);
-        } else {
-          this._selection.delete(ev.src);
-        }
-      });
-    });
   }
 
   clearSelection() {
@@ -93,13 +119,13 @@ export class Selector {
         this,
         DMouseMoveEvent,
         this.handleMouseMove,
-        this.diagram.priorities.Selector_Mouse_Move,
+        this.diagram.priorities.Mouse_Move_Selector,
       ),
       diagramBind(
         this,
         DMouseUpEvent,
         this.handleMouseUp,
-        this.diagram.priorities.Selector_Mouse_Up,
+        this.diagram.priorities.Mouse_Up_Selector,
       ),
     );
 
@@ -126,7 +152,7 @@ export class Selector {
       this.endPoint = new Coordinates(ev);
 
       this.diagram.nodes.forEach((c) => {
-        if (this.get().collides(c.box)) {
+        if (this.box.collides(c.box)) {
           c.select();
         } else if (!ev.shift) {
           c.unselect();
@@ -139,7 +165,7 @@ export class Selector {
             ...edge.steps[i].raw,
             ...edge.steps[i + 1].copy().substract(edge.steps[i]).raw,
           ]);
-          if (this.get().collides(box)) {
+          if (this.box.collides(box)) {
             edge.select();
             break;
           }
