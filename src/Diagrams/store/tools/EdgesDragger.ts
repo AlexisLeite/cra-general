@@ -6,6 +6,7 @@ import { findBestPathBetweenNodes } from './paths/findBestPathBetweenNodes';
 import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
 import { bind, documentBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
+import { Aligner } from './Aligner';
 
 type DragContext = {
   edge: Edge;
@@ -75,9 +76,10 @@ export class EdgesDragger extends DiagramExtension {
     a.assign(this.drag.startPointA.copy().sum(delta));
     b.assign(this.drag.startPointB.copy().sum(delta));
 
-    if (this.diagram.snapToGrid) {
-      a.snapToGrid(this.diagram.gridSize, isHorizontal ? 'x' : 'y');
-      b.snapToGrid(this.diagram.gridSize, isHorizontal ? 'x' : 'y');
+    const aligner = this.diagram.getExtension(Aligner);
+    if (aligner.snapToGrid) {
+      a.snapToGrid(aligner.gridSize, isHorizontal ? 'x' : 'y');
+      b.snapToGrid(aligner.gridSize, isHorizontal ? 'x' : 'y');
     }
 
     this.drag.edge.setSteps(

@@ -7,9 +7,7 @@ export class Rules {
   allowSelection = true;
 
   displaceWhenDragOnEdges = true;
-  gridSize = 50;
   toggleGrid = true;
-  snapToGrid = true;
 
   constructor(protected d: Diagram) {
     d.onEvent(DChangeEvent, this.handleUpdates, d.priorities.Mouse_Down_Rules);

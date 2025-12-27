@@ -28,14 +28,24 @@ function d(a: number, b: number) {
 export class Aligner extends DiagramExtension {
   proposals: Proposal[] = [];
 
+  gridSize = 50;
+  snapToGrid = true;
+
   clear() {
     this.proposals = [];
+  }
+
+  toggleSnapToGrid() {
+    this.snapToGrid = !this.snapToGrid;
   }
 
   init() {
     makeObservable(this, {
       clear: action,
       proposals: observable,
+      gridSize: observable,
+      snapToGrid: observable,
+      toggleSnapToGrid: action,
     });
 
     documentBind(this, 'keydown', (ev) => {
@@ -55,8 +65,8 @@ export class Aligner extends DiagramExtension {
         const extensionBoundary =
           this.diagram.canvas.frameDimensions.norm /
           (2 * this.diagram.canvas.scale);
-        const relevantBoundary = this.diagram.gridSize;
-        const attachBoundary = this.diagram.gridSize / 2;
+        const relevantBoundary = this.gridSize;
+        const attachBoundary = this.gridSize / 2;
 
         if (ev.elements.length === 1) {
           const proposals: Partial<
@@ -95,6 +105,15 @@ export class Aligner extends DiagramExtension {
               }
             }
           }
+          /*
+          if (this.diagram?.snapToGrid) {
+            this.state.box.x =
+              Math.round(this.state.box.x / this.diagram.gridSize) *
+              this.diagram.gridSize;
+            this.state.box.y =
+              Math.round(this.state.box.y / this.diagram.gridSize) *
+              this.diagram.gridSize;
+          }*/
 
           Object.entries(proposals).forEach(([type, proposal]) => {
             runInAction(() => {

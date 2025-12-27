@@ -1,6 +1,7 @@
 import type { SVGAttributes } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
+import { Aligner } from '../../../store/tools/Aligner';
 
 interface IconBaseProps extends SVGAttributes<SVGElement> {
   size?: string | number;
@@ -24,11 +25,12 @@ const MiSnapToGrid = (props: IconBaseProps) => (
 
 export const SnapToGridTool = observer(function SnapToGridTool() {
   const d = Diagram.use();
+  const aligner = d.getExtension(Aligner);
 
   return (
     <MiSnapToGrid
-      className={`tool ${d.snapToGrid ? 'selected' : ''}`}
-      onClick={() => d.toggleSnapToGrid()}
+      className={`tool ${aligner.snapToGrid ? 'selected' : ''}`}
+      onClick={() => aligner.toggleSnapToGrid()}
       title="Snap to grid"
     />
   );

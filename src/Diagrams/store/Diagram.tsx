@@ -88,7 +88,6 @@ export class Diagram extends Element {
       _edges: observable,
       _nodes: observable,
       toggleGrid: action,
-      toggleSnapToGrid: action,
     });
   }
 
@@ -165,15 +164,8 @@ export class Diagram extends Element {
     return this._nodes.get(id);
   }
 
-  get gridSize() {
-    return this.rules.gridSize;
-  }
-
   get showGrid() {
     return this.rules.toggleGrid;
-  }
-  get snapToGrid() {
-    return this.rules.snapToGrid;
   }
 
   getExtension<T extends DiagramExtension>(e: Class<T>): T {
@@ -188,10 +180,6 @@ export class Diagram extends Element {
 
   toggleGrid() {
     this.rules.toggleGrid = !this.rules.toggleGrid;
-  }
-
-  toggleSnapToGrid() {
-    this.rules.snapToGrid = !this.rules.snapToGrid;
   }
 
   public static use = () => useContext(DiagramContext)!;

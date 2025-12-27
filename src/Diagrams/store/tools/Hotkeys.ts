@@ -2,6 +2,7 @@ import { DKeyDownEvent } from '../elements/Events';
 import { Measurer } from './Measurer';
 import { Selector } from './Selector';
 import { DiagramExtension } from './DiagramExtension';
+import { Aligner } from './Aligner';
 
 export class Hotkeys extends DiagramExtension {
   private get measurer() {
@@ -51,10 +52,13 @@ export class Hotkeys extends DiagramExtension {
             break;
           case 'ControlLeft':
             ev.cancel();
-            this.diagram.toggleSnapToGrid();
-            this.revertHotkey.set(ev.code, () => {
-              this.diagram.toggleSnapToGrid();
-            });
+            {
+              const aligner = this.diagram.getExtension(Aligner);
+              aligner?.toggleSnapToGrid();
+              this.revertHotkey.set(ev.code, () => {
+                aligner?.toggleSnapToGrid();
+              });
+            }
             break;
         }
       }
