@@ -12,6 +12,7 @@ import {
   DMouseMoveEvent,
   DMouseUpEvent,
   DNodeSelectionEvent,
+  DDeleteNodeEvent,
 } from '../elements/Events';
 import { Node } from '../elements/Node';
 import { bind, diagramBind } from '../../util/bindCb';
@@ -75,6 +76,10 @@ export class Selector extends DiagramExtension {
           this._selection.delete(ev.src);
         }
       });
+    });
+
+    this.diagram.onEvent(DDeleteNodeEvent, (ev) => {
+      this._selection.delete(ev.node);
     });
   }
 

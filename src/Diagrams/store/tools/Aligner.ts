@@ -1,6 +1,6 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
-  DDragProposal as DDragProposalEvent,
+  DDragProposalEvent as DDragProposalEvent,
   DMouseUpEvent,
 } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';

@@ -4,11 +4,12 @@ import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 import {
-  DDragProposal,
+  DDragProposalEvent,
   DMouseDownEvent,
   DMouseUpEvent,
   DragProposal,
   DScaleEvent,
+  DDeleteNodeEvent,
 } from '../elements/Events';
 import { bind, diagramBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
@@ -37,13 +38,19 @@ export class Dragger extends DiagramExtension {
       this.handleScale.bind(this),
       this.diagram.priorities.Scale_Dragger,
     );
+    this.diagram.onEvent(DDeleteNodeEvent, (ev) => {
+      this.draggingNodes.delete(ev.node.id);
+    });
   }
 
   constructor(public parent: Diagram) {
     super(parent);
   }
 
-  protected draggingNodes: { node: Node; startPoint: Coordinates }[] = [];
+  protected draggingNodes: Map<
+    string,
+    { node: Node<any>; startPoint: Coordinates }
+  > = new Map();
   protected startPoint: Coordinates = new Coordinates();
   protected startPointScaled: Coordinates = new Coordinates();
   protected unsubscribeScaleEvent = () => {};
@@ -51,7 +58,11 @@ export class Dragger extends DiagramExtension {
   protected interval = -1;
 
   public startDrag(node: Node) {
-    this.draggingNodes = [{ node, startPoint: node.coordinates.copy() }];
+    this.draggingNodes.clear();
+    this.draggingNodes.set(node.id, {
+      node,
+      startPoint: node.coordinates.copy(),
+    });
     this.startPoint = Mouse.getInstance().coordinates;
     this.startPointScaled = this.diagram.canvas.inverseFit(this.startPoint);
 
@@ -67,12 +78,13 @@ export class Dragger extends DiagramExtension {
     if (!ev.cancelled && node && node.selected) {
       ev.cancel();
 
-      this.draggingNodes = [
-        ...this.diagram.getExtension(Selector).selection,
-      ].map((c) => ({
-        node: c,
-        startPoint: c.coordinates.copy(),
-      }));
+      this.draggingNodes.clear();
+      this.diagram.getExtension(Selector).selection.forEach((c) => {
+        this.draggingNodes.set(c.id, {
+          node: c,
+          startPoint: c.coordinates.copy(),
+        });
+      });
 
       this.startPoint = new Coordinates(ev.originalEvent);
       this.startPointScaled = this.diagram.canvas.inverseFit(
@@ -120,7 +132,7 @@ export class Dragger extends DiagramExtension {
   protected handleDragInterval() {
     const mouse = Mouse.getInstance().coordinates;
 
-    if (this.draggingNodes.length) {
+    if (this.draggingNodes.size) {
       if (mouse.x < this.diagram.canvas.frameDimensions.x + 100) {
         const diff = this.calcDisplacement(
           mouse.x - this.diagram.canvas.frameDimensions.x,
@@ -175,7 +187,7 @@ export class Dragger extends DiagramExtension {
         .copy()
         .substract(rescaledStartPoint);
 
-      const proposals = this.draggingNodes.map(
+      const proposals = [...this.draggingNodes.values()].map(
         (c) =>
           new DragProposal(
             c.node,
@@ -196,7 +208,11 @@ export class Dragger extends DiagramExtension {
 
       if (
         !this.emit(
-          new DDragProposal(this, proposals, this.originalEvent!.originalEvent),
+          new DDragProposalEvent(
+            this,
+            proposals,
+            this.originalEvent!.originalEvent,
+          ),
         ).cancelled
       ) {
         proposals.forEach((c) => {
@@ -209,14 +225,14 @@ export class Dragger extends DiagramExtension {
   }
 
   protected handleMouseUp() {
-    this.draggingNodes = [];
+    this.draggingNodes.clear();
     this.unsubscribeScaleEvent();
     this.unsubscribeMouseUp();
     clearInterval(this.interval);
   }
 
   protected handleScale(_ev: DScaleEvent) {
-    if (this.draggingNodes.length) {
+    if (this.draggingNodes.size) {
       /* empty */
     }
   }

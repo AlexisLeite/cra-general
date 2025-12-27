@@ -24,6 +24,7 @@ import { Hotkeys } from './tools/Hotkeys';
 import { Measurer } from './tools/Measurer';
 import { Selector } from './tools/Selector';
 import { NodesConnector } from './tools/NodesConnector';
+import { DDeleteNodeEvent } from './elements/Events';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -135,13 +136,16 @@ export class Diagram extends Element {
   }
 
   delete(node: Node<any>) {
-    runInAction(() => {
-      node.gateways.forEach((c) =>
-        c.outgoingEdges.forEach(this.disconnect.bind(this)),
-      );
-      this._nodes.delete(node.id);
-      node.parent = null;
-    });
+    if (!this.emit(new DDeleteNodeEvent(this, node)).cancelled) {
+      runInAction(() => {
+        node.gateways.forEach((c) => {
+          c.incomingEdges.forEach(this.disconnect.bind(this));
+          c.outgoingEdges.forEach(this.disconnect.bind(this));
+        });
+        this._nodes.delete(node.id);
+        node.parent = null;
+      });
+    }
   }
 
   disconnect(edge: Edge) {

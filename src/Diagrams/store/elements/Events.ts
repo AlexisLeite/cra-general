@@ -227,6 +227,17 @@ export abstract class DChangeEvent extends DEvent {
   declare protected readonly __brand: void;
 }
 
+export class DDeleteNodeEvent extends DChangeEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    public src: Element,
+    public node: Node<any>,
+  ) {
+    super(src);
+  }
+}
+
 export abstract class DSelectionEvent extends DChangeEvent {
   declare protected readonly __brand: void;
 
@@ -297,7 +308,7 @@ export class DragProposal {
   }
 }
 
-export class DDragProposal extends DDragEvent {
+export class DDragProposalEvent extends DDragEvent {
   declare protected readonly __brand: void;
 
   constructor(
@@ -309,25 +320,26 @@ export class DDragProposal extends DDragEvent {
   }
 }
 
-(window as any).event = {};
-(window as any).event.DEvent = DEvent;
-(window as any).event.DUIEvent = DUIEvent;
-(window as any).event.DMouseEvent = DMouseEvent;
-(window as any).event.DClickEvent = DClickEvent;
-(window as any).event.DMouseDownEvent = DMouseDownEvent;
-(window as any).event.DMouseUpEvent = DMouseUpEvent;
-(window as any).event.DMouseMoveEvent = DMouseMoveEvent;
-(window as any).event.DWheelEvent = DWheelEvent;
-(window as any).event.DKeyboardEvent = DKeyboardEvent;
-(window as any).event.DKeyDownEvent = DKeyDownEvent;
-(window as any).event.DKeyUpEvent = DKeyUpEvent;
-(window as any).event.DKeyPressEvent = DKeyPressEvent;
-(window as any).event.DCanvasEvent = DCanvasEvent;
-(window as any).event.DScaleEvent = DScaleEvent;
-(window as any).event.DChangeEvent = DChangeEvent;
-(window as any).event.DSelectionEvent = DSelectionEvent;
-(window as any).event.DNodeSelectionEvent = DNodeSelectionEvent;
-(window as any).event.DEdgeSelectionEvent = DEdgeSelectionEvent;
-(window as any).event.DDragEvent = DDragEvent;
-(window as any).event.DEdgeDragStartEvent = DEdgeDragStartEvent;
-(window as any).event.DDragProposal = DDragProposal;
+(window as any).devent = {};
+(window as any).devent.DEvent = DEvent;
+(window as any).devent.DUIEvent = DUIEvent;
+(window as any).devent.DMouseEvent = DMouseEvent;
+(window as any).devent.DClickEvent = DClickEvent;
+(window as any).devent.DMouseDownEvent = DMouseDownEvent;
+(window as any).devent.DMouseUpEvent = DMouseUpEvent;
+(window as any).devent.DMouseMoveEvent = DMouseMoveEvent;
+(window as any).devent.DWheelEvent = DWheelEvent;
+(window as any).devent.DKeyboardEvent = DKeyboardEvent;
+(window as any).devent.DKeyDownEvent = DKeyDownEvent;
+(window as any).devent.DKeyUpEvent = DKeyUpEvent;
+(window as any).devent.DKeyPressEvent = DKeyPressEvent;
+(window as any).devent.DCanvasEvent = DCanvasEvent;
+(window as any).devent.DScaleEvent = DScaleEvent;
+(window as any).devent.DChangeEvent = DChangeEvent;
+(window as any).devent.DSelectionEvent = DSelectionEvent;
+(window as any).devent.DNodeSelectionEvent = DNodeSelectionEvent;
+(window as any).devent.DEdgeSelectionEvent = DEdgeSelectionEvent;
+(window as any).devent.DDragEvent = DDragEvent;
+(window as any).devent.DEdgeDragStartEvent = DEdgeDragStartEvent;
+(window as any).devent.DDragProposalEvent = DDragProposalEvent;
+(window as any).devent.DDeleteNodeEvent = DDeleteNodeEvent;
