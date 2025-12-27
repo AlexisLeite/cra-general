@@ -141,6 +141,7 @@ body.light {
   user-select: none;
   cursor: pointer;
   transition: filter 0.2s ease;
+  box-sizing: border-box;
 
   &:is(div) {
     background: var(--node-fill);

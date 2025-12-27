@@ -18,11 +18,11 @@ export const AlignmentSuggestions = makeScalableComponent(
         {aligner!.proposals.map((c) => {
           const path =
             c.type === 'h'
-              ? `M 0 ${c.y} V ${d.canvas.elementDimensions.width}`
-              : `M 0 ${c.x} H ${d.canvas.elementDimensions.height}`;
+              ? `M ${c.x} ${c.range[0]} V ${c.range[1]}`
+              : `M ${c.range[0]} ${c.y} H ${c.range[1]}`;
           return (
             <Shape
-              paths={[{ d: path, stroke: 'white', strokeWidth: 1 }]}
+              paths={[{ d: path, stroke: 'red', strokeWidth: 1 }]}
               key={path}
             />
           );

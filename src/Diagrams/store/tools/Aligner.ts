@@ -12,11 +12,13 @@ import { documentBind } from '../../util/bindCb';
 type Proposal =
   | {
       type: 'v';
-      x: number;
+      y: number;
+      range: [number, number];
     }
   | {
       type: 'h';
-      y: number;
+      x: number;
+      range: [number, number];
     };
 
 type CandidateType = 'HL' | 'HC' | 'HR' | 'VT' | 'VM' | 'VB';
@@ -62,45 +64,191 @@ export class Aligner extends DiagramExtension {
       if (!Keyboard.getInstance().ctrl) {
         this.clear();
 
-        const extensionBoundary =
-          this.diagram.canvas.frameDimensions.norm /
-          (2 * this.diagram.canvas.scale);
-        const relevantBoundary = this.gridSize;
+        const extensionBoundary = this.diagram.canvas.frameDimensions.norm / 2;
+        const relevantBoundary = (this.gridSize / 5) * 3;
         const attachBoundary = this.gridSize / 2;
 
         if (ev.elements.length === 1) {
           const proposals: Partial<
             Record<
               CandidateType,
-              { position: number; element: Node<any>; distance: number }
+              {
+                position: number;
+                element: Node<any>;
+                distance: number;
+                range: [number, number];
+              }
             >
           > = {};
           const el = ev.elements[0];
 
-          for (const node of this.diagram.nodes) {
-            if (
-              node.id !== el.node.id &&
-              el.newBox.copy().substract(node.box).norm < extensionBoundary
-            ) {
-              const dvm = d(node.box.middle.y, el.newBox.middle.y);
-              if (
-                dvm < relevantBoundary &&
-                (proposals.VM?.distance ?? Infinity) > dvm
-              ) {
-                proposals.VM = {
-                  distance: dvm,
-                  element: el.node,
-                  position: node.box.middle.y,
-                };
+          const enabledChecks: Record<CandidateType, boolean> = {
+            HC: true,
+            HL: true,
+            HR: true,
+            VB: true,
+            VM: true,
+            VT: true,
+          };
 
-                if (dvm < attachBoundary) {
-                  el.update(
-                    new Dimensions([
-                      el.newBox.x,
-                      node.box.y,
-                      ...el.node.box.size.raw,
-                    ]),
-                  );
+          for (const candidate of this.diagram.nodes) {
+            if (
+              candidate.id !== el.node.id &&
+              el.newBox.copy().substract(candidate.box).norm < extensionBoundary
+            ) {
+              if (enabledChecks.VM) {
+                const dvm = d(candidate.box.middle.y, el.newBox.middle.y);
+                if (
+                  dvm < relevantBoundary &&
+                  (proposals.VM?.distance ?? Infinity) > dvm
+                ) {
+                  proposals.VM = {
+                    distance: dvm,
+                    element: el.node,
+                    position: candidate.box.middle.y,
+                    range: [candidate.box.rightMiddle.x, el.node.box.x],
+                  };
+
+                  if (dvm < attachBoundary) {
+                    el.update(
+                      new Dimensions([
+                        el.newBox.x,
+                        candidate.box.middle.y - candidate.box.height / 2,
+                        ...el.node.box.size.raw,
+                      ]),
+                    );
+                  }
+                }
+              }
+
+              if (enabledChecks.VT) {
+                const dvt = d(candidate.box.y, el.newBox.y);
+                if (
+                  dvt < relevantBoundary &&
+                  (proposals.VT?.distance ?? Infinity) > dvt
+                ) {
+                  proposals.VT = {
+                    distance: dvt,
+                    element: el.node,
+                    position: candidate.box.y,
+                    range: [candidate.box.rightMiddle.x, el.node.box.x],
+                  };
+
+                  if (dvt < attachBoundary) {
+                    el.update(
+                      new Dimensions([
+                        el.newBox.x,
+                        candidate.box.y,
+                        ...el.node.box.size.raw,
+                      ]),
+                    );
+                  }
+                }
+              }
+
+              if (enabledChecks.VB) {
+                const dvb = d(
+                  candidate.box.bottomMiddle.y,
+                  el.newBox.bottomMiddle.y,
+                );
+                if (
+                  dvb < relevantBoundary &&
+                  (proposals.VB?.distance ?? Infinity) > dvb
+                ) {
+                  proposals.VB = {
+                    distance: dvb,
+                    element: el.node,
+                    position: candidate.box.bottomMiddle.y,
+                    range: [candidate.box.rightMiddle.x, el.node.box.x],
+                  };
+
+                  if (dvb < attachBoundary) {
+                    el.update(
+                      new Dimensions([
+                        el.newBox.x,
+                        candidate.box.bottomMiddle.y - el.node.box.height,
+                        ...el.node.box.size.raw,
+                      ]),
+                    );
+                  }
+                }
+              }
+
+              if (enabledChecks.HL) {
+                const dhl = d(candidate.box.x, el.newBox.x);
+                if (
+                  dhl < relevantBoundary &&
+                  (proposals.HL?.distance ?? Infinity) > dhl
+                ) {
+                  proposals.HL = {
+                    distance: dhl,
+                    element: el.node,
+                    position: candidate.box.x,
+                    range: [candidate.box.bottomMiddle.y, el.node.box.y],
+                  };
+
+                  if (dhl < attachBoundary) {
+                    el.update(
+                      new Dimensions([
+                        candidate.box.x,
+                        el.newBox.y,
+                        ...el.node.box.size.raw,
+                      ]),
+                    );
+                  }
+                }
+              }
+
+              if (enabledChecks.HC) {
+                const dhc = d(candidate.box.middle.x, el.newBox.middle.x);
+                if (
+                  dhc < relevantBoundary &&
+                  (proposals.HC?.distance ?? Infinity) > dhc
+                ) {
+                  proposals.HC = {
+                    distance: dhc,
+                    element: el.node,
+                    position: candidate.box.middle.x,
+                    range: [candidate.box.bottomMiddle.y, el.node.box.y],
+                  };
+
+                  if (dhc < attachBoundary) {
+                    el.update(
+                      new Dimensions([
+                        candidate.box.middle.x - el.node.box.width / 2,
+                        el.newBox.y,
+                        ...el.node.box.size.raw,
+                      ]),
+                    );
+                  }
+                }
+              }
+
+              if (enabledChecks.HR) {
+                const dhr = d(
+                  candidate.box.rightMiddle.x,
+                  el.newBox.rightMiddle.x,
+                );
+                if (
+                  dhr < relevantBoundary &&
+                  (proposals.HR?.distance ?? Infinity) > dhr
+                ) {
+                  proposals.HR = {
+                    distance: dhr,
+                    element: el.node,
+                    position: candidate.box.rightMiddle.x,
+                    range: [candidate.box.bottomMiddle.y, el.node.box.y],
+                  };
+
+                  if (dhr < attachBoundary) {
+                    el.update(
+                      new Dimensions([
+                        candidate.box.rightMiddle.x - el.node.box.width,
+                        el.newBox.y,
+                        ...el.node.box.size.raw,
+                      ]),
+                    );
+                  }
                 }
               }
             }
@@ -117,15 +265,17 @@ export class Aligner extends DiagramExtension {
 
           Object.entries(proposals).forEach(([type, proposal]) => {
             runInAction(() => {
-              if (type.startsWith('h')) {
+              if (type.startsWith('H')) {
                 this.proposals.push({
-                  y: proposal.position,
+                  x: proposal.position,
                   type: 'h',
+                  range: proposal.range,
                 });
               } else {
                 this.proposals.push({
-                  x: proposal.position,
+                  y: proposal.position,
                   type: 'v',
+                  range: proposal.range,
                 });
               }
             });
