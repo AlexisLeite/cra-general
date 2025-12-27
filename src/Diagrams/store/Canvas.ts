@@ -305,12 +305,10 @@ export class Canvas extends Element {
     this.emit(new DKeyPressEvent(this, originalEvent));
   }
 
-  protected handleWheel(originalEvent: WheelEvent, isPassive = false) {
+  protected handleWheel(originalEvent: WheelEvent) {
     const ev = this.emit(new DWheelEvent(this, originalEvent));
 
     if (!ev.cancelled) {
-      if (!isPassive) originalEvent.preventDefault();
-
       const negative = originalEvent.deltaY < 0;
       const rounded = Math.floor(this.scale * 100) / 100;
 

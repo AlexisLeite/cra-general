@@ -1,3 +1,4 @@
+import { makeAutoObservable } from 'mobx';
 import { Diagram } from '../Diagram';
 import { DMouseDownEvent, DSelectionEvent } from '../elements/Events';
 
@@ -10,7 +11,7 @@ export class Rules {
   toggleGrid = true;
   snapToGrid = true;
 
-  constructor(private d: Diagram) {
+  constructor(protected d: Diagram) {
     d.onEvent(
       DMouseDownEvent,
       (ev) => {
@@ -32,5 +33,7 @@ export class Rules {
       },
       d.priorities.Rules_Selection,
     );
+
+    makeAutoObservable(this);
   }
 }
