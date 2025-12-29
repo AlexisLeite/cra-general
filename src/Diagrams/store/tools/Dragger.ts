@@ -4,12 +4,12 @@ import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 import {
-  DDragProposalEvent,
-  DMouseDownEvent,
-  DragProposal,
-  DScaleEvent,
-  DDeleteNodeEvent,
-  DMouseUpEvent,
+    DDragNodeEvent,
+    DMouseDownEvent,
+    NodePositionProposal,
+    DScaleEvent,
+    DDeleteNodeEvent,
+    DMouseUpEvent,
 } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
 import { Selector } from './Selector';
@@ -183,7 +183,7 @@ export class Dragger extends DiagramExtension {
 
       const proposals = [...this.draggingNodes.values()].map(
         (c) =>
-          new DragProposal(
+          new NodePositionProposal(
             c.node,
             new Dimensions([
               ...c.startPoint
@@ -202,7 +202,7 @@ export class Dragger extends DiagramExtension {
 
       if (
         !this.emit(
-          new DDragProposalEvent(
+          new DDragNodeEvent(
             this,
             proposals,
             this.originalEvent!.originalEvent,

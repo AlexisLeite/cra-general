@@ -204,7 +204,7 @@ export class DKeyPressEvent extends DKeyboardEvent {
   }
 }
 
-export abstract class DCanvasEvent extends DEvent {
+export abstract class DCanvasEvent extends DUIEvent {
   declare protected readonly __brand: void;
 }
 
@@ -218,6 +218,18 @@ export class DScaleEvent extends DCanvasEvent {
     public displacement: Coordinates,
     public newScale: number,
     public previousScale: number,
+  ) {
+    super(src);
+  }
+}
+
+export class DDisplaceEvent extends DCanvasEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    src: Element,
+    public previousDisplacement: Coordinates,
+    public displacement: Coordinates,
   ) {
     super(src);
   }
@@ -238,7 +250,7 @@ export class DDeleteNodeEvent extends DChangeEvent {
   }
 }
 
-export abstract class DSelectionEvent extends DChangeEvent {
+export abstract class DSelectionEvent extends DUIEvent {
   declare protected readonly __brand: void;
 
   constructor(
@@ -271,8 +283,15 @@ export class DEdgeSelectionEvent extends DSelectionEvent {
   }
 }
 
-export abstract class DDragEvent extends DMouseEvent {
+export abstract class DDragEvent extends DChangeEvent {
   declare protected readonly __brand: void;
+
+  constructor(
+    public src: Element,
+    public originalEvent: AnyMouseEvent,
+  ) {
+    super(src);
+  }
 }
 
 export class DEdgeDragStartEvent extends DDragEvent {
@@ -287,7 +306,7 @@ export class DEdgeDragStartEvent extends DDragEvent {
   }
 }
 
-export class DragProposal {
+export class NodePositionProposal {
   private _cancelled = false;
   private _updated: Dimensions;
 
@@ -315,12 +334,12 @@ export class DragProposal {
   }
 }
 
-export class DDragProposalEvent extends DDragEvent {
+export class DDragNodeEvent extends DDragEvent {
   declare protected readonly __brand: void;
 
   constructor(
     public src: Element,
-    public elements: DragProposal[],
+    public elements: NodePositionProposal[],
     originalEvent: AnyMouseEvent,
   ) {
     super(src, originalEvent);
@@ -348,5 +367,5 @@ export class DDragProposalEvent extends DDragEvent {
 (window as any).devent.DEdgeSelectionEvent = DEdgeSelectionEvent;
 (window as any).devent.DDragEvent = DDragEvent;
 (window as any).devent.DEdgeDragStartEvent = DEdgeDragStartEvent;
-(window as any).devent.DDragProposalEvent = DDragProposalEvent;
+(window as any).devent.DDragProposalEvent = DDragNodeEvent;
 (window as any).devent.DDeleteNodeEvent = DDeleteNodeEvent;

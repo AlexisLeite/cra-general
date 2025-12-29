@@ -6,6 +6,7 @@ import { Element } from './elements/Element';
 import {
   type AnyKeyboardEvent,
   DClickEvent,
+  DDisplaceEvent,
   DKeyDownEvent,
   DKeyPressEvent,
   DKeyUpEvent,
@@ -136,34 +137,33 @@ export class Canvas extends Element {
   ) {
     const B = this.inverseFit(zoomCenter);
     const B_ = B.copy();
-    const scale = this.scale;
     const disp = this.displacement;
 
-    this._scale = Math.max(0.3, Math.min(3, newScale));
+    const setScale = Math.max(0.3, Math.min(3, newScale));
 
-    if (scale !== this.scale) {
-      const scale_ = this.scale;
-
+    if (setScale !== this.scale) {
       const disp2 = B.copy()
-        .multiply(scale)
-        .sum(disp.copy().multiply(scale))
-        .substract(B_.copy().multiply(scale_))
-        .divide(scale_);
+        .multiply(this.scale)
+        .sum(disp.copy().multiply(this.scale))
+        .substract(B_.copy().multiply(setScale))
+        .divide(setScale);
 
-      const previous = this.displacement;
-      this._displacement.assign(disp2);
-      this.bound();
+      if (
+        !this.emit(
+          new DScaleEvent(
+            this,
+            disp2.copy().substract(this.displacement),
+            setScale,
+            this.scale,
+          ),
+        ).cancelled
+      ) {
+        this._scale = setScale;
+        this._displacement.assign(disp2);
+        this.bound();
 
-      this.setDisplacementStyles();
-
-      this.emit(
-        new DScaleEvent(
-          this,
-          this.displacement.copy().substract(previous),
-          this.scale,
-          scale,
-        ),
-      );
+        this.setDisplacementStyles();
+      }
     }
   }
 
@@ -250,23 +250,26 @@ export class Canvas extends Element {
   protected handleMouseMove(originalEvent: MouseEvent) {
     const ev = this.emit(new DMouseMoveEvent(this, originalEvent));
 
-    if (
-      !ev.cancelled &&
-      this.eventStart &&
-      this.displacementStart &&
-      this.eventStart
-    ) {
-      this._dragging = true;
-      this._displacement.assign(
-        this.displacementStart!.copy().substract(
-          this.eventStart
-            .copy()
-            .substract([originalEvent.clientX, originalEvent.clientY])
-            .divide(this.scale),
-        ),
+    if (!ev.cancelled && this.displacementStart && this.eventStart) {
+      const displacement = this.displacement.substract(
+        new Coordinates(originalEvent),
       );
-      this.bound();
-      this.setDisplacementStyles();
+      if (
+        !this.emit(new DDisplaceEvent(this, this.displacement, displacement))
+          .cancelled
+      ) {
+        this._dragging = true;
+        this._displacement.assign(
+          this.displacementStart!.copy().substract(
+            this.eventStart
+              .copy()
+              .substract([originalEvent.clientX, originalEvent.clientY])
+              .divide(this.scale),
+          ),
+        );
+        this.bound();
+        this.setDisplacementStyles();
+      }
     }
   }
 

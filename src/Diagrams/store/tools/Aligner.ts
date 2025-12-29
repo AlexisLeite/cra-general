@@ -1,6 +1,6 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
-  DDragProposalEvent as DDragProposalEvent,
+  DDragNodeEvent as DDragNodeEvent,
   DMouseUpEvent,
 } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
@@ -60,7 +60,7 @@ export class Aligner extends DiagramExtension {
       this.clear();
     });
 
-    this.diagram.onEvent(DDragProposalEvent, (ev) => {
+    this.diagram.onEvent(DDragNodeEvent, (ev) => {
       if (!Keyboard.getInstance().ctrl) {
         this.clear();
 
@@ -261,6 +261,7 @@ export class Aligner extends DiagramExtension {
                     dhr < minVertical
                   ) {
                     minVertical = dhr;
+                    ev.stopImmediatePropagation();
                     el.update(
                       new Dimensions([
                         candidate.box.rightMiddle.x - el.newBox.width,
