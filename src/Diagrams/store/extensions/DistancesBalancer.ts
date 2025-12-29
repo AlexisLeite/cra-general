@@ -4,13 +4,6 @@ import type { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable } from 'mobx';
 
-/**
- * I need a way to define that a distances marker must be shown.
- *
- * The best way is to just say what are the coordinates for each segment that
- * must be drawn.
- */
-
 type Proposal = {
   from: Coordinates;
   to: Coordinates;

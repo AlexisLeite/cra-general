@@ -25,7 +25,7 @@ export function bindDiagram<X extends DEvent>(
 }
 
 export function bindHotkey(target: { diagram: Diagram }, hotkey: THotKey) {
-  return target.diagram.getExtension(Hotkeys).register(hotkey);
+  return target.diagram.getExtension(Hotkeys)?.register(hotkey);
 }
 
 export function bindDocument<K extends keyof DocumentEventMap>(
