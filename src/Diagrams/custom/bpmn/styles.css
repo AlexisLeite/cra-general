@@ -1,11 +1,13 @@
 #Showcase {
   .collapsible_panel__content {
     display: grid;
-    gap: 8px;
+    gap: 32px;
+    padding: 32px;
     grid-template-columns: 1fr 1fr;
   }
 
   .bpm__node {
+    justify-self: center;
     position: static !important;
 
     .label {
@@ -20,22 +22,43 @@
   }
 
   .bpmn__task {
-    width: auto !important;
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .bpmn__gate {
+    width: 80px !important;
     height: 80px !important;
   }
 }
 
-.bpmn__task {
-  border-radius: 8px;
-}
+.bpm__node {
+  &.bpmn__task {
+    border-radius: 8px;
+  }
 
-.bpmn__event {
-  justify-self: center;
-  border-radius: 100%;
-  position: relative;
+  &.bpmn__event {
+    border-radius: 100%;
+    position: relative;
 
-  .label {
-    position: absolute;
-    top: 70px;
+    .editable__label {
+      position: absolute;
+      top: 70px;
+    }
+  }
+
+  &.bpmn__gate {
+    border: none;
+    background: none;
+    position: relative;
+
+    fill: var(--node-fill);
+    stroke: var(--node-stroke);
+    stroke-width: 2px;
+
+    .editable__label {
+      position: absolute;
+      top: 70px;
+    }
   }
 }

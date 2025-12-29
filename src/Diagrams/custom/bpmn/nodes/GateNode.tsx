@@ -1,8 +1,11 @@
+import { observer } from 'mobx-react-lite';
+import { customRendererProps as customNodeRendererProps } from '../../../components/objects/customRendererProps';
 import { Element } from '../../../store/elements/Element';
 import { DNodeChangeTypeEvent } from '../../../store/elements/Events';
 import { type TNodeConstructorProps } from '../../../store/elements/Node';
 import { Coordinates } from '../../../store/primitives/Coordinates';
 import { getEnumStr } from '../../../util/getEnumStr';
+import { EditableLabel } from '../../editable/EditableLabel';
 import { BPMNode } from './BPMNode';
 
 export enum GateTypes {
@@ -22,7 +25,7 @@ export class GateNode extends BPMNode {
 
     this.setType(state.type || GateTypes.exclusive);
     this.state.box.assignDimensions(new Coordinates([80, 80]));
-    this.classList.add('bpmn__event');
+    this.classList.add('bpmn__gate');
   }
 
   setType(type: GateTypes) {
@@ -59,7 +62,21 @@ export class GateNode extends BPMNode {
     }
   }
 
-  Render = () => {
-    return null;
-  };
+  Render = observer(() => {
+    return (
+      <div {...customNodeRendererProps(this)}>
+        <svg
+          style={{
+            width: `${this.state.box.width}px`,
+            height: `${this.state.box.height}px`,
+          }}
+        >
+          <polygon
+            points={`${this.state.box.width / 2} 0 ${this.state.box.width} ${this.state.box.height / 2} ${this.state.box.width / 2}  ${this.state.box.height} 0  ${this.state.box.height / 2}`}
+          />
+        </svg>
+        <EditableLabel />
+      </div>
+    );
+  });
 }

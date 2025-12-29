@@ -69,9 +69,7 @@ export class EventNode extends BPMNode {
   Render = observer(() => {
     return (
       <div {...customRendererProps(this)}>
-        <span className="label">
-          <EditableLabel />
-        </span>
+        <EditableLabel />
       </div>
     );
   });
