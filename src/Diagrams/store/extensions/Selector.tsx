@@ -73,6 +73,12 @@ export class Selector extends DiagramExtension {
     this.diagram.onEvent(DDeleteNodeEvent, (ev) => {
       this._selection.delete(ev.node);
     });
+
+    for (const node of this.diagram.nodes) {
+      if (node.selected) {
+        this._selection.add(node);
+      }
+    }
   }
 
   public toggleSelectionMode(

@@ -13,6 +13,7 @@ export class TaskNode extends BPMNode {
     this.setDimentions([300, 150]);
 
     makeObservable(this, { value: observable });
+    this.classList.add('bpmn__task');
   }
 
   value = '';

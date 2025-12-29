@@ -19,6 +19,10 @@ const event = new EventNode(null, {
   id: 'event-1',
   label: 'Event',
 });
+const task = new TaskNode(null, {
+  id: 'task-1',
+  label: 'Task',
+});
 
 export const ShapesShowcase = () => {
   const d = Diagram.use();
@@ -43,10 +47,6 @@ export const ShapesShowcase = () => {
       }}
     >
       <div
-        className="diagram__node"
-        style={{
-          height: '80px',
-        }}
         onMouseDownCapture={(ev) => {
           ev.nativeEvent.stopImmediatePropagation();
 
@@ -70,13 +70,13 @@ export const ShapesShowcase = () => {
           d.getExtension(Dragger)?.startDrag(task);
         }}
       >
-        Task
+        <task.Renderer />
       </div>
       <div
         onMouseDownCapture={(ev) => {
           ev.nativeEvent.stopImmediatePropagation();
 
-          const id = getId(d, 'task');
+          const id = getId(d, 'event');
 
           const event = new EventNode(null, {
             id: `event${id}`,

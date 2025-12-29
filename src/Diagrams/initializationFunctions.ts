@@ -3,15 +3,9 @@ import { Node } from './store/elements/Node';
 import json from '../saves/temp.json';
 import { TaskNode } from './custom/bpmn/nodes/TaskNode';
 import { toJS } from 'mobx';
-import { Diagram } from './store/Diagram';
-import { EdgeWithLoad } from './custom/bpmn/edges/EdgeWithLoad';
 import { BPMDiagram } from './custom/bpmn/BPMDiagram';
 
-Diagram.registerClass(TaskNode);
-Diagram.registerClass(EdgeWithLoad);
-
 export const d = new BPMDiagram();
-d.setDefaultEdge(EdgeWithLoad);
 
 (window as any).d = d;
 (window as any).toJS = toJS;

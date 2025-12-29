@@ -164,7 +164,6 @@ export class Node<Gateways = TDirection> extends Element {
     this.state.id = o.id;
     this.state.label = o.label;
     this.state.movable = o.movable;
-    this.state.selected = o.selected;
     this.state.selectable = o.selectable;
     this.state.fill = o.fill;
     this.state.labelFontSize = o.labelFontSize;

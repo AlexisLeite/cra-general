@@ -7,10 +7,35 @@
 
   .bpm__node {
     position: static !important;
+
+    .label {
+      position: static;
+      top: 0;
+    }
   }
+
+  .bpmn__event {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .bpmn__task {
+    width: auto !important;
+    height: 80px !important;
+  }
+}
+
+.bpmn__task {
+  border-radius: 8px;
 }
 
 .bpmn__event {
   justify-self: center;
   border-radius: 100%;
+  position: relative;
+
+  .label {
+    position: absolute;
+    top: 70px;
+  }
 }
