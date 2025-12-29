@@ -1,28 +1,21 @@
 import { DiagramExtension } from './DiagramExtension';
 import { DDragNodeEvent } from '../elements/Events';
-import { action, makeObservable, observable } from 'mobx';
+import { makeObservable, observable } from 'mobx';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 
 export class GridSnap extends DiagramExtension {
   gridSize = 50;
-  snapToGrid = true;
-
-  toggle() {
-    this.snapToGrid = !this.snapToGrid;
-  }
 
   public init(): void {
     makeObservable(this, {
       gridSize: observable,
-      snapToGrid: observable,
-      toggle: action,
     });
 
     this.diagram.onEvent(
       DDragNodeEvent,
       (ev) => {
-        if (this.snapToGrid) {
+        if (this.enable) {
           for (const e of ev.proposals) {
             const newCoordinates = new Coordinates([
               Math.round(e.newBox.coordinates.x / this.gridSize) *

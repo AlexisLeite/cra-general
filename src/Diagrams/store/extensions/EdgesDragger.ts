@@ -80,7 +80,7 @@ export class EdgesDragger extends DiagramExtension {
     b.assign(this.drag.startPointB.copy().sum(delta));
 
     const snap = this.diagram.getExtension(GridSnap);
-    if (snap.snapToGrid) {
+    if (snap.enabled) {
       a.snapToGrid(snap.gridSize, isHorizontal ? 'x' : 'y');
       b.snapToGrid(snap.gridSize, isHorizontal ? 'x' : 'y');
     }

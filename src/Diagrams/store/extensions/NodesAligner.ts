@@ -25,7 +25,6 @@ function d(a: number, b: number) {
 
 export class NodesAligner extends DiagramExtension {
   // This is only for reference
-  private enable = true;
   private gridSize = 50;
   proposals: Proposal[] = [];
 
@@ -33,20 +32,10 @@ export class NodesAligner extends DiagramExtension {
     this.proposals = [];
   }
 
-  get enabled() {
-    return this.enable;
-  }
-
-  toggle(newValue = !this.enable) {
-    this.enable = newValue;
-  }
-
   init() {
-    makeObservable<typeof this, 'enable'>(this, {
+    makeObservable(this, {
       clear: action,
-      enable: observable,
       proposals: observable,
-      toggle: action,
     });
 
     documentBind(this, 'keydown', (ev) => {

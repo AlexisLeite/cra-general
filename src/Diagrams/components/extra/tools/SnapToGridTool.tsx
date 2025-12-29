@@ -29,7 +29,7 @@ export const SnapToGridTool = observer(function SnapToGridTool() {
 
   return (
     <MiSnapToGrid
-      className={`tool ${gridSnapper.snapToGrid ? 'selected' : ''}`}
+      className={`tool ${gridSnapper.enabled ? 'selected' : ''}`}
       onClick={() => gridSnapper.toggle()}
       title="Snap to grid"
     />
