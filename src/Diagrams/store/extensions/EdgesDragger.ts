@@ -34,7 +34,9 @@ export class EdgesDragger extends DiagramExtension {
       const edge = ev.src;
       const midpoint = ev.midPoint;
 
-      edge.state.dragging = true;
+      runInAction(() => {
+        edge.state.dragging = true;
+      });
 
       midpoint.points.forEach((c) => ((c as EdgePoint).mode = 'manual'));
 

@@ -46,6 +46,9 @@
   /* Selection rectangle */
   --selection-border: #60a5fa;
   --selection-fill: #60a5fa33;
+
+  /* Alignment sugestion */
+  --alignment-sugestion: rgb(131, 204, 224);
 }
 
 
@@ -466,6 +469,13 @@ body.light {
 
   path {
     stroke: var(--edge-stroke);
+    stroke-width: 1px;
+  }
+}
+
+.alignment_sugestion {
+  path {
+    stroke: var(--alignment-sugestion);
     stroke-width: 1px;
   }
 }

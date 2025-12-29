@@ -22,7 +22,8 @@ export const AlignmentSuggestions = makeScalableComponent(
               : `M ${c.range[0]} ${c.y} H ${c.range[1]}`;
           return (
             <Shape
-              paths={[{ d: path, stroke: 'red', strokeWidth: 1 }]}
+              className="alignment_sugestion"
+              paths={[{ d: path }]}
               key={path}
             />
           );
