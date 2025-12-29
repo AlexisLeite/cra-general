@@ -15,7 +15,7 @@ import {
   DScaleEvent,
   DWheelEvent,
 } from './elements/Events';
-import { documentBind } from '../util/bindCb';
+import { bindDocument } from '../util/bindCb';
 
 export type ScaleEvent = {
   previousScale: number;
@@ -74,15 +74,15 @@ export class Canvas extends Element {
 
     makeObservable(this, {});
 
-    documentBind(this, 'click', this.handleClick);
-    documentBind(this, 'wheel', this.handleWheel);
-    documentBind(this, 'mouseup', this.handleMouseUp);
-    documentBind(this, 'mousedown', this.handleMouseDown);
-    documentBind(this, 'mousemove', this.handleMouseMove);
+    bindDocument(this, 'click', this.handleClick);
+    bindDocument(this, 'wheel', this.handleWheel);
+    bindDocument(this, 'mouseup', this.handleMouseUp);
+    bindDocument(this, 'mousedown', this.handleMouseDown);
+    bindDocument(this, 'mousemove', this.handleMouseMove);
 
-    documentBind(this, 'keyup', this.handleKeyUp);
-    documentBind(this, 'keypress', this.handleKeyPress);
-    documentBind(this, 'keydown', this.handleKeyDown);
+    bindDocument(this, 'keyup', this.handleKeyUp);
+    bindDocument(this, 'keypress', this.handleKeyPress);
+    bindDocument(this, 'keydown', this.handleKeyDown);
   }
 
   public get dragging() {

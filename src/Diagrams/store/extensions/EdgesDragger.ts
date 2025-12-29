@@ -4,7 +4,7 @@ import { EdgePoint } from '../elements/EdgePoint';
 import { Edge } from '../elements/Edge';
 import { findBestPathBetweenNodes } from '../../util/paths/findBestPathBetweenNodes';
 import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
-import { bind, documentBind } from '../../util/bindCb';
+import { bind, bindDocument } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
 import { runInAction } from 'mobx';
@@ -55,7 +55,7 @@ export class EdgesDragger extends DiagramExtension {
         startPointB,
       };
 
-      this.uns = bind(documentBind(this, 'mousemove', this.handleMouseMove));
+      this.uns = bind(bindDocument(this, 'mousemove', this.handleMouseMove));
     }
   }
 

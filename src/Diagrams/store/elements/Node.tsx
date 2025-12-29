@@ -11,7 +11,7 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
-import { DMouseDownEvent, DNodeSelectionEvent, DKeyDownEvent } from './Events';
+import { DNodeSelectionEvent, DKeyDownEvent } from './Events';
 
 export class Node<Gateways = TDirection> extends Element {
   protected _gateways = new Map<Gateways, Gateway>();
@@ -48,11 +48,6 @@ export class Node<Gateways = TDirection> extends Element {
     this.parent = d;
 
     this.diagram!.onEvent(DKeyDownEvent, this.handleKeyPress);
-    this.diagram!.onEvent(
-      DMouseDownEvent,
-      this.handleMouseDown,
-      this.diagram!.priorities.Mouse_Down_Node,
-    );
   }
 
   setState<K extends keyof TNodeState>(prop: K, value: TNodeState[K]) {
@@ -223,12 +218,15 @@ export class Node<Gateways = TDirection> extends Element {
   select() {
     if (
       !this.state.selected &&
+      this.state.selectable !== false &&
       !this.emit(new DNodeSelectionEvent(this, true)).cancelled
     ) {
       runInAction(() => {
         this.state.selected = true;
       });
+      return true;
     }
+    return false;
   }
 
   unselect() {
@@ -239,18 +237,11 @@ export class Node<Gateways = TDirection> extends Element {
       runInAction(() => {
         this.state.selected = false;
       });
+      return true;
     }
+    return false;
   }
 
-  protected handleMouseDown = (ev: DMouseDownEvent) => {
-    if (!ev.cancelled) {
-      if (ev.node === this) {
-        this.select();
-      } else if (!ev.ctrl && !ev.shift) {
-        this.unselect();
-      }
-    }
-  };
   protected handleKeyPress = (ev: DKeyDownEvent) => {
     if (this.state.selected && ev.code === 'Delete') {
       this.diagram?.delete(this);

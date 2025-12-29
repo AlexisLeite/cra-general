@@ -3,7 +3,7 @@ import { DDragNodeEvent, DMouseUpEvent } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
 import type { Node } from '../elements/Node';
 import { Dimensions } from '../primitives/Dimensions';
-import { documentBind } from '../../util/bindCb';
+import { bindDocument } from '../../util/bindCb';
 
 type Proposal =
   | {
@@ -38,7 +38,7 @@ export class NodesAligner extends DiagramExtension {
       proposals: observable,
     });
 
-    documentBind(this, 'keydown', (ev) => {
+    bindDocument(this, 'keydown', (ev) => {
       if (ev.ctrlKey) {
         this.clear();
       }

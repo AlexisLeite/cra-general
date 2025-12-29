@@ -12,8 +12,9 @@ import {
   DMouseUpEvent,
 } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
-import { Selector } from './Selector';
 import { Dimensions } from '../primitives/Dimensions';
+import { Selector } from './Selector';
+import { bind, bindDiagram, bindInterval } from '../../util/bindCb';
 
 /**
  * Conditions for dragging:
@@ -59,8 +60,7 @@ export class Dragger extends DiagramExtension {
   > = new Map();
   protected startPoint: Coordinates = new Coordinates();
   protected startPointScaled: Coordinates = new Coordinates();
-  protected unsubscribeScaleEvent = () => {};
-  protected interval = -1;
+  protected unsubscribe = () => {};
 
   public startDrag(node: Node) {
     this.draggingNodes.clear();
@@ -85,12 +85,6 @@ export class Dragger extends DiagramExtension {
       ev.stopImmediatePropagation();
 
       this.draggingNodes.clear();
-      this.diagram.getExtension(Selector).selection.forEach((c) => {
-        this.draggingNodes.set(c.id, {
-          node: c,
-          startPoint: c.coordinates.copy(),
-        });
-      });
 
       this.startPoint = new Coordinates(ev.originalEvent);
       this.startPointScaled = this.diagram.canvas.inverseFit(
@@ -102,19 +96,13 @@ export class Dragger extends DiagramExtension {
   }
 
   protected handleDragAction() {
-    this.unsubscribeScaleEvent();
-    this.unsubscribeScaleEvent = this.diagram.onEvent(
-      DScaleEvent,
-      ({ newScale, previousScale }) => {
+    this.unsubscribe();
+    this.unsubscribe = bind(
+      bindDiagram(this, DScaleEvent, ({ newScale, previousScale }) => {
         this.startPoint.divide(previousScale).multiply(newScale);
-      },
+      }),
+      bindInterval(this.handleDragInterval.bind(this), 30),
     );
-
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-
-    this.interval = setInterval(this.handleDragInterval.bind(this), 30) as any;
   }
 
   private calcDisplacement(distanceFromEdge: number) {
@@ -127,6 +115,19 @@ export class Dragger extends DiagramExtension {
 
   protected handleDragInterval() {
     const mouse = Mouse.getInstance().coordinates;
+
+    if (!this.draggingNodes.size) {
+      this.diagram.getExtension(Selector).selection.forEach((c) => {
+        this.draggingNodes.set(c.id, {
+          node: c,
+          startPoint: c.coordinates.copy(),
+        });
+      });
+
+      if (!this.draggingNodes.size) {
+        this.unsubscribe();
+      }
+    }
 
     if (
       this.draggingNodes.size &&
@@ -225,8 +226,7 @@ export class Dragger extends DiagramExtension {
 
   protected handleMouseUp() {
     this.draggingNodes.clear();
-    this.unsubscribeScaleEvent();
-    clearInterval(this.interval);
+    this.unsubscribe();
   }
 
   protected handleScale(_ev: DScaleEvent) {

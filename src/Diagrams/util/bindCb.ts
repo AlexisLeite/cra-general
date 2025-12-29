@@ -1,10 +1,13 @@
 import { DEvent } from '../store/elements/Events';
-import { type Callback as EvCB, type AbstractClass } from '../store/elements/Element';
+import {
+  type Callback as EvCB,
+  type AbstractClass,
+} from '../store/elements/Element';
 import type { Diagram } from '../store/Diagram';
 type Callback = () => void;
 type Unsubscriber = Callback;
 
-export function diagramBind<X extends DEvent>(
+export function bindDiagram<X extends DEvent>(
   target: { diagram: Diagram },
   type: AbstractClass<X>,
   cb: EvCB<X>,
@@ -20,7 +23,7 @@ export function diagramBind<X extends DEvent>(
   throw new Error('Cannot bind to unexistent diagram');
 }
 
-export function documentBind<K extends keyof DocumentEventMap>(
+export function bindDocument<K extends keyof DocumentEventMap>(
   target: any,
   type: K,
   listener: (this: Document, ev: DocumentEventMap[K]) => any,
@@ -34,7 +37,14 @@ export function documentBind<K extends keyof DocumentEventMap>(
   };
 }
 
-export function timerBind(cb: Callback, time: number) {
+export function bindInterval(cb: Callback, time: number) {
+  const t = setInterval(cb, time) as any;
+  return () => {
+    clearInterval(t);
+  };
+}
+
+export function bindTimeout(cb: Callback, time: number) {
   const t = setTimeout(cb, time) as any;
   return () => {
     clearTimeout(t);

@@ -1,7 +1,7 @@
 import { makeObservable, observable } from 'mobx';
 import { Coordinates } from '../primitives/Coordinates';
 import { type AnyMouseEvent, DMouseDownEvent } from '../elements/Events';
-import { bind, documentBind } from '../../util/bindCb';
+import { bind, bindDocument } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
 
 export class Measurer extends DiagramExtension {
@@ -49,8 +49,8 @@ export class Measurer extends DiagramExtension {
 
       this.u();
       this.u = bind(
-        documentBind(this, 'mousemove', this.handleMouseMove),
-        documentBind(this, 'mouseup', this.handleMouseUp),
+        bindDocument(this, 'mousemove', this.handleMouseMove),
+        bindDocument(this, 'mouseup', this.handleMouseUp),
       );
 
       this.startPoint = this.diagram.canvas.inverseFit(new Coordinates(ev));

@@ -9,14 +9,14 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import {
   DMouseDownEvent,
-  DMouseMoveEvent,
-  DMouseUpEvent,
-  DNodeSelectionEvent,
   DDeleteNodeEvent,
+  DMouseUpEvent,
+  DMouseMoveEvent,
 } from '../elements/Events';
 import { Node } from '../elements/Node';
-import { bind, diagramBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
+import { bind, bindDiagram } from '../../util/bindCb';
+import { Mouse } from '../../util/Mouse';
 
 type SelectionMode = 'area' | 'element';
 
@@ -39,27 +39,27 @@ type SelectionMode = 'area' | 'element';
       selection.
  */
 export class Selector extends DiagramExtension {
+  public selectionMode: SelectionMode = 'element';
+
+  private _selection = new Set<Node>();
+
+  /**
+   * Used to draw the selection rectangle
+   */
+  private endPoint: Coordinates | null = null;
+  private startPoint: Coordinates | null = null;
+
   init() {
-    makeObservable<
-      Selector,
-      | '_selection'
-      | 'startPoint'
-      | 'endPoint'
-      | 'handleMouseDown'
-      | 'handleMouseUp'
-      | 'handleMouseMove'
-    >(this, {
-      selectionMode: observable,
+    makeObservable<Selector, '_selection' | 'endPoint' | 'startPoint'>(this, {
       _selection: observable,
-      selection: computed,
-      toggleSelectionMode: action,
-      startPoint: observable,
-      endPoint: observable,
       box: computed,
-      clearSelection: action,
-      handleMouseDown: action,
-      handleMouseMove: action,
-      handleMouseUp: action,
+      endPoint: observable,
+      selection: computed,
+      selectionMode: observable,
+      selectNode: action,
+      startPoint: observable,
+      toggleSelectionMode: action,
+      unselectNode: action,
     });
 
     this.diagram.onEvent(
@@ -68,41 +68,20 @@ export class Selector extends DiagramExtension {
       this.diagram.priorities.Mouse_Down_Selector,
     );
 
-    this.diagram.onEvent(
-      DNodeSelectionEvent,
-      (ev) => {
-        runInAction(() => {
-          if (ev.selected) {
-            this._selection.add(ev.src);
-          } else {
-            this._selection.delete(ev.src);
-          }
-        });
-      },
-      this.diagram.priorities.Node_Selection_Selector,
-    );
-
     this.diagram.onEvent(DDeleteNodeEvent, (ev) => {
       this._selection.delete(ev.node);
     });
   }
 
-  public selectionMode: SelectionMode = 'element';
-  public toggleSelectionMode(sm?: SelectionMode) {
-    this.selectionMode =
-      sm || (this.selectionMode === 'area' ? 'element' : 'area');
+  public toggleSelectionMode(
+    sm: SelectionMode = this.selectionMode === 'area' ? 'element' : 'area',
+  ) {
+    this.selectionMode = sm;
   }
-
-  protected startNode: Node | null = null;
-  protected endPoint: Coordinates | null = null;
-  protected startPoint: Coordinates | null = null;
-  protected _selection = new Set<Node>();
 
   get selection() {
     return [...this._selection];
   }
-
-  protected moved = false;
 
   get box() {
     if (!this.startPoint || !this.endPoint) return new Dimensions();
@@ -115,97 +94,67 @@ export class Selector extends DiagramExtension {
     );
   }
 
-  clearSelection() {
-    this._selection.forEach((c) => c.unselect());
+  clearSelection(check: (n: Node<any>) => boolean = () => true) {
+    for (const n of this._selection) {
+      if (check(n)) {
+        this.unselectNode(n);
+      }
+    }
   }
 
-  private cancelMouseBind = () => {};
-  protected handleMouseDown(ev: DMouseDownEvent) {
-    this.cancelMouseBind();
+  selectNode(n: Node<any>) {
+    if (n.select()) {
+      this._selection.add(n);
+    }
+  }
 
-    this.cancelMouseBind = bind(
-      diagramBind(
-        this,
-        DMouseMoveEvent,
-        this.handleMouseMove,
-        this.diagram.priorities.Mouse_Move_Selector,
-      ),
-      diagramBind(
-        this,
-        DMouseUpEvent,
-        this.handleMouseUp,
-        this.diagram.priorities.Mouse_Up_Selector,
-      ),
-    );
+  unselectNode(n: Node<any>) {
+    if (n.unselect()) {
+      this._selection.delete(n);
+    }
+  }
 
-    this.endPoint = null;
-    this.startPoint = new Coordinates(ev);
+  unbind = () => {};
+  handleMouseDown = (ev: DMouseDownEvent) => {
+    this.unbind();
+    runInAction(() => {
+      this.startPoint = new Coordinates(ev);
+    });
 
     if (this.selectionMode === 'area') {
       ev.cancel();
-      ev.stopImmediatePropagation();
-
-      this.endPoint = new Coordinates(ev);
-    }
-  }
-
-  protected handleMouseMove(ev: DMouseMoveEvent) {
-    this.moved =
-      this.moved ||
-      !!(
-        this.startPoint &&
-        (this.startPoint?.copy().substract(new Coordinates(ev)).norm || 0) > 20
+      this.unbind = bind(
+        bindDiagram(this, DMouseUpEvent, this.handleMouseUp),
+        bindDiagram(this, DMouseMoveEvent, this.handleMouseMove),
       );
+    } else {
+      if (!ev.ctrl && !ev.shift && !ev.node?.selected) {
+        this.clearSelection();
+      }
 
-    if (this.selectionMode === 'area' && this.startPoint) {
-      this.endPoint = new Coordinates(ev);
-
-      this.diagram.nodes.forEach((c) => {
-        if (this.box.collides(c.box)) {
-          c.select();
-        } else if (!ev.shift) {
-          c.unselect();
-        }
-      });
-
-      for (const edge of this.diagram.edges) {
-        for (let i = 0; i < edge.steps.length - 1; i++) {
-          const box = new Dimensions([
-            ...edge.steps[i].raw,
-            ...edge.steps[i + 1].copy().substract(edge.steps[i]).raw,
-          ]);
-          if (this.box.collides(box)) {
-            edge.select();
-            break;
-          }
-        }
+      if (ev.node) {
+        this.selectNode(ev.node);
+      } else {
+        this.clearSelection();
       }
     }
-  }
+  };
 
-  protected handleMouseUp(ev: DMouseUpEvent) {
-    this.cancelMouseBind();
+  handleMouseMove = (_ev: DMouseMoveEvent) => {
+    this.endPoint = Mouse.getInstance().coordinates;
 
-    if (
-      this.startPoint &&
-      !this.moved &&
-      !ev.shift &&
-      !ev.ctrl &&
-      this.selectionMode === 'area'
-    ) {
-      this.clearSelection();
-      if (this.startNode) {
-        this.startNode.select();
+    for (const node of this.diagram.nodes) {
+      if (node.box.collides(this.box)) {
+        this.selectNode(node);
+      } else {
+        this.unselectNode(node);
       }
     }
+  };
 
-    if (this.startPoint && this.moved && this.selectionMode === 'area') {
-      ev.cancel();
-    }
-
-    this.moved = false;
+  handleMouseUp = (_ev: DMouseUpEvent) => {
+    this.unbind();
     this.endPoint = null;
     this.startPoint = null;
-    this.startNode = null;
-  }
+  };
 }

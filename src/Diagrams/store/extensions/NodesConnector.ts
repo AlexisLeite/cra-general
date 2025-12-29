@@ -3,19 +3,19 @@ import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
-  findBestPathBetweenNodes,
-  type Path,
+    findBestPathBetweenNodes,
+    type Path,
 } from '../../util/paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import type { TDirection } from '../types';
-import { bind, diagramBind } from '../../util/bindCb';
+import { bind, bindDiagram } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
 import {
-  DMouseMoveEvent,
-  DMouseUpEvent,
-  DNodeConnectionIntentEvent,
-  DNodesConnectActionEvent,
+    DMouseMoveEvent,
+    DMouseUpEvent,
+    DNodeConnectionIntentEvent,
+    DNodesConnectActionEvent,
 } from '../elements/Events';
 import { GridSnap } from './GridSnap';
 
@@ -145,8 +145,8 @@ export class NodesConnector extends DiagramExtension {
 
       this.u();
       this.u = bind(
-        diagramBind(this, DMouseMoveEvent, this.handleMouseMove),
-        diagramBind(this, DMouseUpEvent, this.handleMouseUp),
+        bindDiagram(this, DMouseMoveEvent, this.handleMouseMove),
+        bindDiagram(this, DMouseUpEvent, this.handleMouseUp),
       );
     }
   }
