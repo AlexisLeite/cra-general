@@ -87,13 +87,19 @@ export class NodesAligner extends DiagramExtension {
               VT: true,
             };
 
-            let minHorizontal = Infinity;
-            let minVertical = Infinity;
+            const mins: Record<CandidateType, number> = {
+              HL: Infinity,
+              HC: Infinity,
+              HR: Infinity,
+              VB: Infinity,
+              VM: Infinity,
+              VT: Infinity,
+            };
+
+            let updatedX = false;
+            let updatedY = false;
 
             for (const candidate of this.diagram.nodes) {
-              let updatedX = false;
-              let updatedY = false;
-
               if (
                 candidate.id !== el.node.id &&
                 el.newBox.copy().substract(candidate.box).norm <
@@ -110,12 +116,8 @@ export class NodesAligner extends DiagramExtension {
                       range: [candidate.box.rightMiddle.x, el.newBox.x],
                     });
 
-                    if (
-                      dvm < attachBoundary &&
-                      !proposals.VM.find((c) => c.distance < dvm) &&
-                      dvm < minHorizontal
-                    ) {
-                      minHorizontal = dvm;
+                    if (dvm < attachBoundary && dvm < mins.VM) {
+                      mins.VM = dvm;
                       updatedY = true;
                       el.update(
                         new Dimensions([
@@ -138,12 +140,8 @@ export class NodesAligner extends DiagramExtension {
                       range: [candidate.box.rightMiddle.x, el.newBox.x],
                     });
 
-                    if (
-                      dvt < attachBoundary &&
-                      !proposals.VT.find((c) => c.distance < dvt) &&
-                      dvt < minHorizontal
-                    ) {
-                      minHorizontal = dvt;
+                    if (dvt < attachBoundary && dvt < mins.VT) {
+                      mins.VT = dvt;
                       updatedY = true;
                       el.update(
                         new Dimensions([
@@ -169,12 +167,8 @@ export class NodesAligner extends DiagramExtension {
                       range: [candidate.box.rightMiddle.x, el.newBox.x],
                     });
 
-                    if (
-                      dvb < attachBoundary &&
-                      !proposals.VB.find((c) => c.distance < dvb) &&
-                      dvb < minHorizontal
-                    ) {
-                      minHorizontal = dvb;
+                    if (dvb < attachBoundary && dvb < mins.VB) {
+                      mins.VB = dvb;
                       updatedY = true;
                       el.update(
                         new Dimensions([
@@ -197,12 +191,8 @@ export class NodesAligner extends DiagramExtension {
                       range: [candidate.box.bottomMiddle.y, el.newBox.y],
                     });
 
-                    if (
-                      dhl < attachBoundary &&
-                      !proposals.HL.find((c) => c.distance < dhl) &&
-                      dhl < minVertical
-                    ) {
-                      minVertical = dhl;
+                    if (dhl < attachBoundary && dhl < mins.HL) {
+                      mins.HL = dhl;
                       updatedX = true;
                       el.update(
                         new Dimensions([
@@ -225,12 +215,8 @@ export class NodesAligner extends DiagramExtension {
                       range: [candidate.box.bottomMiddle.y, el.newBox.y],
                     });
 
-                    if (
-                      dhc < attachBoundary &&
-                      !proposals.HL.find((c) => c.distance < dhc) &&
-                      dhc < minVertical
-                    ) {
-                      minVertical = dhc;
+                    if (dhc < attachBoundary && dhc < mins.HC) {
+                      mins.HC = dhc;
                       updatedX = true;
                       el.update(
                         new Dimensions([
@@ -256,12 +242,8 @@ export class NodesAligner extends DiagramExtension {
                       range: [candidate.box.bottomMiddle.y, el.newBox.y],
                     });
 
-                    if (
-                      dhr < attachBoundary &&
-                      !proposals.HR.find((c) => c.distance < dhr) &&
-                      dhr < minVertical
-                    ) {
-                      minVertical = dhr;
+                    if (dhr < attachBoundary && dhr < mins.HR) {
+                      mins.HR = dhr;
                       updatedX = true;
                       el.update(
                         new Dimensions([
@@ -273,14 +255,6 @@ export class NodesAligner extends DiagramExtension {
                     }
                   }
                 }
-              }
-
-              if (updatedX) {
-                el.lockX();
-              }
-
-              if (updatedY) {
-                el.lockY();
               }
             }
 
@@ -303,6 +277,14 @@ export class NodesAligner extends DiagramExtension {
                 });
               });
             });
+
+            if (updatedX) {
+              el.lockX();
+            }
+
+            if (updatedY) {
+              el.lockY();
+            }
           }
         }
       },
