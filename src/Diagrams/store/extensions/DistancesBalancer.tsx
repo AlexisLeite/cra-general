@@ -18,7 +18,7 @@ type Proposal = {
 
 export class DistancesBalancer extends DiagramExtension {
   // This is only for reference
-  private gridSize = 50;
+  private gridSize = 25;
   proposals: Proposal[] = [];
 
   clear() {
