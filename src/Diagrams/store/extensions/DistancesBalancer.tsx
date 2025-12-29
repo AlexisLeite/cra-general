@@ -128,8 +128,8 @@ export class DistancesBalancer extends DiagramExtension {
             }
 
             if (minNodeL && minNodeR) {
-              const distanceL = -el.newBox.edgeDistanceY(minNodeL.box);
-              const distanceR = el.newBox.edgeDistanceY(minNodeR.box);
+              const distanceL = -el.newBox.edgeDistanceX(minNodeL.box);
+              const distanceR = el.newBox.edgeDistanceX(minNodeR.box);
 
               if (Math.abs(distanceR - distanceL) < this.gridSize) {
                 this.proposals.push({

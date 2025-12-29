@@ -103,6 +103,7 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
 
             return (
               <marker
+                key={i}
                 id={id}
                 viewBox="0 0 10 10"
                 refX={strokeWidth * 1.5}
