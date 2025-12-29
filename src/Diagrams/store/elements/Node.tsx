@@ -11,7 +11,6 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
-import { DNodeSelectionEvent, DKeyDownEvent } from './Events';
 
 export class Node<Gateways = TDirection> extends Element {
   protected _gateways = new Map<Gateways, Gateway>();
@@ -44,10 +43,28 @@ export class Node<Gateways = TDirection> extends Element {
     this.initializeGateways();
   }
 
+  canSelect() {
+    if (!this.state.selected && this.state.selectable !== false) {
+      runInAction(() => {
+        this.state.selected = true;
+      });
+      return true;
+    }
+    return false;
+  }
+
+  canUnselect() {
+    if (this.state.selected) {
+      runInAction(() => {
+        this.state.selected = false;
+      });
+      return true;
+    }
+    return false;
+  }
+
   setDiagram(d: Diagram) {
     this.parent = d;
-
-    this.diagram!.onEvent(DKeyDownEvent, this.handleKeyPress);
   }
 
   setState<K extends keyof TNodeState>(prop: K, value: TNodeState[K]) {
@@ -214,37 +231,4 @@ export class Node<Gateways = TDirection> extends Element {
       class: this.constructor.name,
     };
   }
-
-  canSelect() {
-    if (
-      !this.state.selected &&
-      this.state.selectable !== false &&
-      !this.emit(new DNodeSelectionEvent(this, true)).cancelled
-    ) {
-      runInAction(() => {
-        this.state.selected = true;
-      });
-      return true;
-    }
-    return false;
-  }
-
-  canUnselect() {
-    if (
-      this.state.selected &&
-      !this.emit(new DNodeSelectionEvent(this, false)).cancelled
-    ) {
-      runInAction(() => {
-        this.state.selected = false;
-      });
-      return true;
-    }
-    return false;
-  }
-
-  protected handleKeyPress = (ev: DKeyDownEvent) => {
-    if (this.state.selected && ev.code === 'Delete') {
-      this.diagram?.delete(this);
-    }
-  };
 }

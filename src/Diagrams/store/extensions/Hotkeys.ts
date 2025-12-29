@@ -69,6 +69,10 @@ export class Hotkeys extends DiagramExtension {
               });
             }
             break;
+          case 'Delete':
+            this.diagram.getExtension(Selector).selection.forEach((c) => {
+              this.diagram.delete(c);
+            });
         }
       }
     });

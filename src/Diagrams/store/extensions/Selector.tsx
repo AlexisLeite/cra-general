@@ -12,6 +12,7 @@ import {
   DDeleteNodeEvent,
   DMouseUpEvent,
   DMouseMoveEvent,
+  DNodeSelectionEvent,
 } from '../elements/Events';
 import { Node } from '../elements/Node';
 import { DiagramExtension } from './DiagramExtension';
@@ -103,13 +104,19 @@ export class Selector extends DiagramExtension {
   }
 
   selectNode(n: Node<any>) {
-    if (n.canSelect()) {
+    if (
+      n.canSelect() &&
+      !this.emit(new DNodeSelectionEvent(n, true)).cancelled
+    ) {
       this._selection.add(n);
     }
   }
 
   unselectNode(n: Node<any>) {
-    if (n.canUnselect()) {
+    if (
+      n.canUnselect() &&
+      !this.emit(new DNodeSelectionEvent(n, false)).cancelled
+    ) {
       this._selection.delete(n);
     }
   }

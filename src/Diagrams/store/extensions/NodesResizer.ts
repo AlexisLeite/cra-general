@@ -6,7 +6,9 @@ export class NodesResizer extends DiagramExtension {
     this.diagram.onEvent(
       DNodeSelectionEvent,
       (ev) => {
-        console.log(ev);
+        if (ev.selected) {
+          console.log(ev);
+        }
       },
       this.diagram.priorities.Node_Selection_Nodes_Resizer,
     );
