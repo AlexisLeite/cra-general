@@ -340,6 +340,9 @@ export class NodePositionProposal {
   private _cancelled = false;
   private _updated: Dimensions;
 
+  private _lockX: number | null = null;
+  private _lockY: number | null = null;
+
   constructor(
     public readonly node: Node<any>,
     public newBox: Dimensions,
@@ -351,6 +354,10 @@ export class NodePositionProposal {
     this._cancelled = true;
   }
 
+  get current() {
+    return this._updated.copy();
+  }
+
   public get cancelled() {
     return this._cancelled;
   }
@@ -359,8 +366,24 @@ export class NodePositionProposal {
     return this._updated;
   }
 
+  public lockX() {
+    this._lockX = this._updated.x;
+  }
+
+  public lockY() {
+    this._lockY = this._updated.y;
+  }
+
   update(box: Dimensions) {
     this._updated = box;
+
+    if (this._lockX !== null) {
+      this._updated.x = this._lockX;
+    }
+
+    if (this._lockY !== null) {
+      this._updated.y = this._lockY;
+    }
   }
 }
 

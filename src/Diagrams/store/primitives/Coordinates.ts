@@ -2,7 +2,11 @@ import { action, makeObservable, toJS } from 'mobx';
 import { Dimensions } from './Dimensions';
 import type { TDirection } from '../types';
 import type { DirectedPoint } from './DirectedPoint';
-import { type AnyMouseEvent, DMouseEvent } from '../elements/Events';
+import {
+  type AnyMouseEvent,
+  DDragEvent,
+  DMouseEvent,
+} from '../elements/Events';
 
 async function getDirectedClass() {
   return (await import('./DirectedPoint')).DirectedPoint;
@@ -20,7 +24,13 @@ export class Coordinates {
   protected _data: number[] = [];
 
   constructor(
-    items?: DMouseEvent | AnyMouseEvent | Event | Coordinates | number[],
+    items?:
+      | DMouseEvent
+      | DDragEvent
+      | AnyMouseEvent
+      | Event
+      | Coordinates
+      | number[],
     observable = true,
   ) {
     if (C === null) {

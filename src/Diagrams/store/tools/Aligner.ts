@@ -25,26 +25,18 @@ function d(a: number, b: number) {
 }
 
 export class Aligner extends DiagramExtension {
+  // This is only for reference
+  private gridSize = 50;
   proposals: Proposal[] = [];
-
-  gridSize = 50;
-  snapToGrid = true;
 
   clear() {
     this.proposals = [];
-  }
-
-  toggleSnapToGrid() {
-    this.snapToGrid = !this.snapToGrid;
   }
 
   init() {
     makeObservable(this, {
       clear: action,
       proposals: observable,
-      gridSize: observable,
-      snapToGrid: observable,
-      toggleSnapToGrid: action,
     });
 
     documentBind(this, 'keydown', (ev) => {
@@ -68,7 +60,7 @@ export class Aligner extends DiagramExtension {
           const relevantBoundary = (this.gridSize / 5) * 2;
           const attachBoundary = this.gridSize / 3;
 
-          if (ev.elements.length === 1) {
+          if (ev.elements.length >= 1) {
             const proposals: Record<
               CandidateType,
               {
@@ -100,10 +92,14 @@ export class Aligner extends DiagramExtension {
             let minVertical = Infinity;
 
             for (const candidate of this.diagram.nodes) {
+              let updatedX = false;
+              let updatedY = false;
+
               if (
                 candidate.id !== el.node.id &&
                 el.newBox.copy().substract(candidate.box).norm <
-                  extensionBoundary
+                  extensionBoundary &&
+                !ev.elements.find((c) => c.node.id === candidate.id)
               ) {
                 if (enabledChecks.VM) {
                   const dvm = d(candidate.box.middle.y, el.newBox.middle.y);
@@ -121,9 +117,10 @@ export class Aligner extends DiagramExtension {
                       dvm < minHorizontal
                     ) {
                       minHorizontal = dvm;
+                      updatedY = true;
                       el.update(
                         new Dimensions([
-                          el.newBox.x,
+                          el.current.x,
                           candidate.box.middle.y - el.newBox.height / 2,
                           ...el.newBox.size.raw,
                         ]),
@@ -148,9 +145,10 @@ export class Aligner extends DiagramExtension {
                       dvt < minHorizontal
                     ) {
                       minHorizontal = dvt;
+                      updatedY = true;
                       el.update(
                         new Dimensions([
-                          el.newBox.x,
+                          el.current.x,
                           candidate.box.y,
                           ...el.newBox.size.raw,
                         ]),
@@ -178,9 +176,10 @@ export class Aligner extends DiagramExtension {
                       dvb < minHorizontal
                     ) {
                       minHorizontal = dvb;
+                      updatedY = true;
                       el.update(
                         new Dimensions([
-                          el.newBox.x,
+                          el.current.x,
                           candidate.box.bottomMiddle.y - el.newBox.height,
                           ...el.newBox.size.raw,
                         ]),
@@ -205,10 +204,11 @@ export class Aligner extends DiagramExtension {
                       dhl < minVertical
                     ) {
                       minVertical = dhl;
+                      updatedX = true;
                       el.update(
                         new Dimensions([
                           candidate.box.x,
-                          el.newBox.y,
+                          el.current.y,
                           ...el.newBox.size.raw,
                         ]),
                       );
@@ -232,10 +232,11 @@ export class Aligner extends DiagramExtension {
                       dhc < minVertical
                     ) {
                       minVertical = dhc;
+                      updatedX = true;
                       el.update(
                         new Dimensions([
                           candidate.box.middle.x - el.newBox.width / 2,
-                          el.newBox.y,
+                          el.current.y,
                           ...el.newBox.size.raw,
                         ]),
                       );
@@ -262,11 +263,11 @@ export class Aligner extends DiagramExtension {
                       dhr < minVertical
                     ) {
                       minVertical = dhr;
-                      ev.stopImmediatePropagation();
+                      updatedX = true;
                       el.update(
                         new Dimensions([
                           candidate.box.rightMiddle.x - el.newBox.width,
-                          el.newBox.y,
+                          el.current.y,
                           ...el.newBox.size.raw,
                         ]),
                       );
@@ -274,17 +275,15 @@ export class Aligner extends DiagramExtension {
                   }
                 }
               }
-            }
 
-            /*
-          if (this.diagram?.snapToGrid) {
-            this.state.box.x =
-              Math.round(this.state.box.x / this.diagram.gridSize) *
-              this.diagram.gridSize;
-            this.state.box.y =
-              Math.round(this.state.box.y / this.diagram.gridSize) *
-              this.diagram.gridSize;
-          }*/
+              if (updatedX) {
+                el.lockX();
+              }
+
+              if (updatedY) {
+                el.lockY();
+              }
+            }
 
             Object.entries(proposals).forEach(([type, proposal]) => {
               runInAction(() => {

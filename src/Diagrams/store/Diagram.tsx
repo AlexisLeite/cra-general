@@ -25,6 +25,7 @@ import { Measurer } from './tools/Measurer';
 import { Selector } from './tools/Selector';
 import { NodesConnector } from './tools/NodesConnector';
 import { DDeleteNodeEvent } from './elements/Events';
+import { GridSnap } from './tools/GridSnap';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -37,6 +38,7 @@ const DefaultExtensions = Object.freeze({
   Measurer,
   Selector,
   NodesConnector,
+  GridSnap,
 });
 
 export type TDefaultExensions = {

@@ -8,7 +8,7 @@ import type { TDirection } from '../../types';
 import { Node } from '../../elements/Node';
 import { EdgePoint, type TEdgePointType } from '../../elements/EdgePoint';
 import { arePointsAligned } from '../../../components/objects/RenderEdge/util';
-import { Aligner } from '../Aligner';
+import { GridSnap } from '../GridSnap';
 
 export type Path = { x: number; y: number }[];
 
@@ -380,14 +380,14 @@ export function findBestPathBetweenNodes(
   A: Gateway,
   B: Gateway,
 ): Coordinates[] {
-  const aligner = diagram.getExtension(Aligner);
+  const snap = diagram.getExtension(GridSnap);
 
-  let res = _findBestPathBetweenNodes(aligner.gridSize || 50, A, B);
+  let res = _findBestPathBetweenNodes(snap.gridSize || 50, A, B);
   if (res) {
     return res;
   }
 
-  res = _findBestPathBetweenNodes((aligner.gridSize || 50) / 2, A, B);
+  res = _findBestPathBetweenNodes((snap.gridSize || 50) / 2, A, B);
   if (res) {
     return res;
   }

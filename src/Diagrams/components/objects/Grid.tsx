@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { makeBackScalableComponent } from './makeScalableComponent';
-import { Aligner } from '../../store/tools/Aligner';
+import { GridSnap } from '../../store/tools/GridSnap';
 
 // Define the factor for the major line spacing (e.g., every 10 minor lines)
 const MAJOR_GRID_FACTOR = 10;
@@ -9,13 +9,13 @@ const MAJOR_GRID_FACTOR = 10;
 export const Grid = makeBackScalableComponent(
   observer(() => {
     const d = Diagram.use();
-    const aligner = d.getExtension(Aligner);
+    const snap = d.getExtension(GridSnap);
 
-    if (!d.showGrid || !aligner) {
+    if (!d.showGrid || !snap) {
       return null;
     }
 
-    const minorGridSize = aligner.gridSize; // e.g., 50
+    const minorGridSize = snap.gridSize; // e.g., 50
     const majorGridSize = minorGridSize * MAJOR_GRID_FACTOR; // e.g., 500
     const size = d.canvas.size.x; // Used to size the main coverage rect
 
