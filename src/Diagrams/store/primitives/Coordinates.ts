@@ -2,7 +2,7 @@ import { action, makeObservable, toJS } from 'mobx';
 import { Dimensions } from './Dimensions';
 import type { TDirection } from '../types';
 import type { DirectedPoint } from './DirectedPoint';
-import { type AnyMouseEvent, DChangeEvent } from '../elements/Events';
+import { type AnyMouseEvent, DMouseEvent } from '../elements/Events';
 
 async function getDirectedClass() {
   return (await import('./DirectedPoint')).DirectedPoint;
@@ -20,7 +20,7 @@ export class Coordinates {
   protected _data: number[] = [];
 
   constructor(
-    items?: DChangeEvent | AnyMouseEvent | Event | Coordinates | number[],
+    items?: DMouseEvent | AnyMouseEvent | Event | Coordinates | number[],
     observable = true,
   ) {
     if (C === null) {
@@ -41,7 +41,7 @@ export class Coordinates {
       this._data = [...items];
     } else if (items instanceof Coordinates) {
       this._data = [...items._data];
-    } else if (items instanceof DChangeEvent) {
+    } else if (items instanceof DMouseEvent) {
       this._data = [items.originalEvent.clientX, items.originalEvent.clientY];
     } else if ((items as MouseEvent).clientX !== undefined) {
       this._data = [

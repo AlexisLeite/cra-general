@@ -9,6 +9,6 @@ export abstract class DiagramExtension extends Element {
   public abstract init(): void;
 
   public get diagram(): Diagram {
-    return super.diagram!;
+    return this.parent;
   }
 }

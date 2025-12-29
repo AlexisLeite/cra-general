@@ -239,6 +239,36 @@ export abstract class DChangeEvent extends DEvent {
   declare protected readonly __brand: void;
 }
 
+export abstract class DNodesConnectionEvent extends DChangeEvent {
+  declare protected readonly __brand: void;
+}
+
+/**
+ * This event is fired when a connection is started by the user.
+ */
+export class DNodeConnectionIntentEvent extends DNodesConnectionEvent {
+  constructor(
+    src: Element,
+    public origin: Node<any>,
+  ) {
+    super(src);
+  }
+}
+
+/**
+ * This event is fired when a connection is finishd after the mouse up
+ * by the user.
+ */
+export class DNodesConnectActionEvent extends DNodesConnectionEvent {
+  constructor(
+    src: Element,
+    public origin: Node<any>,
+    public target: Node<any>,
+  ) {
+    super(src);
+  }
+}
+
 export class DDeleteNodeEvent extends DChangeEvent {
   declare protected readonly __brand: void;
 
@@ -346,26 +376,30 @@ export class DDragNodeEvent extends DDragEvent {
   }
 }
 
-(window as any).devent = {};
-(window as any).devent.DEvent = DEvent;
-(window as any).devent.DUIEvent = DUIEvent;
-(window as any).devent.DMouseEvent = DMouseEvent;
-(window as any).devent.DClickEvent = DClickEvent;
-(window as any).devent.DMouseDownEvent = DMouseDownEvent;
-(window as any).devent.DMouseUpEvent = DMouseUpEvent;
-(window as any).devent.DMouseMoveEvent = DMouseMoveEvent;
-(window as any).devent.DWheelEvent = DWheelEvent;
-(window as any).devent.DKeyboardEvent = DKeyboardEvent;
-(window as any).devent.DKeyDownEvent = DKeyDownEvent;
-(window as any).devent.DKeyUpEvent = DKeyUpEvent;
-(window as any).devent.DKeyPressEvent = DKeyPressEvent;
-(window as any).devent.DCanvasEvent = DCanvasEvent;
-(window as any).devent.DScaleEvent = DScaleEvent;
-(window as any).devent.DChangeEvent = DChangeEvent;
-(window as any).devent.DSelectionEvent = DSelectionEvent;
-(window as any).devent.DNodeSelectionEvent = DNodeSelectionEvent;
-(window as any).devent.DEdgeSelectionEvent = DEdgeSelectionEvent;
-(window as any).devent.DDragEvent = DDragEvent;
-(window as any).devent.DEdgeDragStartEvent = DEdgeDragStartEvent;
-(window as any).devent.DDragProposalEvent = DDragNodeEvent;
-(window as any).devent.DDeleteNodeEvent = DDeleteNodeEvent;
+(window as any).devent = {
+  DEvent,
+  DUIEvent,
+  DMouseEvent,
+  DClickEvent,
+  DMouseDownEvent,
+  DMouseUpEvent,
+  DMouseMoveEvent,
+  DWheelEvent,
+  DKeyboardEvent,
+  DKeyDownEvent,
+  DKeyUpEvent,
+  DKeyPressEvent,
+  DCanvasEvent,
+  DScaleEvent,
+  DChangeEvent,
+  DSelectionEvent,
+  DNodeSelectionEvent,
+  DEdgeSelectionEvent,
+  DDragEvent,
+  DEdgeDragStartEvent,
+  DDragNodeEvent,
+  DDeleteNodeEvent,
+  DNodesConnectionEvent,
+  DNodeConnectionIntentEvent,
+  DNodesConnectActionEvent,
+};

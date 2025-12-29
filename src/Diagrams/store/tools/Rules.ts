@@ -6,6 +6,7 @@ import {
   DDragEvent,
   DEvent,
   DCanvasEvent,
+  DNodesConnectionEvent,
 } from '../elements/Events';
 
 export class Rules {
@@ -33,6 +34,12 @@ export class Rules {
       DDragEvent,
       this.check(() => this.allowEdition),
       d.priorities.Drag_Rules,
+    );
+
+    d.onEvent(
+      DNodesConnectionEvent,
+      this.check(() => this.allowEdition),
+      d.priorities.Nodes_Connection_Rules,
     );
 
     d.onEvent(

@@ -4,12 +4,12 @@ import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Mouse } from '../../util/Mouse';
 import {
-    DDragNodeEvent,
-    DMouseDownEvent,
-    NodePositionProposal,
-    DScaleEvent,
-    DDeleteNodeEvent,
-    DMouseUpEvent,
+  DDragNodeEvent,
+  DMouseDownEvent,
+  NodePositionProposal,
+  DScaleEvent,
+  DDeleteNodeEvent,
+  DMouseUpEvent,
 } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
 import { Selector } from './Selector';

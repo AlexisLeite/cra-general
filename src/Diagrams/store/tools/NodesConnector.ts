@@ -9,9 +9,15 @@ import {
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import type { TDirection } from '../types';
-import { bind, documentBind } from '../../util/bindCb';
+import { bind, diagramBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
 import { Aligner } from './Aligner';
+import {
+  DMouseMoveEvent,
+  DMouseUpEvent,
+  DNodeConnectionIntentEvent,
+  DNodesConnectActionEvent,
+} from '../elements/Events';
 
 export class NodesConnector extends DiagramExtension {
   init() {
@@ -130,18 +136,22 @@ export class NodesConnector extends DiagramExtension {
 
   protected u = () => {};
   startConnectionFrom(gateway: Gateway, ev: RMEv) {
-    ev.nativeEvent.stopImmediatePropagation();
-    this.startGateway = gateway;
-    this.arrowTo = new Coordinates(ev);
+    if (
+      !this.emit(new DNodeConnectionIntentEvent(this, gateway.parent)).cancelled
+    ) {
+      ev.nativeEvent.stopImmediatePropagation();
+      this.startGateway = gateway;
+      this.arrowTo = new Coordinates(ev);
 
-    this.u();
-    this.u = bind(
-      documentBind(this, 'mousemove', this.handleMouseMove),
-      documentBind(this, 'mouseup', this.handleMouseUp),
-    );
+      this.u();
+      this.u = bind(
+        diagramBind(this, DMouseMoveEvent, this.handleMouseMove),
+        diagramBind(this, DMouseUpEvent, this.handleMouseUp),
+      );
+    }
   }
 
-  protected handleMouseMove(ev: MouseEvent) {
+  protected handleMouseMove(ev: DMouseMoveEvent) {
     const box = this.diagram.canvas.frameDimensions;
     this.arrowTo = new Coordinates(ev);
     const displacementPoint = this.arrowTo
@@ -219,7 +229,17 @@ export class NodesConnector extends DiagramExtension {
         this.candidateGateway.canConnect(this.startGateway) &&
         this.arrowSteps.length
       ) {
-        this.diagram.connect(this.startGateway, this.candidateGateway);
+        if (
+          !this.emit(
+            new DNodesConnectActionEvent(
+              this,
+              this.startGateway.parent,
+              this.candidateGateway.parent,
+            ),
+          ).cancelled
+        ) {
+          this.diagram.connect(this.startGateway, this.candidateGateway);
+        }
       }
     } finally {
       this._arrowSteps = [];
