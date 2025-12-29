@@ -103,13 +103,13 @@ export class Selector extends DiagramExtension {
   }
 
   selectNode(n: Node<any>) {
-    if (n.select()) {
+    if (n.canSelect()) {
       this._selection.add(n);
     }
   }
 
   unselectNode(n: Node<any>) {
-    if (n.unselect()) {
+    if (n.canUnselect()) {
       this._selection.delete(n);
     }
   }

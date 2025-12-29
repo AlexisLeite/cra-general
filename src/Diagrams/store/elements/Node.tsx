@@ -215,7 +215,7 @@ export class Node<Gateways = TDirection> extends Element {
     };
   }
 
-  select() {
+  canSelect() {
     if (
       !this.state.selected &&
       this.state.selectable !== false &&
@@ -229,7 +229,7 @@ export class Node<Gateways = TDirection> extends Element {
     return false;
   }
 
-  unselect() {
+  canUnselect() {
     if (
       this.state.selected &&
       !this.emit(new DNodeSelectionEvent(this, false)).cancelled

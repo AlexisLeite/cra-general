@@ -4,6 +4,7 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import { DClickEvent } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
+import { Selector } from './Selector';
 
 export type TCreationMode = 'none' | 'text';
 
@@ -45,7 +46,7 @@ export class Creator extends DiagramExtension {
               ]),
             }),
           );
-          node.select();
+          this.diagram.getExtension(Selector).selectNode(node);
         }
       }
     }

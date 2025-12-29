@@ -1,5 +1,14 @@
 import type { PropsWithChildren } from 'react';
 
 export function Toolbar({ children }: PropsWithChildren) {
-  return <div className="toolbar">{children}</div>;
+  return (
+    <div
+      onMouseDown={(ev) => {
+        ev.nativeEvent.stopImmediatePropagation();
+      }}
+      className="toolbar"
+    >
+      {children}
+    </div>
+  );
 }
