@@ -15,7 +15,7 @@
   --node-stroke: #9ca3af;
   /* strong separation */
   --node-color: #ffffff;
-  --node-font-size: 18px;
+  --node-font-size: 12px;
 
   /* Edges */
   --edge-stroke: rgb(180, 185, 195);
@@ -111,6 +111,7 @@ body.light {
 .canvas__frame {
   background: var(--bg);
   overflow: hidden;
+  user-select: none;
 }
 
 .canvas__frame .foreground {

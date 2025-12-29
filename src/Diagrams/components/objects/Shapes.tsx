@@ -9,6 +9,7 @@ import { GatewayRender } from '../extra/GatewayRender';
 import { makeScalableComponent } from './makeScalableComponent';
 import { RenderCustomRenderers } from './CustomRenderers';
 import { Selector } from '../../store/tools/Selector';
+import { runInAction } from 'mobx';
 
 const ShapeWrap = observer(({ node }: { node: Node }) => {
   if (!node.parent) {
@@ -28,8 +29,16 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
               fill: node.state.fill,
             },
           ]}
-          onMouseOver={() => (node.state.hover = true)}
-          onMouseOut={() => (node.state.hover = false)}
+          onMouseOver={() => {
+            runInAction(() => {
+              node.state.hover = true;
+            });
+          }}
+          onMouseOut={() => {
+            runInAction(() => {
+              node.state.hover = false;
+            });
+          }}
           className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
           label={node.state.label}
           labelOffset={node.coordinates.sum(node.box.size.half)}

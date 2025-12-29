@@ -4,11 +4,11 @@ import { Coordinates } from '../../primitives/Coordinates';
 import { getPathAroundNode } from './getPathAroundNode';
 import { pathCollidesNodes } from './pathCollidesNodes';
 import { stepFromGateway } from './stepBackFromGateway';
-import type { TDirection } from '../../types';
 import { Node } from '../../elements/Node';
 import { EdgePoint, type TEdgePointType } from '../../elements/EdgePoint';
 import { arePointsAligned } from '../../../components/objects/RenderEdge/util';
 import { GridSnap } from '../GridSnap';
+import type { TDirection } from '../../types';
 
 export type Path = { x: number; y: number }[];
 
@@ -20,213 +20,155 @@ function filterUndefined(x: any) {
   return x !== undefined;
 }
 
-function findBestPathBetweenPoints(
-  origin: Coordinates,
-  target: Coordinates,
-  {
-    checkCollisions,
-    gridSize,
-    preferOrientation,
-    startGateway: A,
-    targetGateway: B,
-  }: {
-    checkCollisions?: Node[];
-    gridSize: number;
-    preferOrientation: TDirection;
-    startGateway?: Gateway;
-    targetGateway?: Gateway;
-  },
-) {
-  const gateA = A?.coordinates;
-  const gateB = B?.coordinates;
+type PathFinderContext = {
+  origin: Coordinates;
+  target: Coordinates;
+  gateA?: Coordinates;
+  gateB?: Coordinates;
+  gridSize: number;
+  checkCollisions: Node[];
+  startGateway?: Gateway;
+  targetGateway?: Gateway;
+};
 
-  /**
-   * 2 - Half horizontal, vertical, half horizontal
-   */
+type PathFinder = (ctx: PathFinderContext) => Coordinates[] | null;
 
-  const path2 = [
+export const pathHalfHorizontalVertical: PathFinder = ({
+  origin,
+  target,
+  gateA,
+  gateB,
+  checkCollisions,
+}) => {
+  const path = [
     origin,
     new Coordinates([(origin.x + target.x) / 2, origin.y]),
     new Coordinates([(origin.x + target.x) / 2, target.y]),
     target,
   ];
+  return !pathCollidesNodes(path, checkCollisions)
+    ? filter([gateA, ...path, gateB])
+    : null;
+};
 
-  if (!pathCollidesNodes(path2, checkCollisions || [])) {
-    return filter([gateA, ...path2, gateB]);
-  }
-
-  /**
-   * 3 - Half vertical, horizontal, half vertical
-   */
-
-  const path3 = [
+export const pathHalfVerticalHorizontal: PathFinder = ({
+  origin,
+  target,
+  gateA,
+  gateB,
+  checkCollisions,
+}) => {
+  const path = [
     origin,
     new Coordinates([origin.x, (origin.y + target.y) / 2]),
     new Coordinates([target.x, (origin.y + target.y) / 2]),
     target,
   ];
+  return !pathCollidesNodes(path, checkCollisions)
+    ? filter([gateA, ...path, gateB])
+    : null;
+};
 
-  if (!pathCollidesNodes(path3, checkCollisions || [])) {
-    return filter([gateA, ...path3, gateB]);
-  }
+export const pathHorizontalThenVertical: PathFinder = ({
+  origin,
+  target,
+  gateA,
+  gateB,
+  checkCollisions,
+}) => {
+  const path = filter([origin, new Coordinates([target.x, origin.y]), target]);
+  return !pathCollidesNodes(path, checkCollisions)
+    ? filter([gateA, ...path, gateB])
+    : null;
+};
 
-  /**
-   * Path 0 and 1 are inverted in case the gateway is vertical
-   */
+export const pathVerticalThenHorizontal: PathFinder = ({
+  origin,
+  target,
+  gateA,
+  gateB,
+  checkCollisions,
+}) => {
+  const path = filter([origin, new Coordinates([origin.x, target.y]), target]);
+  return !pathCollidesNodes(path, checkCollisions)
+    ? filter([gateA, ...path, gateB])
+    : null;
+};
 
-  /**
-   * For every pair of nodes, we must choose the first of the following that doesn't have any collision:
-   *
-   * 0 - Horizontal, then vertical
-   */
+export const pathAroundStartGateway =
+  (side: 'a' | 'b', scale: 'vertical' | 'horizontal'): PathFinder =>
+  ({ target, gateB, startGateway, gridSize, checkCollisions }) => {
+    if (!startGateway) return null;
+    const around = getPathAroundNode(gridSize, startGateway, side);
+    const last = around.at(-1)!;
+    const scaled =
+      scale === 'vertical'
+        ? new Coordinates([last.x, target.y])
+        : new Coordinates([target.x, last.y]);
+    const path = filter([...around, scaled, target]);
+    return !pathCollidesNodes(path.slice(1), checkCollisions)
+      ? filter([...path, gateB])
+      : null;
+  };
 
-  function checkPath0() {
-    const path0 = filter([
-      origin,
-      new Coordinates([target.x, origin.y]),
-      target,
-    ]);
-
-    if (!pathCollidesNodes(path0, checkCollisions || [])) {
-      return filter([gateA, ...path0, gateB]);
-    }
-    return null;
-  }
-
-  /**
-   * 1 - Vertical, then horizontal
-   */
-  function checkPath1() {
-    const path1 = filter([
-      origin,
-      new Coordinates([origin.x, target.y]),
-      target,
-    ]);
-
-    if (!pathCollidesNodes(path1, checkCollisions || [])) {
-      return filter([gateA, ...path1, gateB]);
-    }
-
-    return null;
-  }
-
-  switch (preferOrientation) {
-    case 'up':
-    case 'down':
-      {
-        const path1 = checkPath1();
-        if (path1) {
-          return path1;
-        }
-        const path0 = checkPath0();
-        if (path0) {
-          return path0;
-        }
-      }
-      break;
-    case 'left':
-    case 'right':
-      {
-        const path0 = checkPath0();
-        if (path0) {
-          return path0;
-        }
-
-        const path1 = checkPath1();
-        if (path1) {
-          return path1;
-        }
-      }
-      break;
-  }
-
-  if (A && B) {
-    /**
-     * 4 - Go around start node to side A, scale Vertical
-     */
-
-    let around = getPathAroundNode(gridSize, A, 'a');
-    const path4 = filter([
-      ...around,
-      new Coordinates([around.at(-1)!.x, target.y]),
-      target,
-    ]);
-
-    if (!pathCollidesNodes(path4.slice(1), checkCollisions || [])) {
-      return filter([...path4, gateB]);
-    }
-
-    /**
-     * 4_1 - Go around start node to side A, scale Horizontal
-     */
-
-    around = getPathAroundNode(gridSize, A, 'a');
-    const path4_1 = filter([
-      ...around,
-      new Coordinates([target.x, around.at(-1)!.y]),
-      target,
-    ]);
-
-    if (!pathCollidesNodes(path4_1.slice(1), checkCollisions || [])) {
-      return filter([...path4_1, gateB]);
-    }
-
-    /**
-     * 5 - Go around start node to side B, scale Vertical
-     */
-
-    around = getPathAroundNode(gridSize, A, 'b');
-    const path5 = filter([
-      ...around,
-      new Coordinates([around.at(-1)!.x, target.y]),
-      target,
-    ]);
-
-    if (!pathCollidesNodes(path5.slice(1), checkCollisions || [])) {
-      return filter([...path5, gateB]);
-    }
-
-    /**
-     * 5_1 - Go around start node to side B, scale Horizontal
-     */
-
-    around = getPathAroundNode(gridSize, A, 'b');
-    const path5_1 = filter([
-      ...around,
-      new Coordinates([target.x, around.at(-1)!.y]),
-      target,
-    ]);
-
-    if (!pathCollidesNodes(path5_1.slice(1), checkCollisions || [])) {
-      return filter([...path5_1, gateB]);
-    }
-
-    /**
-     * 6 - Go around end node to side A, scale Vertical
-     */
-    around = getPathAroundNode(gridSize, B, 'a').reverse();
-    const path6 = filter([
+export const pathAroundEndGateway =
+  (side: 'a' | 'b'): PathFinder =>
+  ({ origin, gateA, targetGateway, gridSize, checkCollisions }) => {
+    if (!targetGateway) return null;
+    const around = getPathAroundNode(gridSize, targetGateway, side).reverse();
+    const path = filter([
       origin,
       new Coordinates([around[0].x, origin.y]),
       ...around,
     ]);
+    return !pathCollidesNodes(path.slice(0, -1), checkCollisions)
+      ? filter([gateA, ...path])
+      : null;
+  };
 
-    if (!pathCollidesNodes(path6.slice(0, -1), checkCollisions || [])) {
-      return filter([gateA, ...path6]);
-    }
-    /**
-     * 6_1 - Go around end node to side A, scale Horizontal
-     */
-    around = getPathAroundNode(gridSize, B, 'b').reverse();
-    const path6_1 = filter([
-      origin,
-      new Coordinates([around[0].x, origin.y]),
-      ...around,
-    ]);
+export const DEFAULT_PATH_STRATEGY: PathFinder[] = [
+  pathHalfHorizontalVertical,
+  pathHalfVerticalHorizontal,
+  pathVerticalThenHorizontal,
+  pathHorizontalThenVertical,
+  pathAroundStartGateway('a', 'vertical'),
+  pathAroundStartGateway('a', 'horizontal'),
+  pathAroundStartGateway('b', 'vertical'),
+  pathAroundStartGateway('b', 'horizontal'),
+  pathAroundEndGateway('a'),
+  pathAroundEndGateway('b'),
+];
 
-    if (!pathCollidesNodes(path6_1.slice(0, -1), checkCollisions || [])) {
-      return filter([gateA, ...path6_1]);
-    }
+export function findBestPathBetweenPoints(
+  origin: Coordinates,
+  target: Coordinates,
+  {
+    checkCollisions = [],
+    gridSize,
+    startGateway,
+    targetGateway,
+    pathStrategy = DEFAULT_PATH_STRATEGY,
+  }: {
+    checkCollisions?: Node[];
+    gridSize: number;
+    startGateway?: Gateway;
+    targetGateway?: Gateway;
+    pathStrategy?: PathFinder[];
+  },
+) {
+  const ctx: PathFinderContext = {
+    origin,
+    target,
+    gateA: startGateway?.coordinates,
+    gateB: targetGateway?.coordinates,
+    gridSize,
+    checkCollisions,
+    startGateway,
+    targetGateway,
+  };
+  for (const finder of pathStrategy) {
+    const path = finder(ctx);
+    if (path) return path;
   }
   return null;
 }
@@ -319,6 +261,33 @@ function findDynamicSegments(steps: Coordinates[]): (Segment | EdgePoint)[] {
   return res;
 }
 
+export function getBestStrategy(A: Gateway, B: Gateway): PathFinder[] {
+  const a = A.orientation;
+  const b = B.orientation;
+
+  const hv = pathHorizontalThenVertical;
+  const vh = pathVerticalThenHorizontal;
+
+  const base = DEFAULT_PATH_STRATEGY.filter((p) => p !== hv && p !== vh);
+
+  const isVertical = (o: TDirection) => o === 'up' || o === 'down';
+  const isHorizontal = (o: TDirection) => o === 'left' || o === 'right';
+
+  if (isVertical(a) && isVertical(b)) {
+    return [vh, hv, ...base];
+  }
+
+  if (isHorizontal(a) && isHorizontal(b)) {
+    return [hv, vh, ...base];
+  }
+
+  if (isVertical(a)) {
+    return [vh, hv, ...base];
+  }
+
+  return [hv, vh, ...base];
+}
+
 function _findBestPathBetweenNodes(
   gridSize: number,
   A: Gateway,
@@ -344,7 +313,6 @@ function _findBestPathBetweenNodes(
         c instanceof Coordinates
           ? c
           : findBestPathBetweenPoints(c.from, c.to, {
-              preferOrientation: B.orientation,
               gridSize,
               checkCollisions: [A.parent, B.parent],
             }),
@@ -367,7 +335,7 @@ function _findBestPathBetweenNodes(
   }
 
   return findBestPathBetweenPoints(originSteppedBack, targetSteppedBack, {
-    preferOrientation: B.orientation,
+    pathStrategy: getBestStrategy(A, B),
     gridSize,
     startGateway: A,
     targetGateway: B,

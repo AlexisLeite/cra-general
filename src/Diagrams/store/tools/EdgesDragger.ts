@@ -7,6 +7,7 @@ import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
 import { bind, documentBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
+import { runInAction } from 'mobx';
 
 type DragContext = {
   edge: Edge;
@@ -94,7 +95,9 @@ export class EdgesDragger extends DiagramExtension {
   protected handleMouseUp() {
     if (!this.drag) return;
 
-    this.drag.edge.state.dragging = false;
-    this.drag = null;
+    runInAction(() => {
+      this.drag!.edge.state.dragging = false;
+      this.drag = null;
+    });
   }
 }
