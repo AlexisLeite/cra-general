@@ -13,6 +13,8 @@ import { Toolbar } from './Toolbar';
 import { makeAutoObservable } from 'mobx';
 import { LetterTool } from './tools/LetterTool';
 import { AlignNodesTool } from './tools/AlignNodesTool';
+import { UndoTool } from './tools/UndoTool';
+import { RedoTool } from './tools/RedoTool';
 
 export class ToolsStates {
   static instance = new ToolsStates();
@@ -30,6 +32,9 @@ export const Tools = observer(() => {
       <MoveTool />
       <SelectTool />
       <RulerTool />
+      <Separator />
+      <UndoTool />
+      <RedoTool />
       <Separator />
       <AddTextTool />
       <Separator />

@@ -27,8 +27,8 @@ export class GridSnap extends DiagramExtension {
             e.update(
               new Dimensions([...newCoordinates.raw, ...e.newBox.size.raw]),
             );
-
-            ev.stopImmediatePropagation();
+            e.lockX();
+            e.lockY();
           }
         }
       },

@@ -78,13 +78,11 @@ export class Dragger extends DiagramExtension {
 
   protected originalEvent: DMouseDownEvent | null = null;
   protected handleMouseDown(ev: DMouseDownEvent) {
-    ev.stopImmediatePropagation();
     this.originalEvent = ev;
 
     const node = ev.node;
     if (!ev.cancelled && node && node.selected) {
       ev.cancel();
-      ev.stopImmediatePropagation();
 
       this.draggingNodes.clear();
 

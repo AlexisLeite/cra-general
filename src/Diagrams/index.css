@@ -40,6 +40,7 @@
   --toolbar-tool-border: #020617;
 
   /* Tool states */
+  --tool-disabled-fg: #6d6d6d;
   --tool-selected-bg: #2563eb;
   --tool-active-bg: #1e40af;
 
@@ -91,6 +92,7 @@ body.light {
   --toolbar-tool-border: #cbd5e1;
 
   /* Tool states */
+  --tool-disabled-fg: #ff0000;
   --tool-selected-bg: #e0ecff;
   --tool-active-bg: #c7dbff;
 
@@ -414,6 +416,10 @@ body.light {
     border-radius: 4px;
     color: var(--text);
     transition: background-color 200ms;
+  }
+
+  .tool.disabled path {
+    color: var(--tool-disabled-fg);
   }
 
   .tool.selected {

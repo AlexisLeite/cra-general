@@ -29,6 +29,7 @@ import { GridSnap } from './extensions/GridSnap';
 import { StraightDrag } from './extensions/StraightDrag';
 import { DistancesBalancer } from './extensions/DistancesBalancer';
 import { NodesResizer } from './extensions/NodesResizer';
+import { History } from './extensions/History';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -38,6 +39,7 @@ const DefaultExtensions = Object.freeze({
   Dragger,
   EdgesDragger,
   GridSnap,
+  History,
   Hotkeys,
   Measurer,
   NodesAligner,
@@ -216,6 +218,10 @@ export class Diagram extends Element {
 
   import(w: string) {
     runInAction(() => {
+      for (const node of this._nodes.values()) {
+        this.delete(node);
+      }
+
       const state = JSON.parse(w) as ReturnType<(typeof this)['serialize']>;
       this.canvas.setScale(state.position.scale);
       this.canvas.setDisplacement(

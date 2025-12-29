@@ -3,6 +3,8 @@ const Rules = 1000;
 export class Priorities {
   public Canvas_Rules = Rules;
 
+  public Change_History = 0;
+
   public Click_Node = 100;
 
   public Drag_Rules = Rules;
