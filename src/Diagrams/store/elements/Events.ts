@@ -361,7 +361,7 @@ export class NodePositionProposal {
     public readonly node: Node<any>,
     public newBox: Dimensions,
   ) {
-    this._updated = newBox;
+    this._updated = newBox.copy();
   }
 
   cancel() {
