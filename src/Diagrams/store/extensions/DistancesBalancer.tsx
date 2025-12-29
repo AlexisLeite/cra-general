@@ -58,18 +58,17 @@ export class DistancesBalancer extends DiagramExtension {
             let minRight = Infinity;
 
             for (const candidate of this.diagram.nodes) {
+              const distanceX = el.newBox.edgeDistanceX(candidate.box);
+              const distanceY = el.newBox.edgeDistanceY(candidate.box);
+
               if (
                 candidate.id !== el.node.id &&
-                el.newBox.copy().substract(candidate.box).norm <
-                  extensionBoundary
+                Math.min(distanceX, distanceY) < extensionBoundary
               ) {
-                const distanceX = el.newBox.edgeDistanceX(candidate.box);
-                const distanceY = el.newBox.edgeDistanceY(candidate.box);
-
                 if (distanceY === 0) {
                   if (distanceX < 0) {
                     // It's to the left
-                    if (minLeft > distanceX) {
+                    if (minLeft > -distanceX) {
                       minLeft = -distanceX;
                       minNodeL = candidate;
                     }
@@ -85,7 +84,7 @@ export class DistancesBalancer extends DiagramExtension {
                 if (distanceX === 0) {
                   if (distanceY < 0) {
                     // It's above
-                    if (minTop > distanceY) {
+                    if (minTop > -distanceY) {
                       minTop = -distanceY;
                       minNodeT = candidate;
                     }
