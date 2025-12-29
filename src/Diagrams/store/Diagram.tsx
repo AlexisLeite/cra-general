@@ -28,6 +28,7 @@ import { DDeleteNodeEvent } from './elements/Events';
 import { GridSnap } from './extensions/GridSnap';
 import { StraightDrag } from './extensions/StraightDrag';
 import { DistancesBalancer } from './extensions/DistancesBalancer';
+import { NodesResizer } from './extensions/NodesResizer';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -41,6 +42,7 @@ const DefaultExtensions = Object.freeze({
   Measurer,
   NodesAligner,
   NodesConnector,
+  NodesResizer,
   Selector,
   StraightDrag,
 });
