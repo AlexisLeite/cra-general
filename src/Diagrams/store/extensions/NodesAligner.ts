@@ -188,7 +188,7 @@ export class NodesAligner extends DiagramExtension {
                   }
                 }
 
-                if (distanceY < relevantBoundary) {
+                if (distanceY < extensionBoundary) {
                   if (enabledChecks.HL) {
                     const dhl = d(candidate.box.x, el.newBox.x);
                     if (dhl < relevantBoundary) {
