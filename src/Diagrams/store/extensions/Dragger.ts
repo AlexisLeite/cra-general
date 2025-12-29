@@ -14,7 +14,7 @@ import {
 import { DiagramExtension } from './DiagramExtension';
 import { Dimensions } from '../primitives/Dimensions';
 import { Selector } from './Selector';
-import { bind, bindDiagram, bindInterval } from '../../util/bindCb';
+import { bind, bindDiagram, bindInterval } from '../../util/binders';
 
 /**
  * Conditions for dragging:

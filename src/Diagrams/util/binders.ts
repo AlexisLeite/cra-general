@@ -4,6 +4,7 @@ import {
   type AbstractClass,
 } from '../store/elements/Element';
 import type { Diagram } from '../store/Diagram';
+import { Hotkeys, type THotKey } from '../store/extensions/Hotkeys';
 type Callback = () => void;
 type Unsubscriber = Callback;
 
@@ -21,6 +22,10 @@ export function bindDiagram<X extends DEvent>(
     };
   }
   throw new Error('Cannot bind to unexistent diagram');
+}
+
+export function bindHotkey(target: { diagram: Diagram }, hotkey: THotKey) {
+  return target.diagram.getExtension(Hotkeys).register(hotkey);
 }
 
 export function bindDocument<K extends keyof DocumentEventMap>(

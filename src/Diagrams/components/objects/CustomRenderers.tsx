@@ -3,30 +3,9 @@ import { Diagram } from '../../store/Diagram';
 import { Node } from '../../store/elements/Node';
 
 const RenderNode = observer(({ node }: { node: Node }) => {
-  const R = node.state.Renderer!;
+  const R = node.Renderer!;
 
-  return (
-    <div
-      onMouseOver={() => node.setState('hover', true)}
-      onMouseOut={() => node.setState('hover', false)}
-      key={node.id}
-      data-id={node.id}
-      className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
-      ref={node.useRef.bind(node)}
-      style={{
-        position: 'absolute',
-        left: `${node.box.x}px`,
-        top: `${node.box.y}px`,
-        width: `${node.box.width}px`,
-        height: `${node.box.height}px`,
-        zIndex: node.state.hover ? 2 : 1,
-      }}
-    >
-      <div>
-        <R node={node} />
-      </div>
-    </div>
-  );
+  return <R />;
 });
 
 const RenderNodes = observer(() => {
@@ -35,7 +14,7 @@ const RenderNodes = observer(() => {
   return (
     <>
       {diagram.nodes
-        .filter((c) => c.state.Renderer)
+        .filter((c) => c.Renderer)
         .map((node) => {
           return <RenderNode node={node} key={node.id} />;
         })}

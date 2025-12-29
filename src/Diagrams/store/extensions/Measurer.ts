@@ -1,7 +1,7 @@
 import { makeObservable, observable } from 'mobx';
 import { Coordinates } from '../primitives/Coordinates';
 import { type AnyMouseEvent, DMouseDownEvent } from '../elements/Events';
-import { bind, bindDocument } from '../../util/bindCb';
+import { bind, bindDocument } from '../../util/binders';
 import { DiagramExtension } from './DiagramExtension';
 
 export class Measurer extends DiagramExtension {

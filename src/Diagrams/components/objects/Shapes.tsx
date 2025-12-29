@@ -18,7 +18,7 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
 
   return (
     <>
-      {!node.state.Renderer && (
+      {!node.Renderer && (
         <Shape
           key={node.id}
           paths={[
@@ -39,17 +39,12 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
               node.state.hover = false;
             });
           }}
-          className={`${node.selected ? 'selected' : ''} ${node.state.edition ? 'edition' : ''} diagram__node`}
+          className={node.classList.string}
           label={node.state.label}
           labelOffset={node.coordinates.sum(node.box.size.half)}
           labelFontSize={node.state.labelFontSize ?? 14}
-          ref={node.useRef.bind(node)}
           selected={node.selected}
           data-id={node.id}
-          onDoubleClick={(ev) => {
-            ev.stopPropagation();
-            node.toggleEdition();
-          }}
         />
       )}
       {(node.state.hover || node.selected) &&

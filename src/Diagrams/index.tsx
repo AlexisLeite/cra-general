@@ -1,4 +1,4 @@
-import { Viewer } from './components/Viewer';
+import { Viewer } from './Viewer';
 import { d } from './initializationFunctions';
 
 export const Diagrams = () => {

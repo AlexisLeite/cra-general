@@ -1,4 +1,4 @@
-import { Edge } from '../../store/elements/Edge';
+import { Edge } from '../../../store/elements/Edge';
 
 export class EdgeWithLoad extends Edge {
   setLoad(h: number) {

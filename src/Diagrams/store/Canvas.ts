@@ -6,6 +6,7 @@ import { Element } from './elements/Element';
 import {
   DClickEvent,
   DDisplaceEvent,
+  DDoubleClickEvent,
   DKeyDownEvent,
   DKeyPressEvent,
   DKeyUpEvent,
@@ -15,7 +16,7 @@ import {
   DScaleEvent,
   DWheelEvent,
 } from './elements/Events';
-import { bindDocument } from '../util/bindCb';
+import { bindDocument } from '../util/binders';
 
 export type ScaleEvent = {
   previousScale: number;
@@ -75,6 +76,7 @@ export class Canvas extends Element {
     makeObservable(this, {});
 
     bindDocument(this, 'click', this.handleClick);
+    bindDocument(this, 'dblclick', this.handleDoubleClick);
     bindDocument(this, 'wheel', this.handleWheel);
     bindDocument(this, 'mouseup', this.handleMouseUp);
     bindDocument(this, 'mousedown', this.handleMouseDown);
@@ -265,6 +267,10 @@ export class Canvas extends Element {
         this.setDisplacementStyles();
       }
     }
+  }
+
+  protected handleDoubleClick(originalEvent: MouseEvent) {
+    this.emit(new DDoubleClickEvent(this, originalEvent));
   }
 
   protected handleClick(originalEvent: MouseEvent) {

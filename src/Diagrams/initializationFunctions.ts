@@ -1,15 +1,16 @@
 import { Dimensions } from './store/primitives/Dimensions';
 import { Node } from './store/elements/Node';
 import json from '../saves/temp.json';
-import { TaskNode } from './custom/bpmn/TaskNode';
+import { TaskNode } from './custom/bpmn/nodes/TaskNode';
 import { toJS } from 'mobx';
 import { Diagram } from './store/Diagram';
-import { EdgeWithLoad } from './custom/bpmn/EdgeWithLoad';
+import { EdgeWithLoad } from './custom/bpmn/edges/EdgeWithLoad';
+import { BPMDiagram } from './custom/bpmn/BPMDiagram';
 
 Diagram.registerClass(TaskNode);
 Diagram.registerClass(EdgeWithLoad);
 
-export const d = new Diagram();
+export const d = new BPMDiagram();
 d.setDefaultEdge(EdgeWithLoad);
 
 (window as any).d = d;

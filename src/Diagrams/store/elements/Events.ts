@@ -107,6 +107,10 @@ export class DClickEvent extends DMouseEvent {
   declare protected readonly __brand: void;
 }
 
+export class DDoubleClickEvent extends DMouseEvent {
+  declare protected readonly __brand: void;
+}
+
 export class DMouseDownEvent extends DMouseEvent {
   declare protected readonly __brand: void;
 }
@@ -160,6 +164,10 @@ export abstract class DKeyboardEvent extends DUIEvent {
 
   public get code() {
     return this.originalEvent.code;
+  }
+
+  public get alt() {
+    return this.originalEvent.altKey;
   }
 
   public get ctrl() {
@@ -260,6 +268,8 @@ export class DNodeConnectionIntentEvent extends DNodesConnectionEvent {
  * by the user.
  */
 export class DNodesConnectActionEvent extends DNodesConnectionEvent {
+  declare protected readonly __brand: void;
+
   constructor(
     src: Element,
     public origin: Node<any>,
@@ -267,6 +277,10 @@ export class DNodesConnectActionEvent extends DNodesConnectionEvent {
   ) {
     super(src);
   }
+}
+
+export class DNodeChangeTypeEvent extends DChangeEvent {
+  declare protected readonly __brand: void;
 }
 
 export class DDeleteNodeEvent extends DChangeEvent {
@@ -429,6 +443,7 @@ export class DDragNodeEvent extends DDragEvent {
   DMouseEvent,
   DMouseMoveEvent,
   DMouseUpEvent,
+  DNodeChangeTypeEvent,
   DNodeConnectionIntentEvent,
   DNodeSelectionEvent,
   DNodesConnectActionEvent,

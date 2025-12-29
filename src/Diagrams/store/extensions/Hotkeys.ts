@@ -5,8 +5,20 @@ import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
 import { NodesAligner } from './NodesAligner';
 import { DistancesBalancer } from './DistancesBalancer';
+import type { Callback } from '../elements/Element';
+
+export type THotKey = Partial<{
+  code: string;
+  shift: boolean;
+  ctrl: boolean;
+  alt: boolean;
+}> & {
+  cb: Callback<DKeyDownEvent>;
+};
 
 export class Hotkeys extends DiagramExtension {
+  hotkeys: THotKey[] = [];
+
   private get measurer() {
     return this.diagram.getExtension(Measurer);
   }
@@ -15,9 +27,34 @@ export class Hotkeys extends DiagramExtension {
     return this.diagram.getExtension(Selector);
   }
 
+  private match(ev: DKeyDownEvent, hotkey: THotKey) {
+    if (hotkey.ctrl !== undefined && ev.ctrl !== hotkey.ctrl) {
+      return false;
+    }
+    if (hotkey.shift !== undefined && ev.shift !== hotkey.shift) {
+      return false;
+    }
+    if (hotkey.alt !== undefined && ev.alt !== hotkey.alt) {
+      return false;
+    }
+    if (hotkey.code !== undefined && ev.code !== hotkey.code) {
+      return false;
+    }
+    return true;
+  }
+
   init() {
     this.diagram.onEvent(DKeyDownEvent, (ev) => {
       if (!this.revertHotkey.has(ev.code)) {
+        for (const c of this.hotkeys) {
+          if (this.match(ev, c)) {
+            c.cb(ev);
+            if (!ev.spreads) {
+              return;
+            }
+          }
+        }
+
         switch (ev.code) {
           case 'Space': {
             const measure = this.measurer.enabled;
@@ -76,12 +113,20 @@ export class Hotkeys extends DiagramExtension {
         }
       }
     });
+
     document.addEventListener('keyup', () => {
       for (const k of this.revertHotkey.keys()) {
         this.revertHotkey.get(k)?.();
         this.revertHotkey.delete(k);
       }
     });
+  }
+
+  register(hotkey: THotKey) {
+    this.hotkeys.push(hotkey);
+    return () => {
+      this.hotkeys = this.hotkeys.filter((c) => c !== hotkey);
+    };
   }
 
   protected revertHotkey = new Map<string, () => unknown>();

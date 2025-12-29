@@ -1,5 +1,3 @@
-import type { FC } from 'react';
-import type { Node } from './elements/Node';
 import type { Dimensions } from './primitives/Dimensions';
 import type { Coordinates } from './primitives/Coordinates';
 import type { Gateway } from './elements/Gateway';
@@ -11,11 +9,9 @@ export type TNodeState = {
   box: Dimensions;
   label: string;
 } & Partial<{
-  edition: boolean;
   fill: string;
   labelFontSize: number;
   movable: boolean;
-  Renderer: FC<{ node: Node }>;
   selectable: boolean;
   selected: boolean;
   stroke: string;

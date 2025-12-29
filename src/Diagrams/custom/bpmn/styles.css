@@ -1,0 +1,16 @@
+#Showcase {
+  .collapsible_panel__content {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bpm__node {
+    position: static !important;
+  }
+}
+
+.bpmn__event {
+  justify-self: center;
+  border-radius: 100%;
+}

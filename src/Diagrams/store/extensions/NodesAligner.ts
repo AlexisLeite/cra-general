@@ -3,7 +3,7 @@ import { DDragNodeEvent, DMouseUpEvent } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
 import type { Node } from '../elements/Node';
 import { Dimensions } from '../primitives/Dimensions';
-import { bindDocument } from '../../util/bindCb';
+import { bindDocument } from '../../util/binders';
 
 type Proposal =
   | {

@@ -11,20 +11,22 @@ import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
+import { ClassList } from '../../util/ClassList';
+import { type FC } from 'react';
+
+export type TNodeConstructorProps = Pick<TNodeState, 'id' | 'label'> &
+  Partial<TNodeState>;
 
 export class Node<Gateways = TDirection> extends Element {
   protected _gateways = new Map<Gateways, Gateway>();
-  public ref: SVGElement | HTMLElement | null = null;
   public state: TNodeState;
+  public readonly classList = new ClassList();
 
   public get selected() {
     return this.state.selected;
   }
 
-  constructor(
-    parent: Element | null,
-    state: Pick<TNodeState, 'Renderer' | 'id' | 'label'> & Partial<TNodeState>,
-  ) {
+  constructor(parent: Element | null, state: TNodeConstructorProps) {
     super(parent);
 
     this.state = {
@@ -32,11 +34,12 @@ export class Node<Gateways = TDirection> extends Element {
       box: state.box ?? new Dimensions([0, 0, 100, 80]),
     };
 
+    this.classList.add('diagram__node');
+
     makeObservable<Node<any>, '_gateways'>(this, {
       state: observable,
       selected: computed,
       _gateways: observable,
-      toggleEdition: action,
       setState: action,
     });
 
@@ -156,14 +159,6 @@ export class Node<Gateways = TDirection> extends Element {
     }
   }
 
-  toggleEdition(edition?: boolean) {
-    this.state.edition = edition ?? !this.state.edition;
-  }
-
-  useRef(el: SVGElement | HTMLElement | null) {
-    this.ref = el;
-  }
-
   deserialize(o: ReturnType<(typeof this)['serialize']>) {
     this.state.box.assign(o.box);
     this.state.id = o.id;
@@ -231,4 +226,6 @@ export class Node<Gateways = TDirection> extends Element {
       class: this.constructor.name,
     };
   }
+
+  Renderer: FC | null = null;
 }

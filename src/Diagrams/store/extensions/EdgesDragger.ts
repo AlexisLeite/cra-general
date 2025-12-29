@@ -4,7 +4,7 @@ import { EdgePoint } from '../elements/EdgePoint';
 import { Edge } from '../elements/Edge';
 import { findBestPathBetweenNodes } from '../../util/paths/findBestPathBetweenNodes';
 import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
-import { bind, bindDocument } from '../../util/bindCb';
+import { bind, bindDocument } from '../../util/binders';
 import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
 import { runInAction } from 'mobx';

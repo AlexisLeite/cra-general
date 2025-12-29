@@ -16,7 +16,7 @@ import {
 } from '../elements/Events';
 import { Node } from '../elements/Node';
 import { DiagramExtension } from './DiagramExtension';
-import { bind, bindDiagram } from '../../util/bindCb';
+import { bind, bindDiagram } from '../../util/binders';
 import { Mouse } from '../../util/Mouse';
 
 type SelectionMode = 'area' | 'element';
@@ -61,6 +61,7 @@ export class Selector extends DiagramExtension {
       startPoint: observable,
       toggleSelectionMode: action,
       unselectNode: action,
+      handleMouseUp: action,
     });
 
     this.diagram.onEvent(

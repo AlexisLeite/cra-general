@@ -1,0 +1,28 @@
+.editable__label {
+  background: none;
+  color: inherit;
+  border: none;
+  text-align: center;
+  outline: none;
+  font-size: inherit;
+  font-family: inherit;
+  overflow: visible;
+}
+
+.editable__label::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.editable__label::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editable__label::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.35);
+  border-radius: 4px;
+}
+
+.editable__label::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.6);
+}
