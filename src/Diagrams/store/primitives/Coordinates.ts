@@ -51,7 +51,7 @@ export class Coordinates {
       this._data = [...items];
     } else if (items instanceof Coordinates) {
       this._data = [...items._data];
-    } else if (items instanceof DMouseEvent) {
+    } else if (items instanceof DMouseEvent || items instanceof DDragEvent) {
       this._data = [items.originalEvent.clientX, items.originalEvent.clientY];
     } else if ((items as MouseEvent).clientX !== undefined) {
       this._data = [
