@@ -25,6 +25,9 @@ export class Priorities {
 
   public Nodes_Connection_Rules = Rules;
 
+  public Node_Selection_Nodes_Resizer = 200;
+  public Node_Selection_Selector = 200;
+
   public Scale_Dragger = 100;
 
   public Selection_Rules = Rules;

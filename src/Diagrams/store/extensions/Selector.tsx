@@ -68,15 +68,19 @@ export class Selector extends DiagramExtension {
       this.diagram.priorities.Mouse_Down_Selector,
     );
 
-    this.diagram.onEvent(DNodeSelectionEvent, (ev) => {
-      runInAction(() => {
-        if (ev.selected) {
-          this._selection.add(ev.src);
-        } else {
-          this._selection.delete(ev.src);
-        }
-      });
-    });
+    this.diagram.onEvent(
+      DNodeSelectionEvent,
+      (ev) => {
+        runInAction(() => {
+          if (ev.selected) {
+            this._selection.add(ev.src);
+          } else {
+            this._selection.delete(ev.src);
+          }
+        });
+      },
+      this.diagram.priorities.Node_Selection_Selector,
+    );
 
     this.diagram.onEvent(DDeleteNodeEvent, (ev) => {
       this._selection.delete(ev.node);
