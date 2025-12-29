@@ -115,7 +115,7 @@ export class Dimensions {
   }
 
   get round() {
-    return new Coordinates([
+    return new Dimensions([
       Math.round(this.x),
       Math.round(this.y),
       Math.round(this.width),

@@ -14,7 +14,7 @@ export const Stats = observer(() => {
   const scale = Math.round(d.canvas.scale * 100) / 100;
   const mouse = Mouse.getInstance().coordinates;
   const selected = selector?.selection[0]
-    ? selector?.selection[0].coordinates.copy().round.nonObserved
+    ? selector?.selection[0].box.copy().round
     : null;
 
   const measure = Math.round(measurer?.getMeassurement() || 0);
