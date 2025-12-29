@@ -66,9 +66,11 @@ export class Dragger extends DiagramExtension {
     this.draggingNodes.clear();
     this.draggingNodes.set(node.id, {
       node,
-      startPoint: node.coordinates.copy(),
+      startPoint: node.box.middle,
     });
-    this.startPoint = Mouse.getInstance().coordinates;
+    this.startPoint = Mouse.getInstance().coordinates.sum(
+      node.box.size.divide(2),
+    );
     this.startPointScaled = this.diagram.canvas.inverseFit(this.startPoint);
 
     this.handleDragAction();

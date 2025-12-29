@@ -64,7 +64,7 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
   if (node !== null) {
     d.add(node);
     node.setPosition(
-      d.canvas.inverseFit(Mouse.getInstance().coordinates.substract([0, 0])),
+      d.canvas.inverseFit(Mouse.getInstance().coordinates.substract([100, 50])),
     );
     d.rules.displaceWhenDragOnEdges = false;
     d.getExtension(Dragger)?.startDrag(node);
