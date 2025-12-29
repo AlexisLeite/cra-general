@@ -26,6 +26,8 @@ import { Dimensions } from '../primitives/Dimensions';
 /**
  */
 export class Dragger extends DiagramExtension {
+  private dragThreshold = 10;
+
   init() {
     this.diagram.onEvent(
       DMouseDownEvent,
@@ -126,7 +128,10 @@ export class Dragger extends DiagramExtension {
   protected handleDragInterval() {
     const mouse = Mouse.getInstance().coordinates;
 
-    if (this.draggingNodes.size) {
+    if (
+      this.draggingNodes.size &&
+      mouse.copy().substract(this.startPoint).norm > this.dragThreshold
+    ) {
       if (mouse.x < this.diagram.canvas.frameDimensions.x + 100) {
         const diff = this.calcDisplacement(
           mouse.x - this.diagram.canvas.frameDimensions.x,
