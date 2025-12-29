@@ -6,6 +6,7 @@ import { GridSnap } from './GridSnap';
 import { NodesAligner } from './NodesAligner';
 import { DistancesBalancer } from './DistancesBalancer';
 import type { Callback } from '../elements/Element';
+import { History } from './History';
 
 export type THotKey = Partial<{
   code: string;
@@ -84,6 +85,16 @@ export class Hotkeys extends DiagramExtension {
           case 'KeyS':
             if (!ev.ctrl) {
               this.selector.toggleSelectionMode('area');
+            }
+            break;
+          case 'KeyZ':
+            if (ev.ctrl) {
+              this.diagram.getExtension(History).undo();
+            }
+            break;
+          case 'KeyY':
+            if (ev.ctrl) {
+              this.diagram.getExtension(History).redo();
             }
             break;
           case 'KeyR':

@@ -10,7 +10,7 @@ import { DiagramExtension } from './DiagramExtension';
 import { bind, bindTimeout } from '../../util/binders';
 
 export class History extends DiagramExtension {
-  index = -1;
+  private index = -1;
   private snapshots: string[] = [];
 
   private avoidEvents(cb: () => unknown) {
@@ -40,18 +40,22 @@ export class History extends DiagramExtension {
     );
   }
 
-  next() {
-    this.avoidEvents(() => {
-      this.index = Math.min(this.snapshots.length - 1, this.index + 1);
-      this.diagram.import(this.snapshots[this.index]);
-    });
+  redo() {
+    if (this.hasNext) {
+      this.avoidEvents(() => {
+        this.index = Math.min(this.snapshots.length - 1, this.index + 1);
+        this.diagram.import(this.snapshots[this.index]);
+      });
+    }
   }
 
-  previous() {
-    this.avoidEvents(() => {
-      this.index = Math.max(-1, this.index - 1);
-      this.diagram.import(this.snapshots[this.index] || '{}');
-    });
+  undo() {
+    if (this.hasPrevious) {
+      this.avoidEvents(() => {
+        this.index = Math.max(-1, this.index - 1);
+        this.diagram.import(this.snapshots[this.index] || '{}');
+      });
+    }
   }
 
   get hasNext() {
@@ -63,12 +67,12 @@ export class History extends DiagramExtension {
   }
 
   init() {
-    makeObservable(this, {
+    makeObservable<typeof this, 'index'>(this, {
       index: observable,
       hasNext: computed,
       hasPrevious: computed,
-      previous: action,
-      next: action,
+      redo: action,
+      undo: action,
     });
 
     this.diagram.onEvent(

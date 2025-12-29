@@ -15,7 +15,7 @@ export const RedoTool = observer(function SelectTool() {
     <PiArrowArcRightFill
       className={`tool ${!history.hasNext ? 'disabled' : ''}`}
       onClick={() => {
-        history.next();
+        history.redo();
       }}
       title="Previous"
     />

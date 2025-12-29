@@ -3,6 +3,7 @@ import { Element } from '../../store/elements/Element';
 import { action, makeObservable, observable } from 'mobx';
 import { type FC } from 'react';
 import { EditableNodeContext } from './EditableNodeContext';
+import { DEditNodeEvent } from './events';
 
 export abstract class EditableNode extends Node {
   editionMode = false;
@@ -25,12 +26,19 @@ export abstract class EditableNode extends Node {
   }
 
   public cancel() {
-    this.editionMode = false;
     this.state.label = this.previous as string;
+    this.editionMode = false;
   }
 
   public confirm() {
-    this.editionMode = false;
+    if (
+      this.emit(new DEditNodeEvent(this, this.previous!, this.state.label))
+        .cancelled
+    ) {
+      this.cancel();
+    } else {
+      this.editionMode = false;
+    }
   }
 
   public get isChanged() {

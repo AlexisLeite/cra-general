@@ -15,7 +15,7 @@ export const UndoTool = observer(function SelectTool() {
     <PiArrowArcLeftFill
       className={`tool ${!history.hasPrevious ? 'disabled' : ''}`}
       onClick={() => {
-        history.previous();
+        history.undo();
       }}
       title="Previous"
     />
