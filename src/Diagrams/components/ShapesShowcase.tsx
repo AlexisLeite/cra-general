@@ -2,9 +2,12 @@ import { CollapsiblePanel } from '../layout/CollapsiblePanel';
 import { TaskNode } from '../custom/bpmn/nodes/TaskNode';
 import { Diagram } from '../store/Diagram';
 import { Mouse } from '../util/Mouse';
-import { useRef } from 'react';
+import { useRef, type MouseEvent } from 'react';
 import { Dragger } from '../store/extensions/Dragger';
 import { EventNode } from '../custom/bpmn/nodes/EventNode';
+import { GateNode } from '../custom/bpmn/nodes/GateNode';
+import type { BPMNode } from '../custom/bpmn/nodes/BPMNode';
+import { Selector } from '../store/extensions/Selector';
 
 const maxIds: Record<string, number> = {};
 function getId(diagram: Diagram, prefix: string) {
@@ -17,12 +20,57 @@ function getId(diagram: Diagram, prefix: string) {
 
 const event = new EventNode(null, {
   id: 'event-1',
-  label: 'Event',
+  label: '',
+});
+const gate = new GateNode(null, {
+  id: 'gate-1',
+  label: '',
 });
 const task = new TaskNode(null, {
   id: 'task-1',
-  label: 'Task',
+  label: '',
 });
+
+function createNode(d: Diagram, type: string, ev: MouseEvent) {
+  ev.nativeEvent.stopImmediatePropagation();
+
+  let node: BPMNode | null = null;
+  const id = getId(d, type);
+
+  switch (type) {
+    case 'event':
+      node = new EventNode(null, {
+        id: `event${id}`,
+        label: `Event ${id}`,
+        movable: true,
+      });
+      break;
+    case 'task':
+      node = new TaskNode(null, {
+        id: `task${id}`,
+        label: `Task ${id}`,
+        movable: true,
+      });
+      break;
+    case 'gate':
+      node = new GateNode(null, {
+        id: `gate${id}`,
+        label: ``,
+        movable: true,
+      });
+      break;
+  }
+
+  if (node !== null) {
+    d.add(node);
+    node.setPosition(
+      d.canvas.inverseFit(Mouse.getInstance().coordinates.substract([0, 0])),
+    );
+    d.rules.displaceWhenDragOnEdges = false;
+    d.getExtension(Dragger)?.startDrag(node);
+    d.getExtension(Selector).selectNode(node);
+  }
+}
 
 export const ShapesShowcase = () => {
   const d = Diagram.use();
@@ -46,56 +94,14 @@ export const ShapesShowcase = () => {
         }
       }}
     >
-      <div
-        onMouseDownCapture={(ev) => {
-          ev.nativeEvent.stopImmediatePropagation();
-
-          const id = getId(d, 'task');
-
-          const task = new TaskNode(null, {
-            id: `task${id}`,
-            label: `Task ${id}`,
-            movable: true,
-          });
-
-          d.add(task);
-          task.setPosition(
-            d.canvas.inverseFit(
-              Mouse.getInstance().coordinates.substract([100, 50]),
-            ),
-          );
-          task.setDimentions([200, 100]);
-          d.rules.displaceWhenDragOnEdges = false;
-
-          d.getExtension(Dragger)?.startDrag(task);
-        }}
-      >
+      <div onMouseDownCapture={createNode.bind(createNode, d, 'task')}>
         <task.Renderer />
       </div>
-      <div
-        onMouseDownCapture={(ev) => {
-          ev.nativeEvent.stopImmediatePropagation();
-
-          const id = getId(d, 'event');
-
-          const event = new EventNode(null, {
-            id: `event${id}`,
-            label: `Event ${id}`,
-            movable: true,
-          });
-
-          d.add(event);
-          event.setPosition(
-            d.canvas.inverseFit(
-              Mouse.getInstance().coordinates.substract([100, 50]),
-            ),
-          );
-
-          d.rules.displaceWhenDragOnEdges = false;
-          d.getExtension(Dragger)?.startDrag(event);
-        }}
-      >
+      <div onMouseDownCapture={createNode.bind(createNode, d, 'event')}>
         <event.Renderer />
+      </div>
+      <div onMouseDownCapture={createNode.bind(createNode, d, 'gate')}>
+        <gate.Renderer />
       </div>
     </CollapsiblePanel>
   );

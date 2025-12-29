@@ -6,15 +6,11 @@ import { customRendererProps } from '../../../components/objects/customRendererP
 import { Coordinates } from '../../../store/primitives/Coordinates';
 import { BPMNode } from './BPMNode';
 import { EditableLabel } from '../../editable/EditableLabel';
+import { getEnumStr } from '../../../util/getEnumStr';
 
 export enum EventTypes {
   start,
   end,
-}
-
-type EnumType = Record<string, any>;
-function getEnumStr(theEnum: EnumType, index: number) {
-  return `bpmn__event__${theEnum[index]}`;
 }
 
 export type TEventNodeType = EventTypes;
