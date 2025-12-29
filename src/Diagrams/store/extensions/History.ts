@@ -10,6 +10,9 @@ import { DiagramExtension } from './DiagramExtension';
 import { bind, bindTimeout } from '../../util/binders';
 
 export class History extends DiagramExtension {
+  private readonly windowTime = 100;
+  private readonly maxSize = 50;
+
   private index = -1;
   private snapshots: string[] = [];
 
@@ -34,9 +37,13 @@ export class History extends DiagramExtension {
         runInAction(() => {
           this.snapshots.splice(this.index + 1);
           this.snapshots.push(this.diagram.export());
+          this.snapshots.splice(
+            0,
+            Math.max(0, this.snapshots.length - this.maxSize),
+          );
           this.index = this.snapshots.length - 1;
         });
-      }, 100),
+      }, this.windowTime),
     );
   }
 
