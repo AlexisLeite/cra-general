@@ -14,7 +14,10 @@ export const AddTextTool = observer(function AddTextTool() {
   return (
     <IoText
       className={`tool ${creator.creationMode === 'text' ? 'selected' : ''}`}
-      onClick={() => (creator.creationMode = 'text')}
+      onClick={(ev) => {
+        ev.nativeEvent.stopImmediatePropagation();
+        creator.creationMode = 'text';
+      }}
       title="Add text"
     />
   );
