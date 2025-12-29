@@ -75,12 +75,12 @@ export class Dimensions {
     return this.get(1);
   }
 
-  get width() {
-    return this.get(2);
-  }
-
   get height() {
     return this.get(3);
+  }
+
+  get width() {
+    return this.get(2);
   }
 
   set x(value: number) {
@@ -91,16 +91,12 @@ export class Dimensions {
     this.set(1, value);
   }
 
-  set width(value: number) {
-    this.set(2, value);
-  }
-
   set height(value: number) {
     this.set(3, value);
   }
 
-  get(i: number) {
-    return this._data[i];
+  set width(value: number) {
+    this.set(2, value);
   }
 
   /**
@@ -231,10 +227,6 @@ export class Dimensions {
     return new Dimensions([this.x, this.y, this.width, this.height]);
   }
 
-  set(i: number, value: number) {
-    this._data[i] = value;
-  }
-
   divide(this: Dimensions, factor: number) {
     this.set(0, this.get(0) / factor);
     this.set(1, this.get(1) / factor);
@@ -244,6 +236,10 @@ export class Dimensions {
     return this;
   }
 
+  get(i: number) {
+    return this._data[i];
+  }
+
   multiply(this: Dimensions, factor: number) {
     this.set(0, this.get(0) * factor);
     this.set(1, this.get(1) * factor);
@@ -251,6 +247,17 @@ export class Dimensions {
     this.set(3, this.get(3) * factor);
 
     return this;
+  }
+
+  scale(another: Coordinates) {
+    this.set(2, this.get(2) + another.get(0));
+    this.set(3, this.get(3) + another.get(1));
+
+    return this;
+  }
+
+  set(i: number, value: number) {
+    this._data[i] = value;
   }
 
   substract(
@@ -295,21 +302,14 @@ export class Dimensions {
     return this;
   }
 
+  toString() {
+    return `(${this.x}, ${this.y}, ${this.width}, ${this.height})`;
+  }
+
   translate(another: Coordinates) {
     this.set(0, this.get(0) + another.get(0));
     this.set(1, this.get(1) + another.get(1));
 
     return this;
-  }
-
-  scale(another: Coordinates) {
-    this.set(2, this.get(2) + another.get(0));
-    this.set(3, this.get(3) + another.get(1));
-
-    return this;
-  }
-
-  toString() {
-    return `(${this.x}, ${this.y}, ${this.width}, ${this.height})`;
   }
 }
