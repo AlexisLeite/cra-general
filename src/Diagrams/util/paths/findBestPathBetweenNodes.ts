@@ -1,14 +1,14 @@
-import { Diagram } from '../../Diagram';
-import { Gateway } from '../../elements/Gateway';
-import { Coordinates } from '../../primitives/Coordinates';
+import { Diagram } from '../../store/Diagram';
+import { Gateway } from '../../store/elements/Gateway';
+import { Coordinates } from '../../store/primitives/Coordinates';
 import { getPathAroundNode } from './getPathAroundNode';
 import { pathCollidesNodes } from './pathCollidesNodes';
 import { stepFromGateway } from './stepBackFromGateway';
-import { Node } from '../../elements/Node';
-import { EdgePoint, type TEdgePointType } from '../../elements/EdgePoint';
-import { arePointsAligned } from '../../../components/objects/RenderEdge/util';
-import { GridSnap } from '../GridSnap';
-import type { TDirection } from '../../types';
+import { Node } from '../../store/elements/Node';
+import { EdgePoint, type TEdgePointType } from '../../store/elements/EdgePoint';
+import { arePointsAligned } from '../../components/objects/RenderEdge/util';
+import { GridSnap } from '../../store/extensions/GridSnap';
+import type { TDirection } from '../../store/types';
 
 export type Path = { x: number; y: number }[];
 

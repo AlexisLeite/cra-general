@@ -1,4 +1,4 @@
-import { findBestPathBetweenNodes } from '../tools/paths/findBestPathBetweenNodes';
+import { findBestPathBetweenNodes } from '../../util/paths/findBestPathBetweenNodes';
 import type { TGatewayState } from '../types';
 import type { Edge } from './Edge';
 import type { Node } from './Node';

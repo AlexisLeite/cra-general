@@ -1,5 +1,5 @@
-import { Gateway } from '../../elements/Gateway';
-import { Coordinates } from '../../primitives/Coordinates';
+import { Gateway } from '../../store/elements/Gateway';
+import { Coordinates } from '../../store/primitives/Coordinates';
 import { stepFromGateway } from './stepBackFromGateway';
 
 export function getPathAroundNode(

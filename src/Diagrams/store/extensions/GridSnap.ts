@@ -8,7 +8,7 @@ export class GridSnap extends DiagramExtension {
   gridSize = 50;
   snapToGrid = true;
 
-  toggleSnapToGrid() {
+  toggle() {
     this.snapToGrid = !this.snapToGrid;
   }
 
@@ -16,7 +16,7 @@ export class GridSnap extends DiagramExtension {
     makeObservable(this, {
       gridSize: observable,
       snapToGrid: observable,
-      toggleSnapToGrid: action,
+      toggle: action,
     });
 
     this.diagram.onEvent(

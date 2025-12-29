@@ -4,7 +4,7 @@ import { Shape } from '../objects/Shape';
 import { getRectPath } from '../../util/shapes';
 import { Coordinates } from '../../store/primitives/Coordinates';
 import { makeScalableComponent } from '../objects/makeScalableComponent';
-import { Selector } from '../../store/tools/Selector';
+import { Selector } from '../../store/extensions/Selector';
 
 export const Selection = makeScalableComponent(
   observer(() => {

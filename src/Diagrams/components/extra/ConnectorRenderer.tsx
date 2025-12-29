@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { RenderEdge } from '../objects/RenderEdge';
 import { makeScalableComponent } from '../objects/makeScalableComponent';
-import { NodesConnector } from '../../store/tools/NodesConnector';
+import { NodesConnector } from '../../store/extensions/NodesConnector';
 
 export const ConnectorRenderer = makeScalableComponent(
   observer(() => {

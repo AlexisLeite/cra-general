@@ -1,7 +1,7 @@
 import { IoText } from 'react-icons/io5';
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
-import { Creator } from '../../../store/tools/Creator';
+import { Creator } from '../../../store/extensions/Creator';
 
 export const AddTextTool = observer(function AddTextTool() {
   const d = Diagram.use();

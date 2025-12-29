@@ -8,7 +8,7 @@ import { Edge } from '../../store/elements/Edge';
 import { GatewayRender } from '../extra/GatewayRender';
 import { makeScalableComponent } from './makeScalableComponent';
 import { RenderCustomRenderers } from './CustomRenderers';
-import { Selector } from '../../store/tools/Selector';
+import { Selector } from '../../store/extensions/Selector';
 import { runInAction } from 'mobx';
 
 const ShapeWrap = observer(({ node }: { node: Node }) => {

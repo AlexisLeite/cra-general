@@ -1,6 +1,6 @@
-import { Coordinates } from '../../primitives/Coordinates';
-import { Node } from '../../elements/Node';
-import { Dimensions } from '../../primitives/Dimensions';
+import { Coordinates } from '../../store/primitives/Coordinates';
+import { Node } from '../../store/elements/Node';
+import { Dimensions } from '../../store/primitives/Dimensions';
 
 export function pathCollidesNodes(path: Coordinates[], nodes: Node[]): boolean {
   if (path.length < 2 || nodes.length === 0) {

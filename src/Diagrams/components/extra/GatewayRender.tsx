@@ -3,7 +3,7 @@ import { Gateway } from '../../store/elements/Gateway';
 import { Shape } from '../objects/Shape';
 import { getCirclePath } from '../../util/shapes';
 import { Diagram } from '../../store/Diagram';
-import { NodesConnector } from '../../store/tools/NodesConnector';
+import { NodesConnector } from '../../store/extensions/NodesConnector';
 
 export const GatewayRender = observer(({ gateway }: { gateway: Gateway }) => {
   const d = Diagram.use();

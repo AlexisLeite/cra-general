@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
-import { NodesAligner } from '../../store/tools/NodesAligner';
+import { NodesAligner } from '../../store/extensions/NodesAligner';
 import { Shape } from '../objects/Shape';
 import { makeScalableComponent } from '../objects/makeScalableComponent';
 

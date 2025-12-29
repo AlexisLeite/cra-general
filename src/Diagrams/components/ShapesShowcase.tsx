@@ -3,7 +3,7 @@ import { TaskNode } from '../custom/bpmn/TaskNode';
 import { Diagram } from '../store/Diagram';
 import { Mouse } from '../util/Mouse';
 import { useRef } from 'react';
-import { Dragger } from '../store/tools/Dragger';
+import { Dragger } from '../store/extensions/Dragger';
 
 const maxIds: Record<string, number> = {};
 function getId(diagram: Diagram, prefix: string) {

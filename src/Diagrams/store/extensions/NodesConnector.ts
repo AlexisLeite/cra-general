@@ -5,7 +5,7 @@ import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
   findBestPathBetweenNodes,
   type Path,
-} from './paths/findBestPathBetweenNodes';
+} from '../../util/paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import type { TDirection } from '../types';

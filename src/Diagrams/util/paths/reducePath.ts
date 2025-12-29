@@ -1,4 +1,4 @@
-import { Coordinates } from '../../primitives/Coordinates';
+import { Coordinates } from '../../store/primitives/Coordinates';
 
 export function reducePath(points: Coordinates[]): Coordinates[] {
   if (points.length <= 2) return [...points];

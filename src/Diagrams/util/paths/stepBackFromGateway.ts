@@ -1,4 +1,4 @@
-import { Gateway } from '../../elements/Gateway';
+import { Gateway } from '../../store/elements/Gateway';
 
 export function stepFromGateway(gridSize: number, g: Gateway) {
   switch (g.orientation) {

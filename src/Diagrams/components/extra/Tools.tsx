@@ -12,6 +12,7 @@ import { Separator } from './tools/Separator';
 import { Toolbar } from './Toolbar';
 import { makeAutoObservable } from 'mobx';
 import { LetterTool } from './tools/LetterTool';
+import { AlignNodesTool } from './tools/AlignNodesTool';
 
 export class ToolsStates {
   static instance = new ToolsStates();
@@ -33,6 +34,7 @@ export const Tools = observer(() => {
       <AddTextTool />
       <Separator />
       <ShowGridTool />
+      <AlignNodesTool />
       <SnapToGridTool />
       <Separator />
       <DownloadTool />

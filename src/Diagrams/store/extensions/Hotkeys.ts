@@ -3,6 +3,7 @@ import { Measurer } from './Measurer';
 import { Selector } from './Selector';
 import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
+import { NodesAligner } from './NodesAligner';
 
 export class Hotkeys extends DiagramExtension {
   private get measurer() {
@@ -51,12 +52,16 @@ export class Hotkeys extends DiagramExtension {
             this.measurer.toggle();
             break;
           case 'ControlLeft':
+          case 'ControlRight':
             ev.cancel();
             {
-              const aligner = this.diagram.getExtension(GridSnap);
-              aligner?.toggleSnapToGrid();
+              const snaper = this.diagram.getExtension(GridSnap);
+              snaper?.toggle();
+              const aligner = this.diagram.getExtension(NodesAligner);
+              aligner.toggle();
               this.revertHotkey.set(ev.code, () => {
-                aligner?.toggleSnapToGrid();
+                snaper?.toggle();
+                aligner?.toggle();
               });
             }
             break;

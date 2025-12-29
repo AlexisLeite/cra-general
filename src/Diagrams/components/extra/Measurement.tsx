@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { RenderEdge } from '../objects/RenderEdge';
 import { makeScalableComponent } from '../objects/makeScalableComponent';
-import { Measurer } from '../../store/tools/Measurer';
+import { Measurer } from '../../store/extensions/Measurer';
 
 export const Measurement = makeScalableComponent(
   observer(() => {

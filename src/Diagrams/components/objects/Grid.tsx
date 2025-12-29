@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { makeBackScalableComponent } from './makeScalableComponent';
-import { GridSnap } from '../../store/tools/GridSnap';
+import { GridSnap } from '../../store/extensions/GridSnap';
 
 // Define the factor for the major line spacing (e.g., every 10 minor lines)
 const MAJOR_GRID_FACTOR = 10;

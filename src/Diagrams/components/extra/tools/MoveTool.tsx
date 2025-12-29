@@ -1,7 +1,7 @@
 import { TfiHandDrag } from 'react-icons/tfi';
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
-import { Selector } from '../../../store/tools/Selector';
+import { Selector } from '../../../store/extensions/Selector';
 
 export const MoveTool = observer(function MoveTool() {
   const d = Diagram.use();

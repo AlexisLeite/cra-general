@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
 import { Mouse } from '../../util/Mouse';
-import { debug } from '../../store/tools/Debugger';
-import { Measurer } from '../../store/tools/Measurer';
-import { Selector } from '../../store/tools/Selector';
+import { debug } from '../../store/extensions/Debugger';
+import { Measurer } from '../../store/extensions/Measurer';
+import { Selector } from '../../store/extensions/Selector';
 
 export const Stats = observer(() => {
   const d = Diagram.use();
