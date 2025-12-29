@@ -385,6 +385,18 @@ export class NodePositionProposal {
       this._updated.y = this._lockY;
     }
   }
+
+  updateX(x: number) {
+    if (this._lockX === null) {
+      this._updated.x = x;
+    }
+  }
+
+  updateY(y: number) {
+    if (this._lockY === null) {
+      this._updated.y = y;
+    }
+  }
 }
 
 export class DDragNodeEvent extends DDragEvent {
@@ -392,7 +404,7 @@ export class DDragNodeEvent extends DDragEvent {
 
   constructor(
     public src: Element,
-    public elements: NodePositionProposal[],
+    public proposals: NodePositionProposal[],
     originalEvent: AnyMouseEvent,
   ) {
     super(src, originalEvent);

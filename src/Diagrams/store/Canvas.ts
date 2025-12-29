@@ -4,7 +4,6 @@ import { Dimensions } from './primitives/Dimensions';
 import { Diagram } from './Diagram';
 import { Element } from './elements/Element';
 import {
-  type AnyKeyboardEvent,
   DClickEvent,
   DDisplaceEvent,
   DKeyDownEvent,
@@ -81,10 +80,9 @@ export class Canvas extends Element {
     documentBind(this, 'mousedown', this.handleMouseDown);
     documentBind(this, 'mousemove', this.handleMouseMove);
 
-    documentBind(this, 'keydown', this.handleKeyDown);
     documentBind(this, 'keyup', this.handleKeyUp);
     documentBind(this, 'keypress', this.handleKeyPress);
-    documentBind(this, 'keydown', this.keydown);
+    documentBind(this, 'keydown', this.handleKeyDown);
   }
 
   public get dragging() {
@@ -242,10 +240,6 @@ export class Canvas extends Element {
       this.setDisplacementStyles();
     }
   };
-
-  protected keydown(originalEvent: AnyKeyboardEvent) {
-    this.emit(new DKeyDownEvent(this, originalEvent));
-  }
 
   protected handleMouseMove(originalEvent: MouseEvent) {
     const ev = this.emit(new DMouseMoveEvent(this, originalEvent));

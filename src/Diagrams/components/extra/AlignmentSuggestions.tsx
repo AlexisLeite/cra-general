@@ -1,13 +1,13 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../store/Diagram';
-import { Aligner } from '../../store/tools/Aligner';
+import { NodesAligner } from '../../store/tools/NodesAligner';
 import { Shape } from '../objects/Shape';
 import { makeScalableComponent } from '../objects/makeScalableComponent';
 
 export const AlignmentSuggestions = makeScalableComponent(
   observer(() => {
     const d = Diagram.use();
-    const aligner = d.getExtension(Aligner);
+    const aligner = d.getExtension(NodesAligner);
 
     if (!aligner?.proposals.length) {
       return null;

@@ -23,4 +23,12 @@ export class MouseInformation {
   get position() {
     return new Coordinates(this.originalEvent, false);
   }
+
+  get x() {
+    return this.originalEvent.clientX;
+  }
+
+  get y() {
+    return this.originalEvent.clientY;
+  }
 }

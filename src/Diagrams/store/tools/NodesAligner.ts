@@ -24,7 +24,7 @@ function d(a: number, b: number) {
   return Math.abs(a - b);
 }
 
-export class Aligner extends DiagramExtension {
+export class NodesAligner extends DiagramExtension {
   // This is only for reference
   private gridSize = 50;
   proposals: Proposal[] = [];
@@ -60,7 +60,7 @@ export class Aligner extends DiagramExtension {
           const relevantBoundary = (this.gridSize / 5) * 2;
           const attachBoundary = this.gridSize / 3;
 
-          if (ev.elements.length >= 1) {
+          if (ev.proposals.length >= 1) {
             const proposals: Record<
               CandidateType,
               {
@@ -77,7 +77,7 @@ export class Aligner extends DiagramExtension {
               VM: [],
               VT: [],
             };
-            const el = ev.elements[0];
+            const el = ev.proposals[0];
 
             const enabledChecks: Record<CandidateType, boolean> = {
               HL: true,
@@ -99,7 +99,7 @@ export class Aligner extends DiagramExtension {
                 candidate.id !== el.node.id &&
                 el.newBox.copy().substract(candidate.box).norm <
                   extensionBoundary &&
-                !ev.elements.find((c) => c.node.id === candidate.id)
+                !ev.proposals.find((c) => c.node.id === candidate.id)
               ) {
                 if (enabledChecks.VM) {
                   const dvm = d(candidate.box.middle.y, el.newBox.middle.y);

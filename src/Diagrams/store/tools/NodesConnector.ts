@@ -11,13 +11,13 @@ import type { Gateway } from '../elements/Gateway';
 import type { TDirection } from '../types';
 import { bind, diagramBind } from '../../util/bindCb';
 import { DiagramExtension } from './DiagramExtension';
-import { Aligner } from './Aligner';
 import {
   DMouseMoveEvent,
   DMouseUpEvent,
   DNodeConnectionIntentEvent,
   DNodesConnectActionEvent,
 } from '../elements/Events';
+import { GridSnap } from './GridSnap';
 
 export class NodesConnector extends DiagramExtension {
   init() {
@@ -55,8 +55,8 @@ export class NodesConnector extends DiagramExtension {
   // Prevent overlapping expensive computations; skip if one is running
   protected calculating = false;
 
-  protected get aligner() {
-    return this.diagram.getExtension(Aligner);
+  protected get snap() {
+    return this.diagram.getExtension(GridSnap);
   }
 
   protected async calculateArrowSteps() {
@@ -74,7 +74,7 @@ export class NodesConnector extends DiagramExtension {
 
       const arrowTo = this.diagram.canvas
         .inverseFit(this.arrowTo)
-        .divide(this.aligner.gridSize / 2).round;
+        .divide(this.snap.gridSize / 2).round;
 
       if (!this.candidateGateway && this.previousArrowTo) {
         if (arrowTo.copy().substract(this.previousArrowTo).norm < 1) {
@@ -183,7 +183,7 @@ export class NodesConnector extends DiagramExtension {
     const mouseOnPlane = this.diagram.canvas.inverseFit(this.arrowTo);
 
     const candidates = this.diagram.nodes.filter((node) => {
-      const padding = this.aligner.gridSize / 2;
+      const padding = this.snap.gridSize / 2;
 
       return node.box
         .translate(new Coordinates([-padding, -padding]))

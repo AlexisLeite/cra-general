@@ -16,7 +16,7 @@ import { Element, type Class } from './elements/Element';
 import { Priorities } from './tools/Priorities';
 import { Rules } from './tools/Rules';
 import type { DiagramExtension } from './tools/DiagramExtension';
-import { Aligner } from './tools/Aligner';
+import { NodesAligner } from './tools/NodesAligner';
 import { Creator } from './tools/Creator';
 import { Dragger } from './tools/Dragger';
 import { EdgesDragger } from './tools/EdgesDragger';
@@ -26,19 +26,21 @@ import { Selector } from './tools/Selector';
 import { NodesConnector } from './tools/NodesConnector';
 import { DDeleteNodeEvent } from './elements/Events';
 import { GridSnap } from './tools/GridSnap';
+import { StraightDrag } from './tools/StraightDrag';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
 const DefaultExtensions = Object.freeze({
-  Aligner,
   Creator,
   Dragger,
   EdgesDragger,
+  GridSnap,
   Hotkeys,
   Measurer,
-  Selector,
+  NodesAligner,
   NodesConnector,
-  GridSnap,
+  Selector,
+  StraightDrag,
 });
 
 export type TDefaultExensions = {

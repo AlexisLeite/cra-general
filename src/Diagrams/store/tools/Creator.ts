@@ -12,7 +12,7 @@ export class Creator extends DiagramExtension {
 
   init() {
     this.diagram.onEvent(DClickEvent, (ev) => {
-      this.handleMouseUp(ev);
+      this.handleClick(ev);
     });
     makeObservable(this, { creationMode: observable });
   }
@@ -26,7 +26,7 @@ export class Creator extends DiagramExtension {
     return id;
   }
 
-  handleMouseUp(ev: DClickEvent) {
+  handleClick(ev: DClickEvent) {
     if (!ev.cancelled && this.creationMode !== 'none') {
       ev.cancel();
 
