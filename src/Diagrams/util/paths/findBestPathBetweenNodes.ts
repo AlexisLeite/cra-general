@@ -33,7 +33,7 @@ type PathFinderContext = {
 
 type PathFinder = (ctx: PathFinderContext) => Coordinates[] | null;
 
-export const pathHalfHorizontalVertical: PathFinder = ({
+const pathHalfHorizontalVertical: PathFinder = ({
   origin,
   target,
   gateA,
@@ -51,7 +51,7 @@ export const pathHalfHorizontalVertical: PathFinder = ({
     : null;
 };
 
-export const pathHalfVerticalHorizontal: PathFinder = ({
+const pathHalfVerticalHorizontal: PathFinder = ({
   origin,
   target,
   gateA,
@@ -69,7 +69,7 @@ export const pathHalfVerticalHorizontal: PathFinder = ({
     : null;
 };
 
-export const pathHorizontalThenVertical: PathFinder = ({
+const pathHorizontalThenVertical: PathFinder = ({
   origin,
   target,
   gateA,
@@ -82,7 +82,7 @@ export const pathHorizontalThenVertical: PathFinder = ({
     : null;
 };
 
-export const pathVerticalThenHorizontal: PathFinder = ({
+const pathVerticalThenHorizontal: PathFinder = ({
   origin,
   target,
   gateA,
@@ -95,7 +95,7 @@ export const pathVerticalThenHorizontal: PathFinder = ({
     : null;
 };
 
-export const pathAroundStartGateway =
+const pathAroundStartGateway =
   (side: 'a' | 'b', scale: 'vertical' | 'horizontal'): PathFinder =>
   ({ target, gateB, startGateway, gridSize, checkCollisions }) => {
     if (!startGateway) return null;
@@ -111,16 +111,17 @@ export const pathAroundStartGateway =
       : null;
   };
 
-export const pathAroundEndGateway =
-  (side: 'a' | 'b'): PathFinder =>
+const pathAroundEndGateway =
+  (side: 'a' | 'b', scale: 'vertical' | 'horizontal'): PathFinder =>
   ({ origin, gateA, targetGateway, gridSize, checkCollisions }) => {
     if (!targetGateway) return null;
     const around = getPathAroundNode(gridSize, targetGateway, side).reverse();
-    const path = filter([
-      origin,
-      new Coordinates([around[0].x, origin.y]),
-      ...around,
-    ]);
+    const last = around.at(-2)!;
+    const scaled =
+      scale === 'vertical'
+        ? new Coordinates([last.x, origin.y])
+        : new Coordinates([origin.x, last.y]);
+    const path = filter([origin, scaled, ...around]);
     return !pathCollidesNodes(path.slice(0, -1), checkCollisions)
       ? filter([gateA, ...path])
       : null;
@@ -135,11 +136,71 @@ export const DEFAULT_PATH_STRATEGY: PathFinder[] = [
   pathAroundStartGateway('a', 'horizontal'),
   pathAroundStartGateway('b', 'vertical'),
   pathAroundStartGateway('b', 'horizontal'),
-  pathAroundEndGateway('a'),
-  pathAroundEndGateway('b'),
+  pathAroundEndGateway('a', 'vertical'),
+  pathAroundEndGateway('b', 'horizontal'),
 ];
 
-export function findBestPathBetweenPoints(
+const paths = {
+  pathHalfHorizontalVertical,
+  pathHalfVerticalHorizontal,
+  pathHorizontalThenVertical,
+  pathVerticalThenHorizontal,
+  pathAroundStartGateway,
+  pathAroundEndGateway,
+};
+
+function getBestStrategy(A: Gateway, B: Gateway): PathFinder[] {
+  const a = A.orientation;
+  const b = B.orientation;
+
+  const hv = pathHorizontalThenVertical;
+  const vh = pathVerticalThenHorizontal;
+
+  const base = DEFAULT_PATH_STRATEGY.filter((p) => p !== hv && p !== vh);
+
+  const isVertical = (o: TDirection) => o === 'up' || o === 'down';
+  const isHorizontal = (o: TDirection) => o === 'left' || o === 'right';
+
+  if (isVertical(a) && isVertical(b)) {
+    const distance = A.coordinates.x - B.coordinates.x;
+
+    return [
+      paths.pathHalfVerticalHorizontal,
+      paths.pathAroundStartGateway(distance < 0 ? 'a' : 'b', 'horizontal'),
+      paths.pathAroundStartGateway(distance < 0 ? 'b' : 'a', 'horizontal'),
+      paths.pathAroundEndGateway(distance < 0 ? 'b' : 'a', 'horizontal'),
+      paths.pathAroundEndGateway(distance < 0 ? 'a' : 'b', 'horizontal'),
+      paths.pathAroundStartGateway(distance < 0 ? 'a' : 'b', 'vertical'),
+      paths.pathAroundStartGateway(distance < 0 ? 'b' : 'a', 'vertical'),
+      paths.pathAroundEndGateway(distance < 0 ? 'b' : 'a', 'vertical'),
+      paths.pathAroundEndGateway(distance < 0 ? 'a' : 'b', 'vertical'),
+    ];
+  }
+
+  if (isHorizontal(a) && isHorizontal(b)) {
+    const distance = A.coordinates.y - B.coordinates.y;
+
+    return [
+      paths.pathHalfHorizontalVertical,
+      paths.pathAroundEndGateway(distance < 0 ? 'a' : 'b', 'vertical'),
+      paths.pathAroundEndGateway(distance < 0 ? 'b' : 'a', 'vertical'),
+      paths.pathAroundStartGateway(distance < 0 ? 'a' : 'b', 'vertical'),
+      paths.pathAroundStartGateway(distance < 0 ? 'b' : 'a', 'vertical'),
+      paths.pathAroundEndGateway(distance < 0 ? 'a' : 'b', 'horizontal'),
+      paths.pathAroundEndGateway(distance < 0 ? 'b' : 'a', 'horizontal'),
+      paths.pathAroundStartGateway(distance < 0 ? 'a' : 'b', 'horizontal'),
+      paths.pathAroundStartGateway(distance < 0 ? 'b' : 'a', 'horizontal'),
+    ];
+  }
+
+  if (isVertical(a)) {
+    return [vh, hv, ...base];
+  }
+
+  return [hv, vh, ...base];
+}
+
+function findBestPathBetweenPoints(
   origin: Coordinates,
   target: Coordinates,
   {
@@ -207,7 +268,8 @@ function filterResultPath(steps: EdgePoint[]) {
 
     if (
       result.length >= 3 &&
-      arePointsAligned(result.at(-3)!, result.at(-2)!, result.at(-1)!)
+      arePointsAligned(result.at(-3)!, result.at(-2)!, result.at(-1)!) &&
+      result.at(-2)!.mode === 'auto'
     ) {
       result.splice(result.length - 2, 1);
     }
@@ -259,33 +321,6 @@ function findDynamicSegments(steps: Coordinates[]): (Segment | EdgePoint)[] {
   }
 
   return res;
-}
-
-export function getBestStrategy(A: Gateway, B: Gateway): PathFinder[] {
-  const a = A.orientation;
-  const b = B.orientation;
-
-  const hv = pathHorizontalThenVertical;
-  const vh = pathVerticalThenHorizontal;
-
-  const base = DEFAULT_PATH_STRATEGY.filter((p) => p !== hv && p !== vh);
-
-  const isVertical = (o: TDirection) => o === 'up' || o === 'down';
-  const isHorizontal = (o: TDirection) => o === 'left' || o === 'right';
-
-  if (isVertical(a) && isVertical(b)) {
-    return [vh, hv, ...base];
-  }
-
-  if (isHorizontal(a) && isHorizontal(b)) {
-    return [hv, vh, ...base];
-  }
-
-  if (isVertical(a)) {
-    return [vh, hv, ...base];
-  }
-
-  return [hv, vh, ...base];
 }
 
 function _findBestPathBetweenNodes(
