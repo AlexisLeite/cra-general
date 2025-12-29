@@ -51,9 +51,9 @@ export class NodesAligner extends DiagramExtension {
     this.diagram.onEvent(
       DDragNodeEvent,
       (ev) => {
-        if (this.enabled) {
-          this.clear();
+        this.clear();
 
+        if (this.enabled) {
           const extensionBoundary =
             this.diagram.canvas.frameDimensions.norm / 2;
           const relevantBoundary = (this.gridSize / 5) * 2;

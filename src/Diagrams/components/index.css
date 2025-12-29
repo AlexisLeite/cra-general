@@ -47,8 +47,9 @@
   --selection-border: #60a5fa;
   --selection-fill: #60a5fa33;
 
-  /* Alignment sugestion */
+  /* Sugestions */
   --alignment-sugestion: rgb(131, 204, 224);
+  --distance-balance-sugestion: rgb(99, 206, 108);
 }
 
 
@@ -476,6 +477,13 @@ body.light {
 .alignment_sugestion {
   path {
     stroke: var(--alignment-sugestion);
+    stroke-width: 1px;
+  }
+}
+
+.distance_balance_sugestion {
+  path {
+    stroke: var(--distance-balance-sugestion);
     stroke-width: 1px;
   }
 }

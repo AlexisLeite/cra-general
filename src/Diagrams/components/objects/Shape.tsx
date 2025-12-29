@@ -13,6 +13,16 @@ import { observer } from 'mobx-react-lite';
  */
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
 
+export type ArrowPosition = 'start' | 'end' | 'both';
+
+export interface ArrowSpec {
+  position?: ArrowPosition;
+  size?: number;
+  color?: string;
+  filled?: boolean;
+  sharpness?: number; // 0–1, controls angle
+}
+
 /**
  * Configuración de un path individual dentro del Shape.
  */
@@ -20,6 +30,7 @@ export interface PathSpec {
   /** Atributo SVG "d" */
   d: string;
 
+  arrow?: ArrowSpec;
   fill?: string;
   stroke?: string;
   strokeWidth?: number;
@@ -80,6 +91,40 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
         onClick={onClick}
         ref={ref}
       >
+        <defs>
+          {paths.map((p, i) => {
+            if (!p.arrow) return null;
+
+            const strokeWidth = 6;
+
+            const { size = strokeWidth, color = p.stroke ?? '#111' } = p.arrow;
+
+            const id = `arrow-${i}`;
+
+            return (
+              <marker
+                id={id}
+                viewBox="0 0 10 10"
+                refX={strokeWidth * 1.5}
+                refY="5"
+                markerWidth={size}
+                markerHeight={size}
+                orient="auto-start-reverse"
+                markerUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 0 0 L 10 5 L 0 10"
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={Math.max(1, strokeWidth * 0.9)}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </marker>
+            );
+          })}
+        </defs>
+
         {paths.map((p, i) => {
           const {
             d,
@@ -91,9 +136,9 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
             animationDuration = 1,
             nonScalingStroke = true,
             roundedBorders: roundedLocal = roundedBorders,
+            arrow,
           } = p;
 
-          // Patrón de trazo según estilo
           let dasharray: string | undefined;
           switch (strokeStyle) {
             case 'dashed':
@@ -104,7 +149,6 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
               break;
           }
 
-          // Animación si está habilitada
           const animateElement = animated ? (
             <animate
               attributeName="stroke-dashoffset"
@@ -119,6 +163,8 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
             />
           ) : null;
 
+          const markerId = arrow ? `url(#arrow-${i})` : undefined;
+
           return (
             <path
               key={i}
@@ -130,6 +176,16 @@ const UnobservedShape = forwardRef<any, ShapeProps>(
               strokeLinecap={roundedLocal ? 'round' : 'butt'}
               strokeLinejoin={roundedLocal ? 'round' : 'miter'}
               vectorEffect={nonScalingStroke ? 'non-scaling-stroke' : undefined}
+              markerStart={
+                arrow?.position === 'start' || arrow?.position === 'both'
+                  ? markerId
+                  : undefined
+              }
+              markerEnd={
+                !arrow || arrow.position === 'end' || arrow.position === 'both'
+                  ? markerId
+                  : undefined
+              }
             >
               {animateElement}
             </path>

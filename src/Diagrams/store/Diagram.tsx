@@ -27,11 +27,13 @@ import { NodesConnector } from './extensions/NodesConnector';
 import { DDeleteNodeEvent } from './elements/Events';
 import { GridSnap } from './extensions/GridSnap';
 import { StraightDrag } from './extensions/StraightDrag';
+import { DistancesBalancer } from './extensions/DistancesBalancer';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
 const DefaultExtensions = Object.freeze({
   Creator,
+  DistancesBalancer,
   Dragger,
   EdgesDragger,
   GridSnap,

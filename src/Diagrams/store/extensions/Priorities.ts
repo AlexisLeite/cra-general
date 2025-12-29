@@ -5,6 +5,7 @@ export class Priorities {
 
   public Drag_Rules = Rules;
 
+  public Drag_Node_Distances_Balancer = 400;
   public Drag_Node_Straight_Drag = 300;
   public Drag_Node_Aligner = 200;
   public Drag_Node_Snap_To_Grid = 100;

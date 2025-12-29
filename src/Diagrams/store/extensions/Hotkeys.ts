@@ -4,6 +4,7 @@ import { Selector } from './Selector';
 import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
 import { NodesAligner } from './NodesAligner';
+import { DistancesBalancer } from './DistancesBalancer';
 
 export class Hotkeys extends DiagramExtension {
   private get measurer() {
@@ -58,10 +59,13 @@ export class Hotkeys extends DiagramExtension {
               const snaper = this.diagram.getExtension(GridSnap);
               snaper?.toggle();
               const aligner = this.diagram.getExtension(NodesAligner);
-              aligner.toggle();
+              aligner?.toggle();
+              const balancer = this.diagram.getExtension(DistancesBalancer);
+              balancer?.toggle();
               this.revertHotkey.set(ev.code, () => {
                 snaper?.toggle();
                 aligner?.toggle();
+                balancer?.toggle();
               });
             }
             break;

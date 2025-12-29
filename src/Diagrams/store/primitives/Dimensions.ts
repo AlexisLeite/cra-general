@@ -236,6 +236,26 @@ export class Dimensions {
     return this;
   }
 
+  edgeDistanceX(another: Dimensions) {
+    if (this.x > another.x + another.width) {
+      return -(this.x - another.x - another.width);
+    }
+    if (another.x > this.x + this.width) {
+      return another.x - this.x - this.width;
+    }
+    return 0;
+  }
+
+  edgeDistanceY(another: Dimensions) {
+    if (this.y > another.y + another.height) {
+      return -(this.y - another.y - another.height);
+    }
+    if (another.y > this.y + this.height) {
+      return another.y - this.y - this.height;
+    }
+    return 0;
+  }
+
   get(i: number) {
     return this._data[i];
   }
