@@ -102,156 +102,165 @@ export class NodesAligner extends DiagramExtension {
             for (const candidate of this.diagram.nodes) {
               if (
                 candidate.id !== el.node.id &&
-                el.newBox.copy().substract(candidate.box).norm <
-                  extensionBoundary &&
                 !ev.proposals.find((c) => c.node.id === candidate.id)
               ) {
-                if (enabledChecks.VM) {
-                  const dvm = d(candidate.box.middle.y, el.newBox.middle.y);
-                  if (dvm < relevantBoundary) {
-                    proposals.VM.push({
-                      distance: dvm,
-                      element: el.node,
-                      position: candidate.box.middle.y,
-                      range: [candidate.box.rightMiddle.x, el.newBox.x],
-                    });
+                const distanceX = Math.abs(
+                  el.newBox.edgeDistanceX(candidate.box),
+                );
+                const distanceY = Math.abs(
+                  el.newBox.edgeDistanceY(candidate.box),
+                );
 
-                    if (dvm < attachBoundary && dvm < mins.VM) {
-                      mins.VM = dvm;
-                      updatedY = true;
-                      el.update(
-                        new Dimensions([
-                          el.current.x,
-                          candidate.box.middle.y - el.newBox.height / 2,
-                          ...el.newBox.size.raw,
-                        ]),
-                      );
+                if (distanceX < extensionBoundary) {
+                  if (enabledChecks.VM) {
+                    const dvm = d(candidate.box.middle.y, el.newBox.middle.y);
+                    if (dvm < relevantBoundary) {
+                      proposals.VM.push({
+                        distance: dvm,
+                        element: el.node,
+                        position: candidate.box.middle.y,
+                        range: [candidate.box.rightMiddle.x, el.newBox.x],
+                      });
+
+                      if (dvm < attachBoundary && dvm < mins.VM) {
+                        mins.VM = dvm;
+                        updatedY = true;
+                        el.update(
+                          new Dimensions([
+                            el.current.x,
+                            candidate.box.middle.y - el.newBox.height / 2,
+                            ...el.newBox.size.raw,
+                          ]),
+                        );
+                      }
+                    }
+                  }
+
+                  if (enabledChecks.VT) {
+                    const dvt = d(candidate.box.y, el.newBox.y);
+                    if (dvt < relevantBoundary) {
+                      proposals.VT.push({
+                        distance: dvt,
+                        element: el.node,
+                        position: candidate.box.y,
+                        range: [candidate.box.rightMiddle.x, el.newBox.x],
+                      });
+
+                      if (dvt < attachBoundary && dvt < mins.VT) {
+                        mins.VT = dvt;
+                        updatedY = true;
+                        el.update(
+                          new Dimensions([
+                            el.current.x,
+                            candidate.box.y,
+                            ...el.newBox.size.raw,
+                          ]),
+                        );
+                      }
+                    }
+                  }
+
+                  if (enabledChecks.VB) {
+                    const dvb = d(
+                      candidate.box.bottomMiddle.y,
+                      el.newBox.bottomMiddle.y,
+                    );
+                    if (dvb < relevantBoundary) {
+                      proposals.VB.push({
+                        distance: dvb,
+                        element: el.node,
+                        position: candidate.box.bottomMiddle.y,
+                        range: [candidate.box.rightMiddle.x, el.newBox.x],
+                      });
+
+                      if (dvb < attachBoundary && dvb < mins.VB) {
+                        mins.VB = dvb;
+                        updatedY = true;
+                        el.update(
+                          new Dimensions([
+                            el.current.x,
+                            candidate.box.bottomMiddle.y - el.newBox.height,
+                            ...el.newBox.size.raw,
+                          ]),
+                        );
+                      }
                     }
                   }
                 }
 
-                if (enabledChecks.VT) {
-                  const dvt = d(candidate.box.y, el.newBox.y);
-                  if (dvt < relevantBoundary) {
-                    proposals.VT.push({
-                      distance: dvt,
-                      element: el.node,
-                      position: candidate.box.y,
-                      range: [candidate.box.rightMiddle.x, el.newBox.x],
-                    });
+                if (distanceY < relevantBoundary) {
+                  if (enabledChecks.HL) {
+                    const dhl = d(candidate.box.x, el.newBox.x);
+                    if (dhl < relevantBoundary) {
+                      proposals.HL.push({
+                        distance: dhl,
+                        element: el.node,
+                        position: candidate.box.x,
+                        range: [candidate.box.bottomMiddle.y, el.newBox.y],
+                      });
 
-                    if (dvt < attachBoundary && dvt < mins.VT) {
-                      mins.VT = dvt;
-                      updatedY = true;
-                      el.update(
-                        new Dimensions([
-                          el.current.x,
-                          candidate.box.y,
-                          ...el.newBox.size.raw,
-                        ]),
-                      );
+                      if (dhl < attachBoundary && dhl < mins.HL) {
+                        mins.HL = dhl;
+                        updatedX = true;
+                        el.update(
+                          new Dimensions([
+                            candidate.box.x,
+                            el.current.y,
+                            ...el.newBox.size.raw,
+                          ]),
+                        );
+                      }
                     }
                   }
-                }
 
-                if (enabledChecks.VB) {
-                  const dvb = d(
-                    candidate.box.bottomMiddle.y,
-                    el.newBox.bottomMiddle.y,
-                  );
-                  if (dvb < relevantBoundary) {
-                    proposals.VB.push({
-                      distance: dvb,
-                      element: el.node,
-                      position: candidate.box.bottomMiddle.y,
-                      range: [candidate.box.rightMiddle.x, el.newBox.x],
-                    });
+                  if (enabledChecks.HC) {
+                    const dhc = d(candidate.box.middle.x, el.newBox.middle.x);
+                    if (dhc < relevantBoundary) {
+                      proposals.HC.push({
+                        distance: dhc,
+                        element: el.node,
+                        position: candidate.box.middle.x,
+                        range: [candidate.box.bottomMiddle.y, el.newBox.y],
+                      });
 
-                    if (dvb < attachBoundary && dvb < mins.VB) {
-                      mins.VB = dvb;
-                      updatedY = true;
-                      el.update(
-                        new Dimensions([
-                          el.current.x,
-                          candidate.box.bottomMiddle.y - el.newBox.height,
-                          ...el.newBox.size.raw,
-                        ]),
-                      );
+                      if (dhc < attachBoundary && dhc < mins.HC) {
+                        mins.HC = dhc;
+                        updatedX = true;
+                        el.update(
+                          new Dimensions([
+                            candidate.box.middle.x - el.newBox.width / 2,
+                            el.current.y,
+                            ...el.newBox.size.raw,
+                          ]),
+                        );
+                      }
                     }
                   }
-                }
 
-                if (enabledChecks.HL) {
-                  const dhl = d(candidate.box.x, el.newBox.x);
-                  if (dhl < relevantBoundary) {
-                    proposals.HL.push({
-                      distance: dhl,
-                      element: el.node,
-                      position: candidate.box.x,
-                      range: [candidate.box.bottomMiddle.y, el.newBox.y],
-                    });
+                  if (enabledChecks.HR) {
+                    const dhr = d(
+                      candidate.box.rightMiddle.x,
+                      el.newBox.rightMiddle.x,
+                    );
+                    if (dhr < relevantBoundary) {
+                      proposals.HR.push({
+                        distance: dhr,
+                        element: el.node,
+                        position: candidate.box.rightMiddle.x,
+                        range: [candidate.box.bottomMiddle.y, el.newBox.y],
+                      });
 
-                    if (dhl < attachBoundary && dhl < mins.HL) {
-                      mins.HL = dhl;
-                      updatedX = true;
-                      el.update(
-                        new Dimensions([
-                          candidate.box.x,
-                          el.current.y,
-                          ...el.newBox.size.raw,
-                        ]),
-                      );
-                    }
-                  }
-                }
-
-                if (enabledChecks.HC) {
-                  const dhc = d(candidate.box.middle.x, el.newBox.middle.x);
-                  if (dhc < relevantBoundary) {
-                    proposals.HC.push({
-                      distance: dhc,
-                      element: el.node,
-                      position: candidate.box.middle.x,
-                      range: [candidate.box.bottomMiddle.y, el.newBox.y],
-                    });
-
-                    if (dhc < attachBoundary && dhc < mins.HC) {
-                      mins.HC = dhc;
-                      updatedX = true;
-                      el.update(
-                        new Dimensions([
-                          candidate.box.middle.x - el.newBox.width / 2,
-                          el.current.y,
-                          ...el.newBox.size.raw,
-                        ]),
-                      );
-                    }
-                  }
-                }
-
-                if (enabledChecks.HR) {
-                  const dhr = d(
-                    candidate.box.rightMiddle.x,
-                    el.newBox.rightMiddle.x,
-                  );
-                  if (dhr < relevantBoundary) {
-                    proposals.HR.push({
-                      distance: dhr,
-                      element: el.node,
-                      position: candidate.box.rightMiddle.x,
-                      range: [candidate.box.bottomMiddle.y, el.newBox.y],
-                    });
-
-                    if (dhr < attachBoundary && dhr < mins.HR) {
-                      mins.HR = dhr;
-                      updatedX = true;
-                      el.update(
-                        new Dimensions([
-                          candidate.box.rightMiddle.x - el.newBox.width,
-                          el.current.y,
-                          ...el.newBox.size.raw,
-                        ]),
-                      );
+                      if (dhr < attachBoundary && dhr < mins.HR) {
+                        mins.HR = dhr;
+                        updatedX = true;
+                        el.update(
+                          new Dimensions([
+                            candidate.box.rightMiddle.x - el.newBox.width,
+                            el.current.y,
+                            ...el.newBox.size.raw,
+                          ]),
+                        );
+                      }
                     }
                   }
                 }
