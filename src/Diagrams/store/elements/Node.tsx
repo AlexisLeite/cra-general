@@ -221,7 +221,10 @@ export class Node<Gateways = TDirection> extends Element {
   }
 
   select() {
-    if (!this.emit(new DNodeSelectionEvent(this, true)).cancelled) {
+    if (
+      !this.state.selected &&
+      !this.emit(new DNodeSelectionEvent(this, true)).cancelled
+    ) {
       runInAction(() => {
         this.state.selected = true;
       });
@@ -229,7 +232,10 @@ export class Node<Gateways = TDirection> extends Element {
   }
 
   unselect() {
-    if (!this.emit(new DNodeSelectionEvent(this, false)).cancelled) {
+    if (
+      this.state.selected &&
+      !this.emit(new DNodeSelectionEvent(this, false)).cancelled
+    ) {
       runInAction(() => {
         this.state.selected = false;
       });
