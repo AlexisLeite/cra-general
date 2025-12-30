@@ -49,8 +49,8 @@
   --selection-fill: #60a5fa33;
 
   /* Sugestions */
-  --alignment-sugestion: rgb(131, 204, 224);
-  --distance-balance-sugestion: rgb(99, 206, 108);
+  --alignment-sugestion: rgba(131, 204, 224, 0.3);
+  --distance-balance-sugestion: rgba(99, 206, 108, 0.6);
 }
 
 

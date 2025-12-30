@@ -24,7 +24,7 @@ import { Hotkeys } from './extensions/Hotkeys';
 import { Measurer } from './extensions/Measurer';
 import { Selector } from './extensions/Selector';
 import { NodesConnector } from './extensions/NodesConnector';
-import { DDeleteNodeEvent } from './elements/Events';
+import { DDeleteNodeEvent, DResetGraphEvent } from './elements/Events';
 import { GridSnap } from './extensions/GridSnap';
 import { StraightDrag } from './extensions/StraightDrag';
 import { DistancesBalancer } from './extensions/DistancesBalancer';
@@ -201,6 +201,29 @@ export class Diagram extends Element {
 
   export() {
     return JSON.stringify(this.serialize());
+  }
+
+  reset() {
+    (async () => {
+      let canReset = this._nodes.size === 0;
+
+      if (!canReset) {
+        let resolver: (() => Promise<boolean>) | null = null;
+        const ev = this.emit(
+          new DResetGraphEvent(this, (r) => {
+            resolver = r;
+          }),
+        );
+
+        canReset = (await resolver!()) && !ev.cancelled;
+      }
+
+      if (canReset) {
+        for (const node of this._nodes.values()) {
+          this.delete(node);
+        }
+      }
+    })();
   }
 
   serialize() {

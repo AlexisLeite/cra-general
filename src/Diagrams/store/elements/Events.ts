@@ -247,6 +247,38 @@ export abstract class DChangeEvent extends DEvent {
   declare protected readonly __brand: void;
 }
 
+export class DResetGraphEvent extends DChangeEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    src: Element,
+    getResolver: (cb: () => Promise<boolean>) => unknown,
+  ) {
+    super(src);
+
+    getResolver(this.resolve.bind(this));
+  }
+
+  private callbacks: (() => Promise<boolean>)[] = [];
+
+  /**
+   * The defer method allows to introduce a wait condition before the graph resets
+   * the current state. It can be used for persistence or confirmation request.
+   *
+   * Everyone that listens to this event can add a new wait condition, the state
+   * will only be reseted if all the conditions return true.
+   *
+   * If any promise is not resolved, the action can be delayed forever.
+   */
+  defer(cb: () => Promise<boolean>) {
+    this.callbacks.push(cb);
+  }
+
+  private async resolve(): Promise<boolean> {
+    return (await Promise.all(this.callbacks.map((c) => c()))).every((c) => c);
+  }
+}
+
 export abstract class DNodesConnectionEvent extends DChangeEvent {
   declare protected readonly __brand: void;
 }
@@ -255,6 +287,8 @@ export abstract class DNodesConnectionEvent extends DChangeEvent {
  * This event is fired when a connection is started by the user.
  */
 export class DNodeConnectionIntentEvent extends DNodesConnectionEvent {
+  declare protected readonly __brand: void;
+
   constructor(
     src: Element,
     public origin: Node<any>,
@@ -448,6 +482,7 @@ export class DDragNodeEvent extends DDragEvent {
   DNodeSelectionEvent,
   DNodesConnectActionEvent,
   DNodesConnectionEvent,
+  DResetGraphEvent,
   DScaleEvent,
   DSelectionEvent,
   DUIEvent,

@@ -15,6 +15,7 @@ import { LetterTool } from './tools/LetterTool';
 import { AlignNodesTool } from './tools/AlignNodesTool';
 import { UndoTool } from './tools/UndoTool';
 import { RedoTool } from './tools/RedoTool';
+import { NewDocumentTool } from './tools/NewDocumentTool';
 
 export class ToolsStates {
   static instance = new ToolsStates();
@@ -29,6 +30,8 @@ export class ToolsStates {
 export const Tools = observer(() => {
   return (
     <Toolbar>
+      <NewDocumentTool />
+      <Separator />
       <MoveTool />
       <SelectTool />
       <RulerTool />
