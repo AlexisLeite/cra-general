@@ -29,6 +29,7 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src"
+    "src",
+    "src/Diagrams/components/extra/tools/.tsx"
   ]
 }

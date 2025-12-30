@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { AddTextTool } from './tools/AddTextTool';
-import { DownloadTool } from './tools/DownloadTool';
+import { SaveTool } from './tools/SaveTool';
 import { OpenTool } from './tools/OpenTool';
 import { RulerTool } from './tools/RulerTool';
 import { SelectTool } from './tools/SelectTool';
@@ -30,8 +30,6 @@ export class ToolsStates {
 export const Tools = observer(() => {
   return (
     <Toolbar>
-      <NewDocumentTool />
-      <Separator />
       <MoveTool />
       <SelectTool />
       <RulerTool />
@@ -45,8 +43,9 @@ export const Tools = observer(() => {
       <AlignNodesTool />
       <SnapToGridTool />
       <Separator />
-      <DownloadTool />
+      <NewDocumentTool />
       <OpenTool />
+      <SaveTool />
       <Separator />
       <ThemeTool />
       <Separator />

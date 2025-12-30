@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Diagram } from '../../../store/Diagram';
 import { downloadFile } from '../../../util/downloadFile';
 
-export const DownloadTool = observer(function DownloadTool() {
+export const SaveTool = observer(function DownloadTool() {
   const d = Diagram.use();
 
   return (
