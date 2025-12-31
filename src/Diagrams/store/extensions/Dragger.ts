@@ -10,6 +10,7 @@ import {
   DScaleEvent,
   DDeleteNodeEvent,
   DMouseUpEvent,
+  type AnyMouseEvent,
 } from '../elements/Events';
 import { DiagramExtension } from './DiagramExtension';
 import { Dimensions } from '../primitives/Dimensions';
@@ -211,7 +212,7 @@ export class Dragger extends DiagramExtension {
           new DDragNodeEvent(
             this,
             proposals,
-            this.originalEvent!.originalEvent,
+            this.originalEvent?.originalEvent as AnyMouseEvent,
           ),
         ).cancelled
       ) {

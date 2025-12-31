@@ -51,6 +51,10 @@
   /* Sugestions */
   --alignment-sugestion: rgba(131, 204, 224, 0.3);
   --distance-balance-sugestion: rgba(99, 206, 108, 0.6);
+
+  /* Extra */
+  --path-finding-grid-edge: yellow;
+  --path-finding-grid-edge--highlight: white
 }
 
 
@@ -492,5 +496,19 @@ body.light {
   path {
     stroke: var(--distance-balance-sugestion);
     stroke-width: 1px;
+  }
+}
+
+.path_finding_grid_edge {
+  path {
+    stroke: var(--path-finding-grid-edge);
+    stroke-width: 1px;
+  }
+
+  &.highlighted {
+    path {
+      stroke: var(--path-finding-grid-edge--highlight);
+      stroke-width: 1px;
+    }
   }
 }

@@ -100,8 +100,8 @@ export class Coordinates {
     return new Coordinates(this, observable);
   }
 
-  equals(another: Coordinates) {
-    return this.copy().substract(another).norm === 0;
+  distance(another: Coordinates) {
+    return this.copy().substract(another).norm;
   }
 
   divide(factor: number | Coordinates) {
@@ -112,6 +112,10 @@ export class Coordinates {
     this.set(1, this.get(1) / y);
 
     return this;
+  }
+
+  equals(another: Coordinates) {
+    return this.copy().substract(another).norm === 0;
   }
 
   get(i: number) {

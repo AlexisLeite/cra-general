@@ -12,7 +12,8 @@ import { Stage } from './layout/HStack';
 import { ShapesShowcase } from './components/ShapesShowcase';
 import { AlignmentSuggestions } from './components/extra/AlignmentSuggestions';
 
-import './index.css';
+import './diagram.css';
+import { PathFindingRenderer } from './components/extra/PathFindingRenderer';
 
 export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
   return (
@@ -25,6 +26,7 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
           <Measurement />
           <AlignmentSuggestions />
           <Selection />
+          <PathFindingRenderer />
         </Canvas>
       </Stage>
       <Tools />

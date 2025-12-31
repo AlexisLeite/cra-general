@@ -43,8 +43,16 @@ export class Dimensions {
     return new Coordinates(this.raw.slice(0, 2));
   }
 
+  get bottomLeft() {
+    return new Coordinates([this.x, this.y + this.height]);
+  }
+
   get bottomMiddle() {
     return new Coordinates([this.x + this.width / 2, this.y + this.height]);
+  }
+
+  get bottomRight() {
+    return new Coordinates([this.x + this.width, this.y + this.height]);
   }
 
   get leftMiddle() {
@@ -59,8 +67,16 @@ export class Dimensions {
     return new Coordinates([this.x + this.width, this.y + this.height / 2]);
   }
 
+  get topLeft() {
+    return this.coordinates;
+  }
+
   get topMiddle() {
     return new Coordinates([this.x + this.width / 2, this.y]);
+  }
+
+  get topRight() {
+    return new Coordinates([this.x + this.width, this.y]);
   }
 
   get size() {

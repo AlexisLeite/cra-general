@@ -18,7 +18,6 @@ import { Rules } from './extensions/Rules';
 import type { DiagramExtension } from './extensions/DiagramExtension';
 import { NodesAligner } from './extensions/NodesAligner';
 import { Creator } from './extensions/Creator';
-import { Dragger } from './extensions/Dragger';
 import { EdgesDragger } from './extensions/EdgesDragger';
 import { Hotkeys } from './extensions/Hotkeys';
 import { Measurer } from './extensions/Measurer';
@@ -30,6 +29,8 @@ import { StraightDrag } from './extensions/StraightDrag';
 import { DistancesBalancer } from './extensions/DistancesBalancer';
 import { NodesResizer } from './extensions/NodesResizer';
 import { History } from './extensions/History';
+import { Dragger } from './extensions/Dragger';
+import { PathFindingRenderer } from './extensions/PathFindingRenderer';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -45,6 +46,7 @@ const DefaultExtensions = Object.freeze({
   NodesAligner,
   NodesConnector,
   NodesResizer,
+  PathFindingRenderer,
   Selector,
   StraightDrag,
 });

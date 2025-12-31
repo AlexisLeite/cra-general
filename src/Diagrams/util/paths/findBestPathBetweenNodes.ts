@@ -7,8 +7,9 @@ import { stepFromGateway } from './stepBackFromGateway';
 import { Node } from '../../store/elements/Node';
 import { EdgePoint, type TEdgePointType } from '../../store/elements/EdgePoint';
 import { arePointsAligned } from '../../components/objects/RenderEdge/util';
-import { GridSnap } from '../../store/extensions/GridSnap';
 import type { TDirection } from '../../store/types';
+import { PathFindingRenderer } from '../../store/extensions/PathFindingRenderer';
+import { makePathGrid } from './makePathGrid';
 
 export type Path = { x: number; y: number }[];
 
@@ -323,7 +324,7 @@ function findDynamicSegments(steps: Coordinates[]): (Segment | EdgePoint)[] {
   return res;
 }
 
-function _findBestPathBetweenNodes(
+export function _findBestPathBetweenNodes(
   gridSize: number,
   A: Gateway,
   B: Gateway,
@@ -383,17 +384,6 @@ export function findBestPathBetweenNodes(
   A: Gateway,
   B: Gateway,
 ): Coordinates[] {
-  const snap = diagram.getExtension(GridSnap);
-
-  let res = _findBestPathBetweenNodes(snap.gridSize || 50, A, B);
-  if (res) {
-    return res;
-  }
-
-  res = _findBestPathBetweenNodes((snap.gridSize || 50) / 2, A, B);
-  if (res) {
-    return res;
-  }
-
-  return [A.coordinates.copy(), B.coordinates.copy()];
+  diagram.getExtension(PathFindingRenderer).setGrid(makePathGrid(A, B));
+  return [];
 }
