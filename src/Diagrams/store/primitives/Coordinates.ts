@@ -104,6 +104,10 @@ export class Coordinates {
     return this.copy().substract(another).norm;
   }
 
+  distanceManhattan(another: Coordinates) {
+    return Math.abs(this.x - another.x) + Math.abs(this.y - another.y);
+  }
+
   divide(factor: number | Coordinates) {
     const x = factor instanceof Coordinates ? factor.x : factor;
     const y = factor instanceof Coordinates ? factor.y : factor;

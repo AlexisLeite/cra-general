@@ -8,8 +8,8 @@ import { Node } from '../../store/elements/Node';
 import { EdgePoint, type TEdgePointType } from '../../store/elements/EdgePoint';
 import { arePointsAligned } from '../../components/objects/RenderEdge/util';
 import type { TDirection } from '../../store/types';
-import { PathFindingRenderer } from '../../store/extensions/PathFindingRenderer';
 import { makePathGrid } from './makePathGrid';
+import { GridSnap } from '../../store/extensions/GridSnap';
 
 export type Path = { x: number; y: number }[];
 
@@ -380,10 +380,25 @@ export function _findBestPathBetweenNodes(
 }
 
 export function findBestPathBetweenNodes(
-  diagram: Diagram,
+  _diagram: Diagram,
   A: Gateway,
   B: Gateway,
 ): Coordinates[] {
-  diagram.getExtension(PathFindingRenderer).setGrid(makePathGrid(A, B));
-  return [];
+  const gridSize = _diagram.getExtension(GridSnap).gridSize;
+
+  let grid = makePathGrid(A, B, gridSize);
+  let path = grid.run(A, B);
+
+  if (path) {
+    return filterResultPath(path.map((c) => getEdgePoint(c)));
+  }
+
+  grid = makePathGrid(A, B, gridSize / 2);
+  path = grid.run(A, B);
+
+  if (path) {
+    return filterResultPath(path.map((c) => getEdgePoint(c)));
+  }
+
+  return [A.coordinates, B.coordinates];
 }

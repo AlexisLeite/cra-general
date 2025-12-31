@@ -12,3 +12,16 @@ export function stepFromGateway(gridSize: number, g: Gateway) {
       return g.coordinates.copy().sum([+gridSize, 0]);
   }
 }
+
+export function oppositeStepFromGateway(gridSize: number, g: Gateway) {
+  switch (g.orientation) {
+    case 'down':
+      return g.coordinates.copy().sum([0, -gridSize - g.parent.box.height]);
+    case 'left':
+      return g.coordinates.copy().sum([gridSize + g.parent.box.width, 0]);
+    case 'up':
+      return g.coordinates.copy().sum([0, gridSize + g.parent.box.height]);
+    case 'right':
+      return g.coordinates.copy().sum([-gridSize - g.parent.box.width, 0]);
+  }
+}

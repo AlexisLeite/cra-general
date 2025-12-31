@@ -113,6 +113,12 @@ export class Gateway extends Element {
     return this.state.id;
   }
 
+  get direction() {
+    return ['down', 'up'].includes(this.state.orientation)
+      ? 'horizontal'
+      : 'vertical';
+  }
+
   get orientation() {
     return this.state.orientation;
   }

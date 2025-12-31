@@ -504,11 +504,11 @@ body.light {
     stroke: var(--path-finding-grid-edge);
     stroke-width: 1px;
   }
+}
 
-  &.highlighted {
-    path {
-      stroke: var(--path-finding-grid-edge--highlight);
-      stroke-width: 1px;
-    }
+.path_finding_grid_edge_chosen {
+  path {
+    stroke: red;
+    stroke-width: 1px;
   }
 }

@@ -276,6 +276,12 @@ export class Dimensions {
     return this._data[i];
   }
 
+  inflate(size: number) {
+    return this.copy()
+      .translate(new Coordinates([-size, -size]))
+      .assignDimensions(this.size.sum(new Coordinates([2 * size, 2 * size])));
+  }
+
   multiply(this: Dimensions, factor: number) {
     this.set(0, this.get(0) * factor);
     this.set(1, this.get(1) * factor);
