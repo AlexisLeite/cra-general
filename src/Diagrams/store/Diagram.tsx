@@ -230,27 +230,28 @@ export class Diagram extends Element {
     return JSON.stringify(this.serialize());
   }
 
-  reset() {
-    (async () => {
-      let canReset = this._nodes.size === 0;
+  async reset() {
+    let canReset = this._nodes.size === 0;
 
-      if (!canReset) {
-        let resolver: (() => Promise<boolean>) | null = null;
-        const ev = this.emit(
-          new DResetGraphEvent(this, (r) => {
-            resolver = r;
-          }),
-        );
+    if (!canReset) {
+      let resolver: (() => Promise<boolean>) | null = null;
+      const ev = this.emit(
+        new DResetGraphEvent(this, (r) => {
+          resolver = r;
+        }),
+      );
 
-        canReset = (await resolver!()) && !ev.cancelled;
+      canReset = (await resolver!()) && !ev.cancelled;
+    }
+
+    if (canReset) {
+      for (const node of this._nodes.values()) {
+        this.delete(node);
       }
+      return true;
+    }
 
-      if (canReset) {
-        for (const node of this._nodes.values()) {
-          this.delete(node);
-        }
-      }
-    })();
+    return false;
   }
 
   serialize() {

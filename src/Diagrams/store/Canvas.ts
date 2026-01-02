@@ -129,6 +129,7 @@ export class Canvas extends Element {
   setDisplacement(c: Coordinates) {
     this._displacement.assign(c);
     this.bound();
+    this.setDisplacementStyles();
   }
 
   setScale(
