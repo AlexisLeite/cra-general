@@ -1,14 +1,15 @@
-import { CollapsiblePanel } from '../layout/CollapsiblePanel';
-import { TaskNode } from '../custom/bpmn/nodes/TaskNode';
-import { Diagram } from '../store/Diagram';
-import { Mouse } from '../util/Mouse';
 import { useRef, type MouseEvent } from 'react';
-import { Dragger } from '../store/extensions/Dragger';
-import { EventNode } from '../custom/bpmn/nodes/EventNode';
-import { GateNode } from '../custom/bpmn/nodes/GateNode';
-import type { BPMNode } from '../custom/bpmn/nodes/BPMNode';
-import { Selector } from '../store/extensions/Selector';
-import { getId } from '../util/getId';
+import { CollapsiblePanel } from '../../layout/CollapsiblePanel';
+import { Diagram } from '../../store/Diagram';
+import { Dragger } from '../../store/extensions/Dragger';
+import { Selector } from '../../store/extensions/Selector';
+import { getId } from '../../util/getId';
+import { Mouse } from '../../util/Mouse';
+import { BPMNode } from './nodes/BPMNode';
+import { EventNode } from './nodes/EventNode';
+import { GateNode } from './nodes/GateNode';
+import { Lanes } from './nodes/Lanes';
+import { TaskNode } from './nodes/TaskNode';
 
 const event = new EventNode(null, {
   id: 'event-1',
@@ -22,6 +23,11 @@ const task = new TaskNode(null, {
   id: 'task-1',
   label: '',
 });
+
+const lanes = new Lanes(null, 'lanes-1');
+lanes.resetPools();
+lanes.addPool().label = '';
+lanes.addPool().label = '';
 
 function createNode(d: Diagram, type: string, ev: MouseEvent) {
   ev.nativeEvent.stopImmediatePropagation();
@@ -51,6 +57,8 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
         movable: true,
       });
       break;
+    case 'lane':
+      node = new Lanes(null, id);
   }
 
   if (node !== null) {
@@ -100,7 +108,11 @@ export const ShapesShowcase = () => {
           {
             key: 'groups',
             title: 'Groups',
-            children: <>Hi</>,
+            children: (
+              <div onMouseDownCapture={createNode.bind(createNode, d, 'lane')}>
+                <lanes.Renderer />
+              </div>
+            ),
           },
         ]}
         id="Showcase"

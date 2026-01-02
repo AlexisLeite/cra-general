@@ -2,10 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { runInAction } from 'mobx';
 import { useEditableNode } from './EditableNodeContext';
 import { useRef } from 'react';
-
-function allowEventInEdition(ev: KeyboardEvent) {
-  return ['Enter', 'Escape'].includes(ev.code);
-}
+import { allowEventInEdition } from './EditionMode';
 
 export const EditableLabel = observer(() => {
   const node = useEditableNode();

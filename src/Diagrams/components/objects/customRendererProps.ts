@@ -1,9 +1,6 @@
 import { Node } from '../../store/elements/Node';
 
-type DivProps = React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
-> & {
+type DivProps = React.DetailedHTMLProps<React.HTMLAttributes<any>, any> & {
   [key: `data-${string}`]: string | number | boolean | undefined;
 };
 

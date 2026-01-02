@@ -9,11 +9,11 @@ import { Selection } from './components/extra/Selection';
 import { Grid } from './components/objects/Grid';
 import { Canvas } from './components/Canvas';
 import { Stage } from './layout/HStack';
-import { ShapesShowcase } from './components/ShapesShowcase';
 import { AlignmentSuggestions } from './components/extra/AlignmentSuggestions';
 
 import './diagram.css';
 import { PathFindingRenderer } from './components/extra/PathFindingRenderer';
+import { ShapesShowcase } from './custom/bpmn/ShapesShowcase';
 
 export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
   return (

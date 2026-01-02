@@ -247,14 +247,17 @@ export const CollapsiblePanel = observer(function CollapsiblePanel({
       {sections.map((c) => (
         <Fragment key={c.key}>
           <div
-            className="collapsible_panel__header"
+            className={`collapsible_panel__header ${c.key}`}
             aria-expanded={!isCollapsed}
           >
             {c.title != null && (
               <span className="collapsible_panel__title">{c.title}</span>
             )}
           </div>
-          <div className="collapsible_panel__content" hidden={isCollapsed}>
+          <div
+            className={`collapsible_panel__content ${c.key}`}
+            hidden={isCollapsed}
+          >
             {c.children}
           </div>
         </Fragment>

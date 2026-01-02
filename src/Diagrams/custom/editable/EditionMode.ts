@@ -7,6 +7,10 @@ import { DiagramExtension } from '../../store/extensions/DiagramExtension';
 import { Selector } from '../../store/extensions/Selector';
 import { EditableNode } from './EditableNode';
 
+export function allowEventInEdition(ev: KeyboardEvent) {
+  return ['Enter', 'Escape'].includes(ev.code);
+}
+
 export class EditionMode extends DiagramExtension {
   private inEdition = new Set<EditableNode>();
 
@@ -29,7 +33,8 @@ export class EditionMode extends DiagramExtension {
     this.diagram.onEvent(DKeyDownEvent, (ev) => {
       switch (ev.code) {
         case 'F2': {
-          const selectedNode = this.diagram.getExtension(Selector).selectedNodes[0];
+          const selectedNode =
+            this.diagram.getExtension(Selector).selectedNodes[0];
           if (selectedNode instanceof EditableNode) {
             this.editNode(selectedNode);
           }

@@ -5,7 +5,7 @@ import { EventNode } from './nodes/EventNode';
 import { GateNode } from './nodes/GateNode';
 import { TaskNode } from './nodes/TaskNode';
 
-import './styles.css';
+import './bpm-styles.css';
 
 export class BPMDiagram extends EditableDiagram {
   constructor(settings?: TDiagramSettings) {

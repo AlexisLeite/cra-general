@@ -1,0 +1,131 @@
+#Showcase {
+  .collapsible_panel__content {
+    display: grid;
+    gap: 32px;
+    padding: 32px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bpm__node {
+    justify-self: center;
+    position: static !important;
+
+    .label {
+      position: static;
+      top: 0;
+    }
+  }
+
+  .bpmn__event {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .bpmn__task {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .bpmn__gate {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .collapsible_panel__content.groups {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bpm__lanes {
+    justify-self: stretch;
+    width: 100% !important;
+    height: 60px !important;
+
+    .lane__row {
+      height: 15px;
+    }
+  }
+
+  .node__tools {
+    display: none;
+  }
+}
+
+.bpm__node {
+  &.bpmn__task {
+    border-radius: 8px;
+  }
+
+  &.bpmn__event {
+    border-radius: 100%;
+    position: relative;
+
+    .editable__label {
+      position: absolute;
+      top: 70px;
+    }
+  }
+
+  &.bpmn__gate {
+    border: none;
+    background: none;
+    position: relative;
+
+    fill: var(--node-fill);
+    stroke: var(--node-stroke);
+    stroke-width: 2px;
+
+    .editable__label {
+      position: absolute;
+      top: 70px;
+    }
+  }
+}
+
+.diagram__node.bpm__lanes {
+  background: none;
+  border: none;
+  position: relative;
+
+  .lane__pools {
+    display: grid;
+    grid-template-columns: 20px calc(100% - 20px);
+    width: 100%;
+    height: 100%;
+
+
+    &>div {
+      border: 1px solid var(--node-stroke);
+    }
+  }
+
+  .lane__label {
+    font-size: 12px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+
+    input {
+      background: transparent;
+      color: inherit;
+      border: none;
+      outline: none;
+      text-align: center;
+      height: 100%;
+    }
+  }
+
+  .lane__row {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    padding: 8px 0;
+    height: 100px;
+  }
+}

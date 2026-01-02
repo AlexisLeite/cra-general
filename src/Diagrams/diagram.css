@@ -54,7 +54,13 @@
 
   /* Extra */
   --path-finding-grid-edge: yellow;
-  --path-finding-grid-edge--highlight: white
+  --path-finding-grid-edge--highlight: white;
+
+  /******
+    SIZES
+  */
+
+  --diagram-button: 20px;
 }
 
 
@@ -510,5 +516,21 @@ body.light {
   path {
     stroke: red;
     stroke-width: 1px;
+  }
+}
+
+.node__tools {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 0;
+  width: 200px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+
+    path {
+      fill: var(--node-stroke);
+    }
   }
 }

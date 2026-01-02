@@ -49,7 +49,7 @@ export abstract class EditableNode extends Node {
     return this.previous !== this.state.label;
   }
 
-  abstract Render: FC;
+  protected abstract Render: FC;
 
   Renderer = () => {
     return (

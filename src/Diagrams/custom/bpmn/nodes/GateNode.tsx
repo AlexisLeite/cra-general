@@ -62,7 +62,7 @@ export class GateNode extends BPMNode {
     }
   }
 
-  Render = observer(() => {
+  protected Render = observer(() => {
     return (
       <div {...customNodeRendererProps(this)}>
         <svg

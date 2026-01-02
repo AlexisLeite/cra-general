@@ -16,7 +16,7 @@ export class TaskNode extends BPMNode {
     this.classList.add('bpmn__task');
   }
 
-  Render = observer(() => {
+  protected Render = observer(() => {
     return (
       <div {...customRendererProps(this)}>
         <EditableLabel />
