@@ -59,7 +59,7 @@ export class EdgesDragger extends DiagramExtension {
     }
   }
 
-  protected handleMouseMove(ev: AnyMouseEvent) {
+  protected async handleMouseMove(ev: AnyMouseEvent) {
     if (!this.drag) return;
 
     const a = this.drag.midpoint.points[0];
@@ -86,7 +86,7 @@ export class EdgesDragger extends DiagramExtension {
     }
 
     this.drag.edge.setSteps(
-      findBestPathBetweenNodes(
+      await findBestPathBetweenNodes(
         this.diagram,
         this.drag.edge.from,
         this.drag.edge.to,

@@ -1,11 +1,11 @@
 import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  runInAction,
+    action,
+    computed,
+    makeObservable,
+    observable,
+    runInAction,
 } from 'mobx';
-import type { TDirection, TNodeState } from '../types';
+import type { TOrientation, TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
 import { Diagram } from '../Diagram';
@@ -17,7 +17,7 @@ import { type FC } from 'react';
 export type TNodeConstructorProps = Pick<TNodeState, 'id' | 'label'> &
   Partial<TNodeState>;
 
-export class Node<Gateways = TDirection> extends Element {
+export class Node<Gateways = TOrientation> extends Element {
   protected _gateways = new Map<Gateways, Gateway>();
   public state: TNodeState;
   public readonly classList = new ClassList();

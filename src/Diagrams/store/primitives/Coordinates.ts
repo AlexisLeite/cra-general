@@ -1,6 +1,6 @@
 import { action, makeObservable, toJS } from 'mobx';
 import { Dimensions } from './Dimensions';
-import type { TDirection } from '../types';
+import type { TOrientation } from '../types';
 import type { DirectedPoint } from './DirectedPoint';
 import {
   type AnyMouseEvent,
@@ -17,7 +17,7 @@ let C: Awaited<ReturnType<typeof getDirectedClass>> = null as any;
 export interface TDirectedPoint {
   x: number;
   y: number;
-  direction: TDirection;
+  direction: TOrientation;
 }
 
 export class Coordinates {
@@ -222,7 +222,7 @@ export class Coordinates {
     return this;
   }
 
-  toDirectedPoint(direction: TDirection): DirectedPoint {
+  toDirectedPoint(direction: TOrientation): DirectedPoint {
     const d = new C(this);
     d.direction = direction;
     return d;

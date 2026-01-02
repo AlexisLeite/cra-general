@@ -1,8 +1,8 @@
-import type { TDirection } from '../types';
+import type { TOrientation } from '../types';
 import { Coordinates } from './Coordinates';
 
 export class DirectedPoint extends Coordinates {
-  direction: TDirection = 'left';
+  direction: TOrientation = 'left';
 
   get rawDirectedPoint() {
     return {

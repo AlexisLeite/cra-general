@@ -1,17 +1,52 @@
-import type { Gateway } from '../../store/elements/Gateway';
-import { stepFromGateway } from './stepBackFromGateway';
+import { Coordinates } from '../../store/primitives/Coordinates';
+import { Dimensions } from '../../store/primitives/Dimensions';
+import type { TOrientation } from '../../store/types';
 import { PathsGrid } from './PathsGrid';
+import { stepFromGateway } from './stepBackFromGateway';
 
-export function makePathGrid(A: Gateway, B: Gateway, gridSize: number) {
-  const aStepped = stepFromGateway(gridSize, A);
-  const bStepped = stepFromGateway(gridSize, B);
+type TGateway = {
+  coordinates: [number, number];
+  orientation: TOrientation;
+  parentDimensions: [number, number, number, number];
+};
 
-  const aInflated = A.parent.box.inflate(gridSize);
-  const bInflated = B.parent.box.inflate(gridSize);
+self.onmessage = ({
+  data: { A: ASerialize, B: BSerialize, gridSize },
+}: MessageEvent<{
+  A: TGateway;
+  B: TGateway;
+  gridSize: number;
+}>) => {
+  const AParent = new Dimensions([
+    ASerialize.parentDimensions[1],
+    ASerialize.parentDimensions[0],
+    ASerialize.parentDimensions[2],
+    ASerialize.parentDimensions[3],
+  ]);
+  const BParent = new Dimensions([
+    BSerialize.parentDimensions[0],
+    BSerialize.parentDimensions[1],
+    BSerialize.parentDimensions[2],
+    BSerialize.parentDimensions[3],
+  ]);
+  const AGate = new Coordinates([
+    ASerialize.coordinates[0],
+    ASerialize.coordinates[1],
+  ]);
+  const BGate = new Coordinates([
+    BSerialize.coordinates[0],
+    BSerialize.coordinates[1],
+  ]);
+
+  const aStepped = stepFromGateway(gridSize, AGate, ASerialize.orientation);
+  const bStepped = stepFromGateway(gridSize, BGate, BSerialize.orientation);
+
+  const aInflated = AParent.inflate(gridSize);
+  const bInflated = BParent.inflate(gridSize);
 
   const grid = new PathsGrid([
-    A.parent.box.inflate(gridSize / 4),
-    B.parent.box.inflate(gridSize / 4),
+    AParent.inflate(gridSize / 4),
+    BParent.inflate(gridSize / 4),
   ]);
 
   /**
@@ -62,8 +97,8 @@ export function makePathGrid(A: Gateway, B: Gateway, gridSize: number) {
     }
   }
 
-  const a = A.coordinates;
-  const b = B.coordinates;
+  const a = AGate;
+  const b = BGate;
 
   /**
    * Then, we connect the gateways to the stepped back points.
@@ -72,5 +107,16 @@ export function makePathGrid(A: Gateway, B: Gateway, gridSize: number) {
   grid.connect(grid.createPoint(a), grid.createPoint(aStepped), true);
   grid.connect(grid.createPoint(bStepped), grid.createPoint(b), true);
 
-  return grid;
-}
+  const points = grid.run(
+    {
+      coordinates: AGate,
+      orientation: ASerialize.orientation,
+    },
+    {
+      coordinates: BGate,
+      orientation: BSerialize.orientation,
+    },
+  );
+
+  self.postMessage(points?.map((c) => c.raw) || []);
+};

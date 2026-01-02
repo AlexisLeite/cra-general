@@ -61,7 +61,7 @@ export type TGatewayState = {
   maxIncomingConnections: number;
   maxOutgoingConnections: number;
 
-  orientation: TDirection;
+  orientation: TOrientation;
 
   fill?: string;
   stroke?: string;
@@ -74,4 +74,4 @@ export type TGatewayState = {
   position: Coordinates;
 };
 
-export type TDirection = 'up' | 'right' | 'down' | 'left';
+export type TOrientation = 'up' | 'right' | 'down' | 'left';

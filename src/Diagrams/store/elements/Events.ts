@@ -458,33 +458,3 @@ export class DDragNodeEvent extends DDragEvent {
     super(src, originalEvent);
   }
 }
-
-(window as any).devent = {
-  DCanvasEvent,
-  DChangeEvent,
-  DClickEvent,
-  DDeleteNodeEvent,
-  DDragEvent,
-  DDragNodeEvent,
-  DEdgeDragStartEvent,
-  DEdgeSelectionEvent,
-  DEvent,
-  DKeyDownEvent,
-  DKeyPressEvent,
-  DKeyUpEvent,
-  DKeyboardEvent,
-  DMouseDownEvent,
-  DMouseEvent,
-  DMouseMoveEvent,
-  DMouseUpEvent,
-  DNodeChangeTypeEvent,
-  DNodeConnectionIntentEvent,
-  DNodeSelectionEvent,
-  DNodesConnectActionEvent,
-  DNodesConnectionEvent,
-  DResetGraphEvent,
-  DScaleEvent,
-  DSelectionEvent,
-  DUIEvent,
-  DWheelEvent,
-};

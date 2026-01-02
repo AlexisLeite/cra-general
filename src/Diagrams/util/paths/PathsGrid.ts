@@ -1,7 +1,7 @@
-import type { Gateway } from '../../store/elements/Gateway';
 import { Coordinates } from '../../store/primitives/Coordinates';
 import { Dimensions } from '../../store/primitives/Dimensions';
-import { PriorityQueue } from '../PriorityQueue';
+import type { TOrientation } from '../../store/types';
+import { PriorityQueue } from '../PriorityQueue'; // ok
 
 export class PathGridEdge {
   constructor(
@@ -97,6 +97,16 @@ class PointSet extends UniqueSet<PathGridPoint> {}
 class EdgesSet extends UniqueSet<PathGridEdge> {}
 
 type Direction = 'horizontal' | 'vertical' | null;
+
+function getDirection(o: TOrientation): Direction {
+  switch (o) {
+    case 'down':
+    case 'up':
+      return 'vertical';
+    default:
+      return 'horizontal';
+  }
+}
 
 type Stored = {
   point: PathGridPoint;
@@ -214,7 +224,16 @@ export class PathsGrid {
     return path;
   }
 
-  run(start: Gateway, end: Gateway) {
+  run(
+    start: {
+      coordinates: Coordinates;
+      orientation: TOrientation;
+    },
+    end: {
+      coordinates: Coordinates;
+      orientation: TOrientation;
+    },
+  ) {
     const s = this._points.get(this.createPoint(start.coordinates));
     if (!s) throw new Error('Bad starting point');
 
@@ -224,13 +243,11 @@ export class PathsGrid {
     const pending = new PriorityQueue<Stored>();
     const best = new Map<string, { turns: number; g: number }>();
 
-    // lexicographic dominance: turns >> distance
     const TURN_WEIGHT = 1_000_000;
 
-    // initial state (direction comes from gateway)
     pending.push({
       point: s,
-      direction: start.direction,
+      direction: getDirection(start.orientation),
       turns: 0,
       g: 0,
       priority: s.distanceManhattan(e),
@@ -248,11 +265,9 @@ export class PathsGrid {
       }
 
       for (const neighbor of this.getNeighbors(p.point)) {
-        // ✅ correct direction detection
         const newDirection: Direction =
           neighbor.to.x !== neighbor.from.x ? 'horizontal' : 'vertical';
 
-        // ✅ correct turn detection
         const isTurn = p.direction !== null && newDirection !== p.direction;
 
         const turns = p.turns + (isTurn ? 1 : 0);

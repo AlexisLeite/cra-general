@@ -3,19 +3,19 @@ import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
-  findBestPathBetweenNodes,
-  type Path,
+    findBestPathBetweenNodes,
+    type Path,
 } from '../../util/paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
-import type { TDirection } from '../types';
+import type { TOrientation } from '../types';
 import { bind, bindDiagram } from '../../util/binders';
 import { DiagramExtension } from './DiagramExtension';
 import {
-  DMouseMoveEvent,
-  DMouseUpEvent,
-  DNodeConnectionIntentEvent,
-  DNodesConnectActionEvent,
+    DMouseMoveEvent,
+    DMouseUpEvent,
+    DNodeConnectionIntentEvent,
+    DNodesConnectActionEvent,
 } from '../elements/Events';
 import { GridSnap } from './GridSnap';
 
@@ -108,7 +108,7 @@ export class NodesConnector extends DiagramExtension {
           fakeNode.getGateway('down')!.coordinates,
         ).y;
 
-        const which: TDirection =
+        const which: TOrientation =
           Math.abs(dx) > Math.abs(dy)
             ? dx >= 0
               ? 'right'

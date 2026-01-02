@@ -1,27 +1,38 @@
-import { Gateway } from '../../store/elements/Gateway';
+import type { Coordinates } from '../../store/primitives/Coordinates';
+import type { Dimensions } from '../../store/primitives/Dimensions';
+import type { TOrientation } from '../../store/types';
 
-export function stepFromGateway(gridSize: number, g: Gateway) {
-  switch (g.orientation) {
+export function stepFromGateway(
+  gridSize: number,
+  coordinates: Coordinates,
+  orientation: TOrientation,
+) {
+  switch (orientation) {
     case 'down':
-      return g.coordinates.copy().sum([0, gridSize]);
+      return coordinates.copy().sum([0, gridSize]);
     case 'left':
-      return g.coordinates.copy().sum([-gridSize, 0]);
+      return coordinates.copy().sum([-gridSize, 0]);
     case 'up':
-      return g.coordinates.copy().sum([0, -gridSize]);
+      return coordinates.copy().sum([0, -gridSize]);
     case 'right':
-      return g.coordinates.copy().sum([+gridSize, 0]);
+      return coordinates.copy().sum([+gridSize, 0]);
   }
 }
 
-export function oppositeStepFromGateway(gridSize: number, g: Gateway) {
-  switch (g.orientation) {
+export function oppositeStepFromGateway(
+  gridSize: number,
+  parent: Dimensions,
+  coordinates: Coordinates,
+  orientation: TOrientation,
+) {
+  switch (orientation) {
     case 'down':
-      return g.coordinates.copy().sum([0, -gridSize - g.parent.box.height]);
+      return coordinates.copy().sum([0, -gridSize - parent.height]);
     case 'left':
-      return g.coordinates.copy().sum([gridSize + g.parent.box.width, 0]);
+      return coordinates.copy().sum([gridSize + parent.width, 0]);
     case 'up':
-      return g.coordinates.copy().sum([0, gridSize + g.parent.box.height]);
+      return coordinates.copy().sum([0, gridSize + parent.height]);
     case 'right':
-      return g.coordinates.copy().sum([-gridSize - g.parent.box.width, 0]);
+      return coordinates.copy().sum([-gridSize - parent.width, 0]);
   }
 }
