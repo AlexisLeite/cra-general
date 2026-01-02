@@ -1,4 +1,5 @@
 import {
+  Fragment,
   type MouseEvent,
   type MouseEventHandler,
   type ReactNode,
@@ -10,9 +11,15 @@ import {
 import { makeAutoObservable } from 'mobx';
 import { observer } from 'mobx-react-lite';
 
+export type TSection = {
+  key: any;
+  title: string;
+  children: ReactNode;
+};
+
 export type CollapsiblePanelProps = {
+  sections: TSection[];
   id?: string;
-  title?: ReactNode;
   defaultCollapsed?: boolean;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
@@ -20,7 +27,6 @@ export type CollapsiblePanelProps = {
   defaultWidth?: number;
   minWidth?: number;
   maxWidth?: number;
-  children?: ReactNode;
   onMouseLeave?: MouseEventHandler;
 };
 
@@ -159,7 +165,7 @@ export class CollapsiblePanelStateManager {
 }
 
 export const CollapsiblePanel = observer(function CollapsiblePanel({
-  title,
+  sections,
   id,
   defaultCollapsed = false,
   collapsed,
@@ -168,7 +174,6 @@ export const CollapsiblePanel = observer(function CollapsiblePanel({
   defaultWidth = 280,
   minWidth = 220,
   maxWidth = 480,
-  children,
   onMouseLeave,
 }: CollapsiblePanelProps) {
   const [manager] = useState(
@@ -239,14 +244,22 @@ export const CollapsiblePanel = observer(function CollapsiblePanel({
       style={rootStyle}
       id={id}
     >
-      <div className="collapsible_panel__header" aria-expanded={!isCollapsed}>
-        {title != null && (
-          <span className="collapsible_panel__title">{title}</span>
-        )}
-      </div>
-      <div className="collapsible_panel__content" hidden={isCollapsed}>
-        {children}
-      </div>
+      {sections.map((c) => (
+        <Fragment key={c.key}>
+          <div
+            className="collapsible_panel__header"
+            aria-expanded={!isCollapsed}
+          >
+            {c.title != null && (
+              <span className="collapsible_panel__title">{c.title}</span>
+            )}
+          </div>
+          <div className="collapsible_panel__content" hidden={isCollapsed}>
+            {c.children}
+          </div>
+        </Fragment>
+      ))}
+
       <div
         className="collapsible_panel__resizer"
         role="separator"

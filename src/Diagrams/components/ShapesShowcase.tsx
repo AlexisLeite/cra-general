@@ -60,6 +60,7 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
     );
     d.rules.displaceWhenDragOnEdges = false;
     d.getExtension(Dragger)?.startDrag(node);
+    d.getExtension(Selector).clearSelection();
     d.getExtension(Selector).selectNode(node);
   }
 }
@@ -70,31 +71,52 @@ export const ShapesShowcase = () => {
   const uns = useRef(() => {});
 
   return (
-    <CollapsiblePanel
-      title="Tools"
-      id="Showcase"
-      defaultWidth={280}
-      onMouseLeave={() => {
-        uns.current();
-        if (!d.rules.displaceWhenDragOnEdges) {
-          const i = setTimeout(() => {
-            d.rules.displaceWhenDragOnEdges = true;
-          }, 2000);
-          uns.current = () => {
-            clearInterval(i);
-          };
-        }
-      }}
-    >
-      <div onMouseDownCapture={createNode.bind(createNode, d, 'task')}>
-        <task.Renderer />
-      </div>
-      <div onMouseDownCapture={createNode.bind(createNode, d, 'event')}>
-        <event.Renderer />
-      </div>
-      <div onMouseDownCapture={createNode.bind(createNode, d, 'gate')}>
-        <gate.Renderer />
-      </div>
-    </CollapsiblePanel>
+    <>
+      <CollapsiblePanel
+        sections={[
+          {
+            key: 'nodes',
+            title: 'Nodes',
+            children: (
+              <>
+                <div
+                  onMouseDownCapture={createNode.bind(createNode, d, 'task')}
+                >
+                  <task.Renderer />
+                </div>
+                <div
+                  onMouseDownCapture={createNode.bind(createNode, d, 'event')}
+                >
+                  <event.Renderer />
+                </div>
+                <div
+                  onMouseDownCapture={createNode.bind(createNode, d, 'gate')}
+                >
+                  <gate.Renderer />
+                </div>
+              </>
+            ),
+          },
+          {
+            key: 'groups',
+            title: 'Groups',
+            children: <>Hi</>,
+          },
+        ]}
+        id="Showcase"
+        defaultWidth={280}
+        onMouseLeave={() => {
+          uns.current();
+          if (!d.rules.displaceWhenDragOnEdges) {
+            const i = setTimeout(() => {
+              d.rules.displaceWhenDragOnEdges = true;
+            }, 2000);
+            uns.current = () => {
+              clearInterval(i);
+            };
+          }
+        }}
+      ></CollapsiblePanel>
+    </>
   );
 };
