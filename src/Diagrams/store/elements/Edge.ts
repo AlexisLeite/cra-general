@@ -1,22 +1,12 @@
-import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  runInAction,
-} from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import type { TEdgeState } from '../types';
 import { Coordinates } from '../primitives/Coordinates';
 import { EdgePoint, type TEdgePointType } from './EdgePoint';
 import { Element } from './Element';
-import {
-  DMouseUpEvent,
-  DEdgeDragStartEvent,
-  DEdgeSelectionEvent,
-  DKeyDownEvent,
-} from './Events';
+import { DEdgeDragStartEvent } from './Events';
 import type { Midpoint } from '../../components/objects/RenderEdge';
 import type { MouseEvent } from 'react';
+import { Dimensions } from '../primitives/Dimensions';
 
 let id = Number.MIN_SAFE_INTEGER;
 
@@ -40,10 +30,8 @@ export class Edge extends Element {
       steps: computed,
       stroke: computed,
       strokeWidth: computed,
+      setState: action,
     });
-
-    this.diagram?.onEvent(DMouseUpEvent, this.handleMouseUp);
-    this.diagram?.onEvent(DKeyDownEvent, this.handleKeyPress);
   }
 
   get arrowHeadEnd() {
@@ -82,6 +70,23 @@ export class Edge extends Element {
     return this.state.strokeWidth;
   }
 
+  public collides(box: Dimensions) {
+    for (let i = 0; i < this.steps.length - 1; i++) {
+      const a = this.steps[i];
+      const b = this.steps[i + 1];
+      if (
+        new Dimensions([...a.raw, ...b.copy().substract(a).raw]).collides(box)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  setState<K extends keyof TEdgeState>(prop: K, value: TEdgeState[K]) {
+    this.state[prop] = value;
+  }
+
   setSteps(steps: Coordinates[]) {
     this.state.steps = steps.map((c) =>
       c instanceof EdgePoint ? c : new EdgePoint(this, c),
@@ -102,6 +107,12 @@ export class Edge extends Element {
     this.state.pathType = o.pathType;
     this.state.stroke = o.stroke;
     this.state.strokeWidth = o.strokeWidth;
+    this.state.displacementEnd = o.displacementEnd
+      ? new Coordinates(o.displacementEnd)
+      : undefined;
+    this.state.displacementStart = o.displacementStart
+      ? new Coordinates(o.displacementStart)
+      : undefined;
 
     this.state.steps = o.steps.map((c) => new EdgePoint(this, c));
     this.state.to = this.state.from.diagram
@@ -127,6 +138,8 @@ export class Edge extends Element {
     return {
       arrowHeadEnd,
       arrowHeadStart,
+      displacementEnd: this.state.displacementEnd?.raw,
+      displacementStart: this.state.displacementStart?.raw,
       lineStyle,
       pathType,
       steps: steps.map(
@@ -145,35 +158,4 @@ export class Edge extends Element {
 
     this.emit(new DEdgeDragStartEvent(this, midpoint, ev));
   }
-
-  select() {
-    runInAction(() => {
-      if (!this.emit(new DEdgeSelectionEvent(this, true)).cancelled) {
-        this.state.selected = true;
-      }
-    });
-  }
-  unselect() {
-    runInAction(() => {
-      if (!this.emit(new DEdgeSelectionEvent(this, false)).cancelled) {
-        this.state.selected = false;
-      }
-    });
-  }
-
-  protected handleMouseUp = (ev: DMouseUpEvent) => {
-    if (!ev.cancelled) {
-      if (ev.edge === this) {
-        this.select();
-      } else if (!ev.ctrl && !ev.shift) {
-        this.unselect();
-      }
-    }
-  };
-
-  protected handleKeyPress = (ev: DKeyDownEvent) => {
-    if (this.state.selected && ev.code === 'Delete') {
-      this.diagram?.disconnect(this);
-    }
-  };
 }

@@ -46,6 +46,8 @@ export type TEdgeState = {
 } & Partial<{
   arrowHeadEnd: EdgeArrowHead;
   arrowHeadStart: EdgeArrowHead;
+  displacementEnd: Coordinates;
+  displacementStart: Coordinates;
   lineStyle: EdgeLineStyle;
   pathType: EdgePathType;
   stroke: string;
@@ -54,6 +56,8 @@ export type TEdgeState = {
 
 export type TGatewayState = {
   id: string;
+
+  allowDisplace: boolean;
 
   incomingEdges: Edge[];
   outgoingEdges: Edge[];

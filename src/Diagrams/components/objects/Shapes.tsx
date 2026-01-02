@@ -82,12 +82,12 @@ const ScalableShapes = makeScalableComponent(
       <>
         {d.nodes
           .map((c) =>
-            selector?.selection.find((s) => s === c) ? null : (
+            selector?.selectedNodes.find((s) => s === c) ? null : (
               <ShapeWrap node={c} key={c.id} />
             ),
           )
           .filter(Boolean)}
-        {selector?.selection.map((c) => (
+        {selector?.selectedNodes.map((c) => (
           <ShapeWrap node={c} key={c.id} />
         ))}
         {d.edges.map((c) => (

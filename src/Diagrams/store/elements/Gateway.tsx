@@ -4,7 +4,7 @@ import type { Edge } from './Edge';
 import type { Node } from './Node';
 import { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable, reaction, toJS } from 'mobx';
 import { Element } from './Element';
 
 export class Gateway extends Element {
@@ -21,6 +21,7 @@ export class Gateway extends Element {
     super(parent);
 
     this.state = {
+      allowDisplace: true,
       stroke: 'transparent',
       strokeWidth: 10,
       radius: 5,
@@ -34,14 +35,15 @@ export class Gateway extends Element {
       addIncomingEdge: action,
       addOutgoingEdge: action,
       state: observable,
+      removeIncomingEdge: action,
+      removeOutgoingEdge: action,
     });
-  }
 
-  canConnect(from: Gateway): boolean {
-    return (
-      (this.state.maxIncomingConnections === undefined ||
-        this.state.maxIncomingConnections > this.state.incomingEdges.length) &&
-      !this.state.incomingEdges.find((c) => c.from === from)
+    reaction(
+      () => this.state.incomingEdges,
+      (e) => {
+        console.log(toJS(e));
+      },
     );
   }
 
@@ -58,16 +60,64 @@ export class Gateway extends Element {
     }
   }
 
-  removeIncomingEdge(edge: Edge) {
-    this.state.incomingEdges = this.state.incomingEdges.filter(
-      (c) => c.id !== edge.id,
+  canConnect(from: Gateway): boolean {
+    return (
+      (this.state.maxIncomingConnections === undefined ||
+        this.state.maxIncomingConnections > this.state.incomingEdges.length) &&
+      !this.state.incomingEdges.find((c) => c.from === from)
     );
   }
 
+  connectionDisplacement(c: Coordinates) {
+    if (this.direction === 'horizontal') {
+      if (Math.abs(c.y - this.coordinates.y) > 10) {
+        return new Coordinates([0, c.y - this.coordinates.y]);
+      }
+    }
+    if (this.direction === 'vertical') {
+      if (Math.abs(c.x - this.coordinates.x) > 10) {
+        return new Coordinates([c.x - this.coordinates.x, 0]);
+      }
+    }
+
+    return new Coordinates([0, 0]);
+  }
+
+  connectionDistance(c: Coordinates) {
+    if (this.direction === 'vertical') {
+      const disalignment = Math.abs(this.coordinates.y - c.y);
+
+      if (disalignment < 20) {
+        return Math.abs(this.coordinates.x - c.x) + disalignment ** 5;
+      }
+
+      return Infinity;
+    }
+
+    const disalignment = Math.abs(this.coordinates.x - c.x);
+
+    if (disalignment < 20) {
+      return Math.abs(this.coordinates.y - c.y) + disalignment ** 5;
+    }
+    return Infinity;
+  }
+
+  removeIncomingEdge(edge: Edge) {
+    for (let i = 0; i < this.state.incomingEdges.length; i++) {
+      if (this.state.incomingEdges[i].id === edge.id) {
+        this.state.incomingEdges.splice(i, 1);
+        break;
+      }
+    }
+  }
+
   removeOutgoingEdge(edge: Edge) {
-    this.state.outgoingEdges = this.state.outgoingEdges.filter(
-      (c) => c.id !== edge.id,
-    );
+    for (let i = 0; i < this.state.outgoingEdges.length; i++) {
+      if (this.state.outgoingEdges[i].id === edge.id) {
+        this.state.outgoingEdges.splice(i, 1);
+        break;
+      }
+    }
   }
 
   get coordinates() {
@@ -115,8 +165,8 @@ export class Gateway extends Element {
 
   get direction() {
     return ['down', 'up'].includes(this.state.orientation)
-      ? 'horizontal'
-      : 'vertical';
+      ? 'vertical'
+      : 'horizontal';
   }
 
   get orientation() {
@@ -126,12 +176,24 @@ export class Gateway extends Element {
   async updateEdges() {
     for await (const edge of this.state.incomingEdges) {
       edge.setSteps(
-        await findBestPathBetweenNodes(this.diagram!, edge.from, edge.to),
+        await findBestPathBetweenNodes(
+          this.diagram!,
+          edge.from,
+          edge.to,
+          edge.state.displacementStart,
+          edge.state.displacementEnd,
+        ),
       );
     }
     for await (const edge of this.state.outgoingEdges) {
       edge.setSteps(
-        await findBestPathBetweenNodes(this.diagram!, edge.from, edge.to),
+        await findBestPathBetweenNodes(
+          this.diagram!,
+          edge.from,
+          edge.to,
+          edge.state.displacementStart,
+          edge.state.displacementEnd,
+        ),
       );
     }
   }
@@ -154,7 +216,10 @@ export class Gateway extends Element {
       const edge = new (Diagram.getClass(edgeState.class))(this, {
         from: this,
       }) as Edge;
-      edge.deserialize(edgeState);
+
+      if (this.diagram.getNodeById(edgeState.toParentId)) {
+        edge.deserialize(edgeState);
+      }
     });
   }
 

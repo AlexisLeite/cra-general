@@ -118,7 +118,7 @@ export class Dragger extends DiagramExtension {
     const mouse = Mouse.getInstance().coordinates;
 
     if (!this.draggingNodes.size) {
-      this.diagram.getExtension(Selector).selection.forEach((c) => {
+      this.diagram.getExtension(Selector).selectedNodes.forEach((c) => {
         this.draggingNodes.set(c.id, {
           node: c,
           startPoint: c.coordinates.copy(),

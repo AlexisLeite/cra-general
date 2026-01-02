@@ -8,15 +8,7 @@ import { EventNode } from '../custom/bpmn/nodes/EventNode';
 import { GateNode } from '../custom/bpmn/nodes/GateNode';
 import type { BPMNode } from '../custom/bpmn/nodes/BPMNode';
 import { Selector } from '../store/extensions/Selector';
-
-const maxIds: Record<string, number> = {};
-function getId(diagram: Diagram, prefix: string) {
-  let n = maxIds[prefix] || 0;
-  while (diagram.getNodeById(`${prefix}${n}`)) {
-    n++;
-  }
-  return n;
-}
+import { getId } from '../util/getId';
 
 const event = new EventNode(null, {
   id: 'event-1',
@@ -40,21 +32,21 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
   switch (type) {
     case 'event':
       node = new EventNode(null, {
-        id: `event${id}`,
+        id,
         label: `Event ${id}`,
         movable: true,
       });
       break;
     case 'task':
       node = new TaskNode(null, {
-        id: `task${id}`,
+        id,
         label: `Task ${id}`,
         movable: true,
       });
       break;
     case 'gate':
       node = new GateNode(null, {
-        id: `gate${id}`,
+        id,
         label: ``,
         movable: true,
       });

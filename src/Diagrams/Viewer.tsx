@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from './store/Diagram';
-import { ConnectorRenderer } from './components/extra/ConnectorRenderer';
+import { NodesConnectorRenderer } from './components/extra/NodesConnectorRenderer';
 import { Stats } from './components/extra/Stats';
 import { Tools } from './components/extra/Tools';
 
@@ -22,7 +22,7 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
         <ShapesShowcase />
         <Canvas>
           <Grid />
-          <ConnectorRenderer />
+          <NodesConnectorRenderer />
           <Measurement />
           <AlignmentSuggestions />
           <Selection />

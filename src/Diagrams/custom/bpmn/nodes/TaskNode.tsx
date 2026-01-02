@@ -1,4 +1,3 @@
-import { makeObservable, observable } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { customRendererProps } from '../../../components/objects/customRendererProps';
 import { BPMNode } from './BPMNode';
@@ -14,19 +13,7 @@ export class TaskNode extends BPMNode {
       box: state.box || new Dimensions([0, 0, 200, 100]),
     });
 
-    makeObservable(this, { value: observable });
     this.classList.add('bpmn__task');
-  }
-
-  value = '';
-
-  serialize() {
-    return { ...super.serialize(), value: this.value };
-  }
-
-  deserialize(o: ReturnType<this['serialize']>): void {
-    super.deserialize(o);
-    this.value = o.value;
   }
 
   Render = observer(() => {

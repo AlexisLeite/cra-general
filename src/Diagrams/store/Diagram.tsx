@@ -23,7 +23,11 @@ import { Hotkeys } from './extensions/Hotkeys';
 import { Measurer } from './extensions/Measurer';
 import { Selector } from './extensions/Selector';
 import { NodesConnector } from './extensions/NodesConnector';
-import { DDeleteNodeEvent, DResetGraphEvent } from './elements/Events';
+import {
+  DDeleteEdgeEvent,
+  DDeleteNodeEvent,
+  DResetGraphEvent,
+} from './elements/Events';
 import { GridSnap } from './extensions/GridSnap';
 import { StraightDrag } from './extensions/StraightDrag';
 import { DistancesBalancer } from './extensions/DistancesBalancer';
@@ -31,6 +35,7 @@ import { NodesResizer } from './extensions/NodesResizer';
 import { History } from './extensions/History';
 import { Dragger } from './extensions/Dragger';
 import { PathFindingRenderer } from './extensions/PathFindingRenderer';
+import { Mouse } from '../util/Mouse';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -126,9 +131,17 @@ export class Diagram extends Element {
     edge.to.addIncomingEdge(edge);
   }
 
-  connect(from: Gateway, to: Gateway, existentEdge?: Edge) {
-    const edge =
-      existentEdge ||
+  connect(
+    from: Gateway,
+    to: Gateway,
+    options?: {
+      fromDisplacement?: Coordinates;
+      toDisplacement?: Coordinates;
+    },
+  ) {
+    const edge = this.connectWithEdge(
+      from,
+      to,
       new this.edgeClass(this, {
         hover: false,
         dragging: false,
@@ -138,7 +151,17 @@ export class Diagram extends Element {
         label: '',
         labelPositioning: new Coordinates([0, 0]),
         steps: [],
-      });
+      }),
+    );
+
+    edge.state.displacementStart = options?.fromDisplacement;
+    edge.state.displacementEnd = options?.toDisplacement;
+
+    return edge;
+  }
+
+  connectWithEdge(from: Gateway, to: Gateway, existentEdge: Edge) {
+    const edge = existentEdge;
 
     from.addOutgoingEdge(edge);
     to.addIncomingEdge(edge);
@@ -162,11 +185,13 @@ export class Diagram extends Element {
   }
 
   disconnect(edge: Edge) {
-    runInAction(() => {
-      edge.from.removeOutgoingEdge(edge);
-      edge.to.removeIncomingEdge(edge);
-      this._edges.delete(edge.id);
-    });
+    if (!this.emit(new DDeleteEdgeEvent(this, edge)).cancelled) {
+      runInAction(() => {
+        edge.from.removeOutgoingEdge(edge);
+        edge.to.removeIncomingEdge(edge);
+        this._edges.delete(edge.id);
+      });
+    }
   }
 
   Context = ({ children }: { children: ReactNode }) => (
@@ -243,27 +268,74 @@ export class Diagram extends Element {
 
   import(w: string) {
     runInAction(() => {
-      for (const node of this._nodes.values()) {
-        this.delete(node);
+      const state = JSON.parse(w) as ReturnType<(typeof this)['serialize']>;
+
+      if (state.position) {
+        this.canvas.setScale(state.position.scale);
+        this.canvas.setDisplacement(
+          new Coordinates([state.position.x, state.position.y]),
+        );
       }
 
+      if (state.nodes) {
+        state.nodes.forEach((nodeState) => {
+          const node = new (Diagram.getClass(nodeState.class))(this, {
+            id: nodeState.id,
+          }) as Node;
+          this.add(node);
+        });
+        state.nodes.forEach((nodeState) => {
+          this.getNodeById(nodeState.id)!.deserialize(nodeState);
+        });
+      }
+    });
+  }
+
+  paste(w: string) {
+    runInAction(() => {
       const state = JSON.parse(w) as ReturnType<(typeof this)['serialize']>;
-      this.canvas.setScale(state.position.scale);
-      this.canvas.setDisplacement(
-        new Coordinates([state.position.x, state.position.y]),
-      );
 
-      this._nodes.clear();
+      if (state.position) {
+        this.canvas.setScale(state.position.scale);
+        this.canvas.setDisplacement(
+          new Coordinates([state.position.x, state.position.y]),
+        );
+      }
 
-      state.nodes.forEach((nodeState) => {
-        const node = new (Diagram.getClass(nodeState.class))(this, {
-          id: nodeState.id,
-        }) as Node;
-        this.add(node);
-      });
-      state.nodes.forEach((nodeState) => {
-        this.getNodeById(nodeState.id)!.deserialize(nodeState);
-      });
+      if (state.nodes?.length) {
+        let nearestToOrigin: Coordinates = new Coordinates([
+          Infinity,
+          Infinity,
+        ]);
+
+        state.nodes.forEach((nodeState) => {
+          const current = new Coordinates([nodeState.box[0], nodeState.box[1]]);
+          if (current.norm < nearestToOrigin.norm) {
+            nearestToOrigin = current;
+          }
+        });
+
+        const mouse = this.canvas.inverseFit(Mouse.getInstance().coordinates);
+        const diff = mouse.substract(nearestToOrigin);
+
+        state.nodes.forEach((nodeState) => {
+          const node = new (Diagram.getClass(nodeState.class))(this, {
+            id: nodeState.id,
+          }) as Node;
+          this.add(node);
+        });
+        state.nodes.forEach((nodeState) => {
+          this.getNodeById(nodeState.id)!.deserialize({
+            ...nodeState,
+            box: [
+              nodeState.box[0] + diff.x,
+              nodeState.box[1] + diff.y,
+              nodeState.box[2],
+              nodeState.box[3],
+            ],
+          });
+        });
+      }
     });
   }
 }

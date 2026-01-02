@@ -1,10 +1,4 @@
-import {
-    action,
-    computed,
-    makeObservable,
-    observable,
-    runInAction,
-} from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import type { TOrientation, TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
@@ -48,9 +42,6 @@ export class Node<Gateways = TOrientation> extends Element {
 
   canSelect() {
     if (!this.state.selected && this.state.selectable !== false) {
-      runInAction(() => {
-        this.state.selected = true;
-      });
       return true;
     }
     return false;
@@ -58,9 +49,6 @@ export class Node<Gateways = TOrientation> extends Element {
 
   canUnselect() {
     if (this.state.selected) {
-      runInAction(() => {
-        this.state.selected = false;
-      });
       return true;
     }
     return false;
@@ -171,24 +159,19 @@ export class Node<Gateways = TOrientation> extends Element {
     this.state.strokewWidth = o.strokewWidth;
 
     o.gateways.forEach((c) => {
-      const incomingEdges =
-        this._gateways.get(c.id as any)?.incomingEdges || [];
-
       this._gateways.set(
         c.id as any,
         new (Diagram.getClass(c.class))(this, {
           id: c.id,
         }) as Gateway,
       );
-
-      this._gateways.get(c.id as any)!.state.incomingEdges = incomingEdges;
     });
     o.gateways.forEach((c) => {
       this._gateways.get(c.id as any)?.deserialize(c);
     });
     this._gateways.forEach((c) =>
       c.outgoingEdges.forEach((e) => {
-        this.diagram?.connect(e.from, e.to, e);
+        this.diagram?.connectWithEdge(e.from, e.to, e);
       }),
     );
   }

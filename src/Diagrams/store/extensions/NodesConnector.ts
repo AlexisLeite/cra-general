@@ -3,8 +3,8 @@ import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
-    findBestPathBetweenNodes,
-    type Path,
+  findBestPathBetweenNodes,
+  type Path,
 } from '../../util/paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
@@ -12,12 +12,13 @@ import type { TOrientation } from '../types';
 import { bind, bindDiagram } from '../../util/binders';
 import { DiagramExtension } from './DiagramExtension';
 import {
-    DMouseMoveEvent,
-    DMouseUpEvent,
-    DNodeConnectionIntentEvent,
-    DNodesConnectActionEvent,
+  DMouseMoveEvent,
+  DMouseUpEvent,
+  DNodeConnectionIntentEvent,
+  DNodesConnectActionEvent,
 } from '../elements/Events';
 import { GridSnap } from './GridSnap';
+import { Mouse } from '../../util/Mouse';
 
 export class NodesConnector extends DiagramExtension {
   init() {
@@ -42,7 +43,7 @@ export class NodesConnector extends DiagramExtension {
 
   protected arrowTo: Coordinates | null = null;
   protected startGateway: Gateway | null = null;
-  protected candidateGateway: Gateway | null = null;
+  candidateGateway: Gateway | null = null;
 
   protected previousArrowTo: Coordinates | null = null;
   protected previousCandidateGateway: Gateway | null = null;
@@ -89,6 +90,10 @@ export class NodesConnector extends DiagramExtension {
           this.diagram,
           this.startGateway!,
           this.candidateGateway!,
+          new Coordinates([0, 0]),
+          this.candidateGateway.connectionDisplacement(
+            this.diagram.canvas.inverseFit(Mouse.getInstance().coordinates),
+          ),
         );
       } else {
         const fakeNode = new Node(null, {
@@ -195,18 +200,12 @@ export class NodesConnector extends DiagramExtension {
       .flatMap((node) => node.gateways)
       .filter((gateway) => gateway !== this.startGateway);
 
-    const dist2 = (a: Coordinates, b: Coordinates) => {
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      return dx * dx + dy * dy;
-    };
-
     const nearestGateway = candidateGateways.reduce<Gateway | null>(
       (closest, gateway) => {
         if (!closest) return gateway;
 
-        const dCurrent = dist2(gateway.coordinates, mouseOnPlane);
-        const dClosest = dist2(closest.coordinates, mouseOnPlane);
+        const dCurrent = gateway.connectionDistance(mouseOnPlane);
+        const dClosest = closest.connectionDistance(mouseOnPlane);
 
         return dCurrent < dClosest ? gateway : closest;
       },
@@ -238,7 +237,11 @@ export class NodesConnector extends DiagramExtension {
             ),
           ).cancelled
         ) {
-          this.diagram.connect(this.startGateway, this.candidateGateway);
+          this.diagram.connect(this.startGateway, this.candidateGateway, {
+            toDisplacement: this.candidateGateway.connectionDisplacement(
+              this.diagram.canvas.inverseFit(Mouse.getInstance().coordinates),
+            ),
+          });
         }
       }
     } finally {

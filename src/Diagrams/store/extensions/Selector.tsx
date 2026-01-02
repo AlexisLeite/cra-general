@@ -13,11 +13,15 @@ import {
   DMouseUpEvent,
   DMouseMoveEvent,
   DNodeSelectionEvent,
+  DEdgeSelectionEvent,
+  DDeleteEdgeEvent,
 } from '../elements/Events';
 import { Node } from '../elements/Node';
 import { DiagramExtension } from './DiagramExtension';
 import { bind, bindDiagram } from '../../util/binders';
 import { Mouse } from '../../util/Mouse';
+import { Edge } from '../elements/Edge';
+import { getId } from '../../util/getId';
 
 type SelectionMode = 'area' | 'element';
 
@@ -43,6 +47,7 @@ export class Selector extends DiagramExtension {
   public selectionMode: SelectionMode = 'element';
 
   private _selection = new Set<Node>();
+  private _edgesSelection = new Set<Edge>();
 
   /**
    * Used to draw the selection rectangle
@@ -50,12 +55,37 @@ export class Selector extends DiagramExtension {
   private endPoint: Coordinates | null = null;
   private startPoint: Coordinates | null = null;
 
+  copy() {
+    const selection: any[] = [];
+    const idMap = new Map<string, string>();
+
+    const restrict: string[] = [];
+    for (const n of this._selection) {
+      const newId = getId(this.diagram, 'node', restrict);
+      idMap.set(n.id, newId);
+      restrict.push(newId);
+    }
+
+    for (const n of this._selection) {
+      const serialized = n.serialize();
+      serialized.id = idMap.get(serialized.id)!;
+      serialized.gateways.forEach((c) => {
+        c.outEdges.forEach((e) => {
+          e.toParentId = idMap.get(e.toParentId)!;
+        });
+      });
+      selection.push(serialized);
+    }
+    return JSON.stringify({ nodes: selection });
+  }
+
   init() {
     makeObservable<Selector, '_selection' | 'endPoint' | 'startPoint'>(this, {
       _selection: observable,
       box: computed,
       endPoint: observable,
-      selection: computed,
+      selectedNodes: computed,
+      selectedEdges: computed,
       selectionMode: observable,
       selectNode: action,
       startPoint: observable,
@@ -74,6 +104,10 @@ export class Selector extends DiagramExtension {
       this._selection.delete(ev.node);
     });
 
+    this.diagram.onEvent(DDeleteEdgeEvent, (ev) => {
+      this._edgesSelection.delete(ev.edge);
+    });
+
     for (const node of this.diagram.nodes) {
       if (node.selected) {
         this._selection.add(node);
@@ -87,8 +121,11 @@ export class Selector extends DiagramExtension {
     this.selectionMode = sm;
   }
 
-  get selection() {
+  get selectedNodes() {
     return [...this._selection];
+  }
+  get selectedEdges() {
+    return [...this._edgesSelection];
   }
 
   get box() {
@@ -108,6 +145,16 @@ export class Selector extends DiagramExtension {
         this.unselectNode(n);
       }
     }
+    for (const e of this._edgesSelection) {
+      this.unselectEdge(e);
+    }
+  }
+
+  selectEdge(e: Edge) {
+    if (!this.emit(new DEdgeSelectionEvent(e, true)).cancelled) {
+      e.setState('selected', true);
+      this._edgesSelection.add(e);
+    }
   }
 
   selectNode(n: Node<any>) {
@@ -115,7 +162,15 @@ export class Selector extends DiagramExtension {
       n.canSelect() &&
       !this.emit(new DNodeSelectionEvent(n, true)).cancelled
     ) {
+      n.setState('selected', true);
       this._selection.add(n);
+    }
+  }
+
+  unselectEdge(e: Edge) {
+    if (!this.emit(new DEdgeSelectionEvent(e, false)).cancelled) {
+      e.setState('selected', false);
+      this._edgesSelection.delete(e);
     }
   }
 
@@ -124,6 +179,7 @@ export class Selector extends DiagramExtension {
       n.canUnselect() &&
       !this.emit(new DNodeSelectionEvent(n, false)).cancelled
     ) {
+      n.setState('selected', false);
       this._selection.delete(n);
     }
   }
@@ -146,8 +202,13 @@ export class Selector extends DiagramExtension {
         this.clearSelection();
       }
 
-      if (ev.node) {
-        this.selectNode(ev.node);
+      if (ev.node || ev.edge) {
+        if (ev.node) {
+          this.selectNode(ev.node);
+        }
+        if (ev.edge) {
+          this.selectEdge(ev.edge);
+        }
       } else {
         this.clearSelection();
       }
@@ -155,13 +216,26 @@ export class Selector extends DiagramExtension {
   };
 
   handleMouseMove = (_ev: DMouseMoveEvent) => {
-    this.endPoint = Mouse.getInstance().coordinates;
+    runInAction(() => {
+      this.endPoint = Mouse.getInstance().coordinates;
+    });
 
     for (const node of this.diagram.nodes) {
       if (node.box.collides(this.box)) {
         this.selectNode(node);
       } else {
         this.unselectNode(node);
+      }
+
+      for (const g of node.gateways) {
+        for (const edge of g.outgoingEdges) {
+          if (edge.collides(this.box)) {
+            this.selectEdge(edge);
+            break;
+          } else {
+            this.unselectEdge(edge);
+          }
+        }
       }
     }
   };

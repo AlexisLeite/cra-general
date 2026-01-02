@@ -45,7 +45,7 @@ export class Hotkeys extends DiagramExtension {
   }
 
   init() {
-    this.diagram.onEvent(DKeyDownEvent, (ev) => {
+    this.diagram.onEvent(DKeyDownEvent, async (ev) => {
       if (!this.revertHotkey.has(ev.code)) {
         for (const c of this.hotkeys) {
           if (this.match(ev, c)) {
@@ -79,6 +79,16 @@ export class Hotkeys extends DiagramExtension {
             });
             break;
           }
+          case 'KeyC':
+            if (ev.ctrl) {
+              navigator.clipboard.writeText(this.selector.copy());
+            }
+            break;
+          case 'KeyV':
+            if (ev.ctrl) {
+              this.diagram.paste(await navigator.clipboard.readText());
+            }
+            break;
           case 'KeyM':
             this.selector.toggleSelectionMode('element');
             break;
@@ -118,8 +128,11 @@ export class Hotkeys extends DiagramExtension {
             }
             break;
           case 'Delete':
-            this.diagram.getExtension(Selector).selection.forEach((c) => {
+            this.diagram.getExtension(Selector).selectedNodes.forEach((c) => {
               this.diagram.delete(c);
+            });
+            this.diagram.getExtension(Selector).selectedEdges.forEach((c) => {
+              this.diagram.disconnect(c);
             });
         }
       }

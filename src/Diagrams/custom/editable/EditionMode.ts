@@ -29,7 +29,7 @@ export class EditionMode extends DiagramExtension {
     this.diagram.onEvent(DKeyDownEvent, (ev) => {
       switch (ev.code) {
         case 'F2': {
-          const selectedNode = this.diagram.getExtension(Selector).selection[0];
+          const selectedNode = this.diagram.getExtension(Selector).selectedNodes[0];
           if (selectedNode instanceof EditableNode) {
             this.editNode(selectedNode);
           }

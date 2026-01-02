@@ -19,6 +19,10 @@ export abstract class EditableNode extends Node {
     });
   }
 
+  public get label() {
+    return this.state.label;
+  }
+
   private previous: string | null = null;
   public edit() {
     this.previous = this.state.label;

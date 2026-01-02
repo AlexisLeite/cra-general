@@ -328,6 +328,17 @@ export class DDeleteNodeEvent extends DChangeEvent {
   }
 }
 
+export class DDeleteEdgeEvent extends DChangeEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    public src: Element,
+    public edge: Edge,
+  ) {
+    super(src);
+  }
+}
+
 export abstract class DSelectionEvent extends DUIEvent {
   declare protected readonly __brand: void;
 

@@ -11,7 +11,10 @@ export const OpenTool = observer(function OpenTool() {
       className="tool"
       onClick={async () => {
         const content = await readFile();
-        if (content) d.import(content);
+        if (content) {
+          d.reset();
+          d.import(content);
+        }
       }}
       title="Open"
     />
