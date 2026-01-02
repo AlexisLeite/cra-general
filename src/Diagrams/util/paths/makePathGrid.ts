@@ -18,8 +18,8 @@ self.onmessage = ({
   gridSize: number;
 }>) => {
   const AParent = new Dimensions([
-    ASerialize.parentDimensions[1],
     ASerialize.parentDimensions[0],
+    ASerialize.parentDimensions[1],
     ASerialize.parentDimensions[2],
     ASerialize.parentDimensions[3],
   ]);
@@ -118,5 +118,5 @@ self.onmessage = ({
     },
   );
 
-  self.postMessage(points?.map((c) => c.raw) || []);
+  self.postMessage(points?.map((c) => c.raw) || null);
 };
