@@ -15,7 +15,7 @@ export class GridSnap extends DiagramExtension {
     this.diagram.onEvent(
       DDragNodeEvent,
       (ev) => {
-        if (this.enable) {
+        if (this._enable) {
           for (const e of ev.proposals) {
             const newCoordinates = new Coordinates([
               Math.round(e.newBox.coordinates.x / this.gridSize) *

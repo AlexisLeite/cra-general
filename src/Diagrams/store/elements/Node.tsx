@@ -26,6 +26,7 @@ export class Node<Gateways = TOrientation> extends Element {
     this.state = {
       ...state,
       box: state.box ?? new Dimensions([0, 0, 100, 80]),
+      zIndex: state.zIndex ?? 100,
     };
 
     this.classList.add('diagram__node');
@@ -159,12 +160,18 @@ export class Node<Gateways = TOrientation> extends Element {
     this.state.strokewWidth = o.strokewWidth;
 
     o.gateways.forEach((c) => {
+      const incoming = this._gateways.get(c.id as any)?.incomingEdges || [];
+
       this._gateways.set(
         c.id as any,
         new (Diagram.getClass(c.class))(this, {
           id: c.id,
         }) as Gateway,
       );
+
+      for (const i of incoming) {
+        this._gateways.get(c.id as any)?.addIncomingEdge(i);
+      }
     });
     o.gateways.forEach((c) => {
       this._gateways.get(c.id as any)?.deserialize(c);

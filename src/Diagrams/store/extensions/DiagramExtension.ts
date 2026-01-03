@@ -11,7 +11,7 @@ export abstract class DiagramExtension extends Element {
       toggle: action,
     });
 
-    this.enable =
+    this._enable =
       localStorage.getItem(`enable_${this.constructor.name}`) !== 'false';
   }
 
@@ -21,17 +21,25 @@ export abstract class DiagramExtension extends Element {
     return this.parent;
   }
 
-  protected enable = true;
+  protected _enable = true;
 
   public get enabled() {
-    return this.enable;
+    return this._enable;
   }
 
-  toggle(newValue = !this.enable) {
-    this.enable = newValue;
+  public disable() {
+    this._enable = false;
+  }
+
+  public enable() {
+    this._enable = true;
+  }
+
+  toggle(newValue = !this._enable) {
+    this._enable = newValue;
     localStorage.setItem(
       `enable_${this.constructor.name}`,
-      String(this.enable),
+      String(this._enable),
     );
   }
 }

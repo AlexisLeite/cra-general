@@ -16,12 +16,12 @@ export class History extends DiagramExtension {
   private index = -1;
   private snapshots: string[] = [];
 
-  private avoidEvents(cb: () => unknown) {
-    this.enable = false;
+  private async avoidEvents(cb: () => unknown) {
+    this.disable();
     try {
-      cb();
+      await cb();
     } finally {
-      this.enable = true;
+      this.enable();
     }
   }
 
@@ -49,8 +49,9 @@ export class History extends DiagramExtension {
 
   redo() {
     if (this.hasNext) {
-      this.avoidEvents(() => {
+      this.avoidEvents(async () => {
         this.index = Math.min(this.snapshots.length - 1, this.index + 1);
+        await this.diagram.reset();
         this.diagram.import(this.snapshots[this.index]);
       });
     }
@@ -58,8 +59,9 @@ export class History extends DiagramExtension {
 
   undo() {
     if (this.hasPrevious) {
-      this.avoidEvents(() => {
+      this.avoidEvents(async () => {
         this.index = Math.max(-1, this.index - 1);
+        await this.diagram.reset();
         this.diagram.import(this.snapshots[this.index] || '{}');
       });
     }
