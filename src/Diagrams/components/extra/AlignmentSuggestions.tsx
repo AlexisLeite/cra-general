@@ -23,7 +23,7 @@ export const AlignmentSuggestions = makeScalableComponent(
             <Shape
               className="alignment_sugestion"
               paths={[{ d: path }]}
-              key={path}
+              key={c.id}
             />
           );
         })}

@@ -4,17 +4,20 @@ import { DiagramExtension } from './DiagramExtension';
 import type { Node } from '../elements/Node';
 import { Dimensions } from '../primitives/Dimensions';
 import { bindDocument } from '../../util/binders';
+import { getUniqueId } from '../../util/getUniqueId';
 
 type Proposal =
   | {
       type: 'v';
       y: number;
       range: [number, number];
+      id: string;
     }
   | {
       type: 'h';
       x: number;
       range: [number, number];
+      id: string;
     };
 
 type CandidateType = 'HL' | 'HC' | 'HR' | 'VT' | 'VM' | 'VB';
@@ -271,12 +274,14 @@ export class NodesAligner extends DiagramExtension {
                       x: p.position,
                       type: 'h',
                       range: p.range,
+                      id: getUniqueId('alignment-proposal'),
                     });
                   } else {
                     this.proposals.push({
                       y: p.position,
                       type: 'v',
                       range: p.range,
+                      id: getUniqueId('alignment-proposal'),
                     });
                   }
                 });

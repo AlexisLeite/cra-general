@@ -6,8 +6,8 @@ export abstract class DiagramExtension extends Element {
   constructor(public parent: Diagram) {
     super(parent);
 
-    makeObservable<typeof this, 'enable'>(this, {
-      enable: observable,
+    makeObservable<typeof this, '_enable'>(this, {
+      _enable: observable,
       toggle: action,
     });
 

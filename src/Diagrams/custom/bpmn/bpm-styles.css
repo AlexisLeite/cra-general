@@ -37,16 +37,19 @@
   }
 
   .bpm__lanes {
+    pointer-events: all !important;
     justify-self: stretch;
     width: 100% !important;
     height: 60px !important;
+    padding: 0 !important;
 
-    .lane__row {
-      height: 15px;
+    .lane__head {
+      height: 30px;
     }
   }
 
-  .node__tools {
+  .node__tools,
+  .lane__resize {
     display: none;
   }
 }
@@ -86,10 +89,13 @@
   background: none;
   border: none;
   position: relative;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  pointer-events: none;
 
   .lane__pools {
     display: grid;
-    grid-template-columns: 20px calc(100% - 20px);
+    grid-template-columns: 50px calc(100% - 50px);
     width: 100%;
     height: 100%;
 
@@ -100,7 +106,6 @@
   }
 
   .lane__label {
-    font-size: 12px;
     writing-mode: vertical-rl;
     text-orientation: mixed;
     transform: rotate(180deg);
@@ -108,6 +113,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+    border: none;
 
     input {
       background: transparent;
@@ -119,13 +125,34 @@
     }
   }
 
-  .lane__row {
+  .lane__head {
     display: flex;
     justify-content: center;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
     padding: 8px 0;
-    height: 100px;
+    height: 250px;
+    box-sizing: border-box;
+    width: 50px;
+    pointer-events: all;
+    cursor: move;
+  }
+
+  .lane__resize {
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    background: white;
+    border: 1px solid black;
+    cursor: col-resize;
+    width: 10px;
+    height: 10px;
+    pointer-events: all;
+  }
+
+  .node__tools {
+    top: 25px;
+    pointer-events: all;
   }
 }

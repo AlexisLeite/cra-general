@@ -21,7 +21,7 @@ import { DiagramExtension } from './DiagramExtension';
 import { bind, bindDiagram } from '../../util/binders';
 import { Mouse } from '../../util/Mouse';
 import { Edge } from '../elements/Edge';
-import { getId } from '../../util/getId';
+import { getIdForNode } from '../../util/getIdForNode';
 
 type SelectionMode = 'area' | 'element';
 
@@ -61,7 +61,7 @@ export class Selector extends DiagramExtension {
 
     const restrict: string[] = [];
     for (const n of this._selection) {
-      const newId = getId(this.diagram, 'node', restrict);
+      const newId = getIdForNode(this.diagram, 'node', restrict);
       idMap.set(n.id, newId);
       restrict.push(newId);
     }

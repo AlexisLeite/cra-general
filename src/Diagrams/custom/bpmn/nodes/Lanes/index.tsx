@@ -1,14 +1,16 @@
 import { Fragment, useRef, type FC } from 'react';
-import { BPMNode } from './BPMNode';
+import { BPMNode } from '../BPMNode';
 import { observer } from 'mobx-react-lite';
-import { Element } from '../../../store/elements/Element';
+import { Element } from '../../../../store/elements/Element';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { customRendererProps } from '../../../components/objects/customRendererProps';
+import { customRendererProps } from '../../../../components/objects/customRendererProps';
 import { PiPlusCircleFill } from 'react-icons/pi';
-import { Dimensions } from '../../../store/primitives/Dimensions';
-import { NodeTools } from '../../../components/nodes/NodeTools';
-import { cloneDeep } from '../../../util/cloneDeep';
-import { allowEventInEdition } from '../../editable/EditionMode';
+import { Dimensions } from '../../../../store/primitives/Dimensions';
+import { NodeTools } from '../../../../components/nodes/NodeTools';
+import { cloneDeep } from '../../../../util/cloneDeep';
+import { allowEventInEdition } from '../../../editable/EditionMode';
+import { LanesResizer } from './LanesResizer';
+import { AddLaneEvent } from '../../bpmnEvents';
 
 export type TPool = {
   name: string;
@@ -16,8 +18,8 @@ export type TPool = {
 };
 
 export class Lanes extends BPMNode {
-  constructor(parent: Element | null, id: string) {
-    super(parent, { id, label: '' });
+  constructor(parent: Element | null, state: { id: string }) {
+    super(parent, { ...state, label: '', zIndex: 50 });
 
     makeObservable<Lanes, 'editionIndex'>(this, {
       pools: observable,
@@ -37,23 +39,24 @@ export class Lanes extends BPMNode {
       this.state.box.x,
       this.state.box.y,
       this.state.box.width,
-      this.pools.length * 100,
+      this.pools.length * 250 + 50,
     ]);
   }
 
   addPool() {
-    let i = 0;
-    while (this.pools.some((c) => c.name === `pool${i}`)) {
-      i++;
+    if (!this.emit(new AddLaneEvent(this)).cancelled) {
+      let i = 0;
+      while (this.pools.some((c) => c.name === `pool${i}`)) {
+        i++;
+      }
+
+      const newPool = {
+        label: `Pool ${i}`,
+        name: `pool${i}`,
+      };
+
+      this.pools.push(newPool);
     }
-
-    const newPool = {
-      label: `Pool ${i}`,
-      name: `pool${i}`,
-    };
-
-    this.pools.push(newPool);
-
     return this.pools.at(-1)!;
   }
 
@@ -68,9 +71,12 @@ export class Lanes extends BPMNode {
   }
 
   confirm() {
-    this.editionIndex = 0;
-    this.previousPools = [];
-    super.confirm();
+    if (super.confirm()) {
+      this.editionIndex = 0;
+      this.previousPools = [];
+      return true;
+    }
+    return false;
   }
 
   public edit(): void {
@@ -80,6 +86,15 @@ export class Lanes extends BPMNode {
 
   resetPools() {
     this.pools = [];
+  }
+
+  deserialize(o: ReturnType<this['serialize']>): void {
+    super.deserialize(o);
+    this.pools = o.pools;
+  }
+
+  serialize() {
+    return { ...super.serialize(), pools: cloneDeep(this.pools) };
   }
 
   pools: TPool[] = [
@@ -97,7 +112,7 @@ export class Lanes extends BPMNode {
         <div className="lane__pools">
           {this.pools.map((c, i) => (
             <Fragment key={c.name}>
-              <div className="lane__row">
+              <div className="lane__head">
                 <div
                   className="lane__label"
                   onDoubleClick={() => {
@@ -152,7 +167,7 @@ export class Lanes extends BPMNode {
                   )}
                 </div>
               </div>
-              <div></div>
+              <div className="lane__content"></div>
             </Fragment>
           ))}
         </div>
@@ -162,6 +177,7 @@ export class Lanes extends BPMNode {
             onClick={() => this.addPool()}
           />
         </NodeTools>
+        <LanesResizer lanes={this} />
       </div>
     );
   });

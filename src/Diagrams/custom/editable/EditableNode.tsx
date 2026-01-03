@@ -40,8 +40,10 @@ export abstract class EditableNode extends Node {
         .cancelled
     ) {
       this.cancel();
+      return false;
     } else {
       this.editionMode = false;
+      return true;
     }
   }
 

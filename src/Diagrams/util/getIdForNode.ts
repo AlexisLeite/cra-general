@@ -1,7 +1,7 @@
 import { Diagram } from '../store/Diagram';
 
 const maxIds: Record<string, number> = {};
-export function getId(
+export function getIdForNode(
   diagram: Diagram,
   prefix: string,
   restrict: string[] = [],

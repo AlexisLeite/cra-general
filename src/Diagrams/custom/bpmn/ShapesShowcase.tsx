@@ -3,7 +3,7 @@ import { CollapsiblePanel } from '../../layout/CollapsiblePanel';
 import { Diagram } from '../../store/Diagram';
 import { Dragger } from '../../store/extensions/Dragger';
 import { Selector } from '../../store/extensions/Selector';
-import { getId } from '../../util/getId';
+import { getIdForNode } from '../../util/getIdForNode';
 import { Mouse } from '../../util/Mouse';
 import { BPMNode } from './nodes/BPMNode';
 import { EventNode } from './nodes/EventNode';
@@ -24,7 +24,7 @@ const task = new TaskNode(null, {
   label: '',
 });
 
-const lanes = new Lanes(null, 'lanes-1');
+const lanes = new Lanes(null, { id: 'lanes-1' });
 lanes.resetPools();
 lanes.addPool().label = '';
 lanes.addPool().label = '';
@@ -33,7 +33,7 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
   ev.nativeEvent.stopImmediatePropagation();
 
   let node: BPMNode | null = null;
-  const id = getId(d, type);
+  const id = getIdForNode(d, type);
 
   switch (type) {
     case 'event':
@@ -58,7 +58,7 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
       });
       break;
     case 'lane':
-      node = new Lanes(null, id);
+      node = new Lanes(null, { id });
   }
 
   if (node !== null) {
