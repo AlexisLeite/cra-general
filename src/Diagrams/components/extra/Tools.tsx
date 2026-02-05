@@ -16,6 +16,7 @@ import { AlignNodesTool } from './tools/AlignNodesTool';
 import { UndoTool } from './tools/UndoTool';
 import { RedoTool } from './tools/RedoTool';
 import { NewDocumentTool } from './tools/NewDocumentTool';
+import { CaptureTool } from './tools/CaptureTool';
 
 export class ToolsStates {
   static instance = new ToolsStates();
@@ -58,6 +59,7 @@ export const Tools = observer(() => {
             !ToolsStates.instance.showDragHints;
         }}
       />
+      <CaptureTool />
     </Toolbar>
   );
 });
