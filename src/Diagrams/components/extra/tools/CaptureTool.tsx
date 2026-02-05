@@ -71,14 +71,14 @@ async function captureHtmlNodeImage(
 ) {
   const wrapper = document.createElement('div');
   wrapper.style.position = 'fixed';
-  wrapper.style.left = '0';
-  wrapper.style.top = '0';
+  wrapper.style.left = '-100000px';
+  wrapper.style.top = '-100000px';
   wrapper.style.width = `${box.width}px`;
   wrapper.style.height = `${box.height}px`;
   wrapper.style.overflow = 'hidden';
   wrapper.style.pointerEvents = 'none';
   wrapper.style.opacity = '1';
-  wrapper.style.zIndex = '2147483647';
+  wrapper.style.zIndex = '-1';
 
   const clone = node.cloneNode(true) as HTMLElement;
   clone.style.position = 'relative';

@@ -1,4 +1,4 @@
-import { Fragment, useRef, type FC } from 'react';
+import { useRef, type FC } from 'react';
 import { BPMNode } from '../BPMNode';
 import { observer } from 'mobx-react-lite';
 import { Element } from '../../../../store/elements/Element';
@@ -18,6 +18,10 @@ export type TPool = {
 };
 
 export class Lanes extends BPMNode {
+  static readonly laneHeaderWidth = 50;
+  static readonly laneHeight = 250;
+  static readonly lanePadding = 25;
+
   constructor(parent: Element | null, state: { id: string }) {
     super(parent, { ...state, label: '', zIndex: 50 });
 
@@ -35,11 +39,12 @@ export class Lanes extends BPMNode {
   }
 
   get box() {
+    const poolsHeight = this.pools.length * Lanes.laneHeight;
     return new Dimensions([
       this.state.box.x,
       this.state.box.y,
       this.state.box.width,
-      this.pools.length * 250 + 50,
+      poolsHeight + Lanes.lanePadding * 2,
     ]);
   }
 
@@ -106,71 +111,107 @@ export class Lanes extends BPMNode {
 
   Render: FC = observer(() => {
     const focused = useRef(-1);
+    const laneBodyHeight = this.pools.length * Lanes.laneHeight;
 
     return (
       <div {...customRendererProps(this)}>
-        <div className="lane__pools">
-          {this.pools.map((c, i) => (
-            <Fragment key={c.name}>
-              <div className="lane__head">
-                <div
-                  className="lane__label"
+        <svg
+          className="lane__svg"
+          viewBox={`0 0 ${this.state.box.width} ${laneBodyHeight}`}
+          preserveAspectRatio="none"
+        >
+          {this.pools.map((c, i) => {
+            const y = i * Lanes.laneHeight;
+            return (
+              <g key={c.name}>
+                <rect
+                  className="lane__head"
+                  x={0}
+                  y={y}
+                  width={Lanes.laneHeaderWidth}
+                  height={Lanes.laneHeight}
                   onDoubleClick={() => {
                     this.edit();
                     runInAction(() => {
                       this.editionIndex = i;
                     });
                   }}
-                  onKeyDownCapture={(ev) => {
-                    if (
-                      this.editionMode &&
-                      !allowEventInEdition(ev.nativeEvent)
-                    ) {
-                      ev.nativeEvent.stopImmediatePropagation();
-                    }
-                  }}
-                  onKeyDown={(ev) => {
-                    if (ev.code === 'Tab') {
-                      ev.preventDefault();
-                      runInAction(() => {
-                        const sum = ev.shiftKey ? -1 : 1;
-                        this.editionIndex =
-                          (this.editionIndex + sum) % this.pools.length;
-                      });
-                    }
-                  }}
-                >
-                  {this.editionMode && this.editionIndex === i ? (
-                    <input
-                      autoFocus
-                      onMouseDown={(ev) => {
-                        ev.nativeEvent.stopImmediatePropagation();
-                      }}
-                      value={c.label}
-                      onChange={(ev) => {
-                        runInAction(() => {
-                          c.label = ev.target.value;
-                        });
-                      }}
-                      ref={(el) => {
-                        if (
-                          el instanceof HTMLInputElement &&
-                          focused.current !== i
-                        ) {
-                          focused.current = i;
-                          el.select();
-                        }
-                      }}
-                    />
-                  ) : (
-                    c.label
+                />
+                <rect
+                  className="lane__content"
+                  x={Lanes.laneHeaderWidth}
+                  y={y}
+                  width={Math.max(
+                    0,
+                    this.state.box.width - Lanes.laneHeaderWidth - 5,
                   )}
-                </div>
-              </div>
-              <div className="lane__content"></div>
-            </Fragment>
-          ))}
-        </div>
+                  height={Lanes.laneHeight}
+                />
+                {(!this.editionMode || this.editionIndex !== i) && (
+                  <text
+                    className="lane__label"
+                    x={Lanes.laneHeaderWidth / 2}
+                    y={y + Lanes.laneHeight / 2}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    transform={`rotate(-90 ${Lanes.laneHeaderWidth / 2} ${y + Lanes.laneHeight / 2})`}
+                  >
+                    {c.label}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+        {this.pools.map((c, i) => {
+          if (!this.editionMode || this.editionIndex !== i) {
+            return null;
+          }
+          return (
+            <input
+              key={c.name}
+              className="lane__labelInput"
+              autoFocus
+              style={{
+                top: `${i * Lanes.laneHeight}px`,
+                left: '0px',
+                width: `${Lanes.laneHeaderWidth}px`,
+                height: `${Lanes.laneHeight}px`,
+              }}
+              onMouseDown={(ev) => {
+                ev.nativeEvent.stopImmediatePropagation();
+              }}
+              onKeyDownCapture={(ev) => {
+                if (this.editionMode && !allowEventInEdition(ev.nativeEvent)) {
+                  ev.nativeEvent.stopImmediatePropagation();
+                }
+              }}
+              onKeyDown={(ev) => {
+                if (ev.code === 'Tab') {
+                  ev.preventDefault();
+                  runInAction(() => {
+                    const sum = ev.shiftKey ? -1 : 1;
+                    this.editionIndex =
+                      (this.editionIndex + sum + this.pools.length) %
+                      this.pools.length;
+                  });
+                }
+              }}
+              value={c.label}
+              onChange={(ev) => {
+                runInAction(() => {
+                  c.label = ev.target.value;
+                });
+              }}
+              ref={(el) => {
+                if (el instanceof HTMLInputElement && focused.current !== i) {
+                  focused.current = i;
+                  el.select();
+                }
+              }}
+            />
+          );
+        })}
         <NodeTools>
           <PiPlusCircleFill
             className="add_lane"

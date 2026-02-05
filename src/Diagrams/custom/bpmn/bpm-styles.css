@@ -93,50 +93,48 @@
   padding-bottom: 25px;
   pointer-events: none;
 
-  .lane__pools {
-    display: grid;
-    grid-template-columns: 50px calc(100% - 50px);
+  .lane__svg {
     width: 100%;
     height: 100%;
-
-
-    &>div {
-      border: 1px solid var(--node-stroke);
-    }
+    overflow: visible;
+    pointer-events: none;
   }
 
-  .lane__label {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    border: none;
-
-    input {
-      background: transparent;
-      color: inherit;
-      border: none;
-      outline: none;
-      text-align: center;
-      height: 100%;
-    }
+  .lane__head,
+  .lane__content {
+    fill: transparent;
+    stroke: var(--node-stroke);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
   }
 
   .lane__head {
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-    padding: 8px 0;
-    height: 250px;
-    box-sizing: border-box;
-    width: 50px;
     pointer-events: all;
     cursor: move;
+  }
+
+  .lane__label {
+    pointer-events: none;
+    fill: currentColor;
+    dominant-baseline: middle;
+    text-anchor: middle;
+    user-select: none;
+  }
+
+  .lane__labelInput {
+    position: absolute;
+    background: transparent;
+    color: inherit;
+    border: none;
+    outline: none;
+    text-align: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    pointer-events: all;
+    box-sizing: border-box;
+    padding: 8px 0;
+    transform-origin: center;
   }
 
   .lane__resize {
