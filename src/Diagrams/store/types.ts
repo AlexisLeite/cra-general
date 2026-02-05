@@ -18,6 +18,7 @@ export type TNodeState = {
   strokewWidth: number;
   hover: boolean;
   zIndex: number;
+  groupChildren: boolean;
 }>;
 
 export type EdgePathType = 'straight' | 'curved' | 'angle';

@@ -23,7 +23,7 @@ export class Lanes extends BPMNode {
   static readonly lanePadding = 25;
 
   constructor(parent: Element | null, state: { id: string }) {
-    super(parent, { ...state, label: '', zIndex: 50 });
+    super(parent, { ...state, label: '', zIndex: 50, groupChildren: true });
 
     makeObservable<Lanes, 'editionIndex'>(this, {
       pools: observable,
