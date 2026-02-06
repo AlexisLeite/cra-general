@@ -23,7 +23,7 @@ export class GateNode extends BPMNode {
   ) {
     super(parent, state);
 
-    this.setType(state.type || GateTypes.exclusive);
+    this.setType(state.type ?? GateTypes.exclusive);
     this.state.box.assignDimensions(new Coordinates([80, 80]));
     this.classList.add('bpmn__gate');
   }
@@ -60,6 +60,15 @@ export class GateNode extends BPMNode {
           break;
       }
     }
+  }
+
+  serialize() {
+    return { ...super.serialize(), type: this.type };
+  }
+
+  deserialize(o: ReturnType<this['serialize']>) {
+    this.setType(o.type ?? GateTypes.exclusive);
+    super.deserialize(o);
   }
 
   protected Render = observer(() => {

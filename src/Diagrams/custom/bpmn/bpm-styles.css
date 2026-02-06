@@ -80,6 +80,25 @@
       top: 70px;
     }
   }
+
+  &.bpmn__unknown {
+    border: 2px dashed var(--node-stroke);
+    border-radius: 8px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.45);
+
+    .bpmn__unknown__marker {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -55%);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      opacity: 0.75;
+      pointer-events: none;
+    }
+  }
 }
 
 .diagram__node.bpm__lanes {

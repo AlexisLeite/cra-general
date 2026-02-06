@@ -24,7 +24,7 @@ export class EventNode extends BPMNode {
   ) {
     super(parent, state);
 
-    this.setType(state.type || EventTypes.start);
+    this.setType(state.type ?? EventTypes.start);
     this.state.box.assignDimensions(new Coordinates([80, 80]));
     this.classList.add('bpmn__event');
   }
@@ -62,8 +62,8 @@ export class EventNode extends BPMNode {
   }
 
   deserialize(o: ReturnType<this['serialize']>): void {
+    this.setType(o.type ?? EventTypes.start);
     super.deserialize(o);
-    this.type = o.type;
   }
 
   protected Render = observer(() => {
