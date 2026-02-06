@@ -310,6 +310,17 @@ export class Canvas extends Element {
   }
 
   protected handleWheel(originalEvent: WheelEvent) {
+    const frame = this.element?.parentElement;
+    const target = originalEvent.target;
+    const insideFrame =
+      frame &&
+      target instanceof Node &&
+      (frame === target || frame.contains(target));
+
+    if (!insideFrame) {
+      return;
+    }
+
     const ev = this.emit(new DWheelEvent(this, originalEvent));
 
     if (!ev.cancelled) {

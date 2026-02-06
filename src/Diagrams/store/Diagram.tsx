@@ -36,6 +36,7 @@ import { History } from './extensions/History';
 import { Dragger } from './extensions/Dragger';
 import { PathFindingRenderer } from './extensions/PathFindingRenderer';
 import { Mouse } from '../util/Mouse';
+import { getIdForNode } from '../util/getIdForNode';
 
 const DiagramContext = createContext<Diagram | null>(null);
 
@@ -117,8 +118,27 @@ export class Diagram extends Element {
     return [...this._nodes.values()];
   }
 
+  private getUniqueNodeId(baseId: string) {
+    if (!this._nodes.has(baseId)) {
+      return baseId;
+    }
+
+    let i = 1;
+    let candidate = `${baseId}-${i}`;
+    while (this._nodes.has(candidate)) {
+      i++;
+      candidate = `${baseId}-${i}`;
+    }
+
+    return candidate;
+  }
+
   add<T extends Node>(node: T): T {
     runInAction(() => {
+      const uniqueId = this.getUniqueNodeId(node.id);
+      if (uniqueId !== node.id) {
+        node.setState('id', uniqueId);
+      }
       node.setDiagram(this);
       this._nodes.set(node.id, node);
     });
@@ -279,14 +299,28 @@ export class Diagram extends Element {
       }
 
       if (state.nodes) {
+        const idMap = new Map<string, string>();
+
         state.nodes.forEach((nodeState) => {
           const node = new (Diagram.getClass(nodeState.class))(this, {
             id: nodeState.id,
           }) as Node;
-          this.add(node);
+          const addedNode = this.add(node);
+          idMap.set(nodeState.id, addedNode.id);
         });
         state.nodes.forEach((nodeState) => {
-          this.getNodeById(nodeState.id)!.deserialize(nodeState);
+          const remappedNodeId = idMap.get(nodeState.id)!;
+          this.getNodeById(remappedNodeId)!.deserialize({
+            ...nodeState,
+            id: remappedNodeId,
+            gateways: nodeState.gateways.map((gatewayState) => ({
+              ...gatewayState,
+              outEdges: gatewayState.outEdges.map((edgeState) => ({
+                ...edgeState,
+                toParentId: idMap.get(edgeState.toParentId) || edgeState.toParentId,
+              })),
+            })),
+          });
         });
       }
     });
@@ -304,6 +338,15 @@ export class Diagram extends Element {
       }
 
       if (state.nodes?.length) {
+        const idMap = new Map<string, string>();
+        const restrict: string[] = [];
+
+        state.nodes.forEach((nodeState) => {
+          const newId = getIdForNode(this, 'node', restrict);
+          idMap.set(nodeState.id, newId);
+          restrict.push(newId);
+        });
+
         let nearestToOrigin: Coordinates = new Coordinates([
           Infinity,
           Infinity,
@@ -321,13 +364,22 @@ export class Diagram extends Element {
 
         state.nodes.forEach((nodeState) => {
           const node = new (Diagram.getClass(nodeState.class))(this, {
-            id: nodeState.id,
+            id: idMap.get(nodeState.id)!,
           }) as Node;
           this.add(node);
         });
         state.nodes.forEach((nodeState) => {
-          this.getNodeById(nodeState.id)!.deserialize({
+          const remappedNodeId = idMap.get(nodeState.id)!;
+          this.getNodeById(remappedNodeId)!.deserialize({
             ...nodeState,
+            id: remappedNodeId,
+            gateways: nodeState.gateways.map((gatewayState) => ({
+              ...gatewayState,
+              outEdges: gatewayState.outEdges.map((edgeState) => ({
+                ...edgeState,
+                toParentId: idMap.get(edgeState.toParentId) || edgeState.toParentId,
+              })),
+            })),
             box: [
               nodeState.box[0] + diff.x,
               nodeState.box[1] + diff.y,

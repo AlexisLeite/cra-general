@@ -31,7 +31,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={flip ? 0 : arrowSize * 0.9}
           refY={arrowSize / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <path
             d={`M0,0 L${arrowSize},${arrowSize / 2} L0,${arrowSize} Z`}
@@ -50,7 +50,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={flip ? 0 : arrowSize}
           refY={arrowSize / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <path
             d={`M0,0 L${arrowSize},${arrowSize / 2} L0,${arrowSize} Z`}
@@ -70,7 +70,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={flip ? 0 : arrowSize}
           refY={arrowSize / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <path
             d={`M0,0 L${arrowSize},${arrowSize / 2} L0,${arrowSize} Z`}
@@ -89,7 +89,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={flip ? 0 : arrowSize * 0.9}
           refY={arrowSize / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <path
             d={`M0,${arrowSize / 2} L${arrowSize / 2},0 L${arrowSize},${
@@ -111,7 +111,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={arrowSize / 2}
           refY={arrowSize / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <circle
             cx={arrowSize / 2}
@@ -133,7 +133,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={(arrowSize * 1.5) / 2}
           refY={(arrowSize * 1.5) / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <circle
             cx={(arrowSize * 1.5) / 2}
@@ -155,7 +155,7 @@ export const EdgeMarker: React.FC<EdgeMarkerProps> = ({
           refX={0}
           refY={arrowSize / 2}
           orient={orient}
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
         >
           <path
             d={`M0,0 L0,${arrowSize / 2}`}

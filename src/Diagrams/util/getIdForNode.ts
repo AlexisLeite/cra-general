@@ -13,5 +13,6 @@ export function getIdForNode(
   ) {
     n++;
   }
+  maxIds[prefix] = n + 1;
   return `${prefix}${n}`;
 }

@@ -15,24 +15,21 @@ export function arePointsAligned(
   return Math.abs(crossProduct) < ALIGNMENT_THRESHOLD;
 }
 
-function getPoints(
-  points: Coordinates[],
-  center: number,
-): [Coordinates, Coordinates] {
-  return [points[center - 1], points[center]];
-}
-
 export function getSegmentMidpoints(
   edge: Edge,
   points: (Coordinates | EdgePoint)[],
 ): Midpoint[] {
   const midpoints: Midpoint[] = [];
 
-  for (let i = 1; i < points.length - 1; i++) {
-    const segment = getPoints(points, i);
+  for (let i = 0; i < points.length - 1; i++) {
+    const segment: [Coordinates, Coordinates] = [points[i], points[i + 1]];
 
-    // Don't consider segments with static points
-    if (segment.find((c) => c instanceof EdgePoint && c.mode === 'static')) {
+    const staticCount = segment.filter(
+      (c) => c instanceof EdgePoint && c.mode === 'static',
+    ).length;
+
+    // Allow static-nonstatic segments to be dragged; only skip fully static.
+    if (staticCount === 2) {
       continue;
     }
 
