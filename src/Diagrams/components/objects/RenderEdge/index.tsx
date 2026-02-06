@@ -39,6 +39,7 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
     startStroke = color,
 
     onMidpointMouseDown,
+    onEndpointMouseDown,
     className,
 
     draggable,
@@ -63,6 +64,16 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
         : lineStyle === 'dotted'
           ? `${width},${width * 2}`
           : 'none';
+
+    const showDragMidpoints = Boolean(
+      edge &&
+      draggable &&
+      (edge.state.hover || edge.state.dragging || edge.state.selected),
+    );
+
+    const showEndpointHandles = Boolean(
+      edge && draggable && (edge.state.selected || edge.state.dragging),
+    );
 
     return (
       <g
@@ -140,17 +151,38 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
             <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
           ))}
 
-        {edge &&
-          (edge.state.hover || edge.state.dragging || edge.state.selected) &&
-          draggable && (
-            <EdgeMidpoints
-              edge={edge}
-              points={points}
-              onMouseDown={(midpointIndex, ev) => {
-                onMidpointMouseDown?.(midpointIndex, ev);
+        {showDragMidpoints && (
+          <EdgeMidpoints
+            edge={edge!}
+            points={points}
+            onMouseDown={(midpointIndex, ev) => {
+              onMidpointMouseDown?.(midpointIndex, ev);
+            }}
+          />
+        )}
+
+        {showEndpointHandles && (
+          <>
+            <circle
+              cx={points[0].x}
+              cy={points[0].y}
+              r={6}
+              className="edge_endpoint_drag_point"
+              onMouseDownCapture={(ev) => {
+                onEndpointMouseDown?.('from', ev);
               }}
             />
-          )}
+            <circle
+              cx={points.at(-1)!.x}
+              cy={points.at(-1)!.y}
+              r={6}
+              className="edge_endpoint_drag_point"
+              onMouseDownCapture={(ev) => {
+                onEndpointMouseDown?.('to', ev);
+              }}
+            />
+          </>
+        )}
       </g>
     );
   },

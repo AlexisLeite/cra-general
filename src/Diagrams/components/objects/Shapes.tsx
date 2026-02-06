@@ -75,6 +75,9 @@ const DiagramEdge = observer(({ edge }: { edge: Edge }) => {
       onMidpointMouseDown={(m, ev) => {
         edge.dragStart(m, ev);
       }}
+      onEndpointMouseDown={(endpoint, ev) => {
+        edge.dragEndpoint(endpoint, ev);
+      }}
     />
   );
 });

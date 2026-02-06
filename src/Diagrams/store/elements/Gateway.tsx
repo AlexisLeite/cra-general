@@ -381,7 +381,9 @@ export class Gateway extends Element {
   }
 
   private pickPointToKeepFromRun(points: Coordinates[]) {
-    const asEdgePoints = points.filter((p) => p instanceof EdgePoint) as EdgePoint[];
+    const asEdgePoints = points.filter(
+      (p) => p instanceof EdgePoint,
+    ) as EdgePoint[];
 
     const staticPoint = asEdgePoints.find((p) => p.mode === 'static');
     if (staticPoint) return staticPoint;
@@ -448,7 +450,8 @@ export class Gateway extends Element {
       const next = steps[i];
 
       if (!this.areOnSameAxis(current, next)) {
-        const previous = result.length >= 2 ? result[result.length - 2] : undefined;
+        const previous =
+          result.length >= 2 ? result[result.length - 2] : undefined;
         const nextAfter = i + 1 < steps.length ? steps[i + 1] : undefined;
         result.push(
           this.chooseOrthogonalCorner(current, next, previous, nextAfter),
@@ -603,6 +606,10 @@ export class Gateway extends Element {
         suffix.slice(1),
       ),
     );
+  }
+
+  async recomputeConnectedEdge(edge: Edge, movedSide: 'from' | 'to') {
+    await this.recomputeEdge(edge, movedSide);
   }
 
   async updateEdges() {

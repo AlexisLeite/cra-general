@@ -395,6 +395,18 @@ export class DEdgeDragStartEvent extends DDragEvent {
   }
 }
 
+export class DEdgeEndpointDragStartEvent extends DDragEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    public src: Edge,
+    public endpoint: 'from' | 'to',
+    public originalEvent: AnyMouseEvent,
+  ) {
+    super(src, originalEvent);
+  }
+}
+
 export class NodePositionProposal {
   private _cancelled = false;
   private _updated: Dimensions;

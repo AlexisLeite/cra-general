@@ -2,10 +2,7 @@ import type { MouseEvent as RMEv } from 'react';
 import { Node } from '../elements/Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import {
-  findBestPathBetweenNodes,
-  type Path,
-} from '../../util/paths/findBestPathBetweenNodes';
+import { findBestPathBetweenNodes } from '../../util/paths/findBestPathBetweenNodes';
 import { Dimensions } from '../primitives/Dimensions';
 import type { Gateway } from '../elements/Gateway';
 import type { TOrientation } from '../types';
@@ -18,7 +15,6 @@ import {
   DNodesConnectActionEvent,
 } from '../elements/Events';
 import { GridSnap } from './GridSnap';
-import { Mouse } from '../../util/Mouse';
 
 export class NodesConnector extends DiagramExtension {
   init() {
@@ -45,95 +41,93 @@ export class NodesConnector extends DiagramExtension {
   protected startGateway: Gateway | null = null;
   candidateGateway: Gateway | null = null;
 
-  protected previousArrowTo: Coordinates | null = null;
-  protected previousCandidateGateway: Gateway | null = null;
-
   protected _arrowSteps: Coordinates[] = [];
   public get arrowSteps() {
     return this._arrowSteps;
   }
 
-  // Prevent overlapping expensive computations; skip if one is running
+  // Prevent overlapping expensive computations; queue only the latest request.
   protected calculating = false;
+  protected calculationPending = false;
 
   protected get snap() {
     return this.diagram.getExtension(GridSnap);
   }
 
   protected async calculateArrowSteps() {
+    if (!this.startGateway || !this.arrowTo) return;
+
+    this.calculationPending = true;
     if (this.calculating) return;
-    if (!this.arrowTo) return;
+
     this.calculating = true;
+
     try {
-      if (
-        !this.startGateway ||
-        (this.candidateGateway &&
-          this.previousCandidateGateway === this.candidateGateway)
-      ) {
-        return;
-      }
+      while (this.calculationPending) {
+        this.calculationPending = false;
 
-      const arrowTo = this.diagram.canvas
-        .inverseFit(this.arrowTo)
-        .divide(this.snap.gridSize / 2).round;
+        const startGateway = this.startGateway;
+        const candidateGateway = this.candidateGateway;
+        const arrowToScreen = this.arrowTo?.copy();
 
-      if (!this.candidateGateway && this.previousArrowTo) {
-        if (arrowTo.copy().substract(this.previousArrowTo).norm < 1) {
-          return;
+        if (!startGateway || !arrowToScreen) {
+          runInAction(() => {
+            this._arrowSteps = [];
+          });
+          continue;
         }
-      }
 
-      let bestPath: Path | null = null;
+        const arrowToPlane = this.diagram.canvas.inverseFit(arrowToScreen);
+        const arrowToGrid = arrowToPlane
+          .copy()
+          .divide(this.snap.gridSize / 2).round;
 
-      if (this.candidateGateway) {
-        bestPath = await findBestPathBetweenNodes(
-          this.diagram,
-          this.startGateway!,
-          this.candidateGateway!,
-          new Coordinates([0, 0]),
-          this.candidateGateway.connectionDisplacement(
-            this.diagram.canvas.inverseFit(Mouse.getInstance().coordinates),
-          ),
-        );
-      } else {
-        const fakeNode = new Node(null, {
-          id: 'fake',
-          label: '',
-          box: new Dimensions([
-            ...this.diagram.canvas.inverseFit(this.arrowTo).raw,
-            0,
-            0,
-          ]),
+        let bestPath: Coordinates[] = [];
+
+        if (candidateGateway) {
+          bestPath = await findBestPathBetweenNodes(
+            this.diagram,
+            startGateway,
+            candidateGateway,
+            new Coordinates([0, 0]),
+            candidateGateway.connectionDisplacement(arrowToPlane),
+          );
+        } else {
+          const fakeNode = new Node(null, {
+            id: 'fake',
+            label: '',
+            box: new Dimensions([...arrowToGrid.raw, 0, 0]),
+          });
+
+          const dx = startGateway.coordinates.substract(
+            fakeNode.getGateway('down')!.coordinates,
+          ).x;
+          const dy = startGateway.coordinates.substract(
+            fakeNode.getGateway('down')!.coordinates,
+          ).y;
+
+          const which: TOrientation =
+            Math.abs(dx) > Math.abs(dy)
+              ? dx >= 0
+                ? 'right'
+                : 'left'
+              : dy >= 0
+                ? 'down'
+                : 'up';
+
+          bestPath = await findBestPathBetweenNodes(
+            this.diagram,
+            startGateway,
+            fakeNode.getGateway(which)!,
+          );
+        }
+
+        runInAction(() => {
+          if (this.startGateway === startGateway) {
+            this._arrowSteps = bestPath.map((c) => new Coordinates([c.x, c.y]));
+          }
         });
-
-        const dx = this.startGateway!.coordinates.substract(
-          fakeNode.getGateway('down')!.coordinates,
-        ).x;
-        const dy = this.startGateway!.coordinates.substract(
-          fakeNode.getGateway('down')!.coordinates,
-        ).y;
-
-        const which: TOrientation =
-          Math.abs(dx) > Math.abs(dy)
-            ? dx >= 0
-              ? 'right'
-              : 'left'
-            : dy >= 0
-              ? 'down'
-              : 'up';
-
-        bestPath = await findBestPathBetweenNodes(
-          this.diagram,
-          this.startGateway!,
-          fakeNode.getGateway(which)!,
-        );
       }
-
-      runInAction(() => {
-        if (this.startGateway) {
-          this._arrowSteps = bestPath.map((c) => new Coordinates([c.x, c.y]));
-        }
-      });
     } finally {
       this.calculating = false;
     }
@@ -237,10 +231,13 @@ export class NodesConnector extends DiagramExtension {
             ),
           ).cancelled
         ) {
+          const dropPoint = this.arrowTo
+            ? this.diagram.canvas.inverseFit(this.arrowTo)
+            : this.candidateGateway.coordinates;
+
           this.diagram.connect(this.startGateway, this.candidateGateway, {
-            toDisplacement: this.candidateGateway.connectionDisplacement(
-              this.diagram.canvas.inverseFit(Mouse.getInstance().coordinates),
-            ),
+            toDisplacement:
+              this.candidateGateway.connectionDisplacement(dropPoint),
           });
         }
       }
@@ -249,8 +246,7 @@ export class NodesConnector extends DiagramExtension {
       this.startGateway = null;
       this.arrowTo = null;
       this.candidateGateway = null;
-      this.previousArrowTo = null;
-      this.previousCandidateGateway = null;
+      this.calculationPending = false;
       this.u();
     }
   }

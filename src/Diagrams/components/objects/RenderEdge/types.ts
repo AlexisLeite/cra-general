@@ -24,6 +24,7 @@ export interface RenderEdgeProps {
   draggable?: boolean;
 
   onMidpointMouseDown?: (p: Midpoint, ev: React.MouseEvent) => void;
+  onEndpointMouseDown?: (endpoint: 'from' | 'to', ev: React.MouseEvent) => void;
 }
 
 export class Midpoint extends Coordinates {

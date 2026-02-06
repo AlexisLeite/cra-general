@@ -2,7 +2,11 @@ import { Coordinates } from '../primitives/Coordinates';
 import type { Midpoint } from '../../components/objects/RenderEdge';
 import { EdgePoint } from '../elements/EdgePoint';
 import { Edge } from '../elements/Edge';
-import { type AnyMouseEvent, DEdgeDragStartEvent } from '../elements/Events';
+import {
+  type AnyMouseEvent,
+  DEdgeDragStartEvent,
+  DEdgeEndpointDragStartEvent,
+} from '../elements/Events';
 import { bind, bindDocument } from '../../util/binders';
 import { DiagramExtension } from './DiagramExtension';
 import { GridSnap } from './GridSnap';
@@ -23,13 +27,25 @@ type DragContext = {
   startPointB: Coordinates;
 };
 
+type EndpointDragContext = {
+  edge: Edge;
+  endpoint: 'from' | 'to';
+};
+
 export class EdgesDragger extends DiagramExtension {
   init() {
     document.addEventListener('mouseup', this.handleMouseUp.bind(this));
     this.diagram.onEvent(DEdgeDragStartEvent, this.startDrag.bind(this));
+    this.diagram.onEvent(
+      DEdgeEndpointDragStartEvent,
+      this.startEndpointDrag.bind(this),
+    );
   }
 
   protected drag: DragContext | null = null;
+  protected endpointDrag: EndpointDragContext | null = null;
+  protected endpointRecomputePending = false;
+  protected endpointRecomputeRunning = false;
 
   protected almostEqual(a: number, b: number) {
     return Math.abs(a - b) < AXIS_EPSILON;
@@ -166,6 +182,9 @@ export class EdgesDragger extends DiagramExtension {
         pointBIndex,
       );
       if (!prepared) {
+        runInAction(() => {
+          edge.state.dragging = false;
+        });
         return;
       }
       pointAIndex = prepared.pointAIndex;
@@ -221,7 +240,80 @@ export class EdgesDragger extends DiagramExtension {
     }
   }
 
+  startEndpointDrag(ev: DEdgeEndpointDragStartEvent) {
+    if (!ev.cancelled) {
+      ev.stopImmediatePropagation();
+      this.uns();
+
+      runInAction(() => {
+        ev.src.state.dragging = true;
+      });
+
+      this.drag = null;
+      this.endpointDrag = {
+        edge: ev.src,
+        endpoint: ev.endpoint,
+      };
+
+      this.endpointRecomputePending = false;
+      this.endpointRecomputeRunning = false;
+
+      this.uns = bind(bindDocument(this, 'mousemove', this.handleMouseMove));
+    }
+  }
+
+  protected scheduleEndpointRecompute() {
+    this.endpointRecomputePending = true;
+    if (this.endpointRecomputeRunning) return;
+
+    this.endpointRecomputeRunning = true;
+    void this.flushEndpointRecompute();
+  }
+
+  protected async flushEndpointRecompute() {
+    try {
+      while (this.endpointRecomputePending && this.endpointDrag) {
+        this.endpointRecomputePending = false;
+
+        const { edge, endpoint } = this.endpointDrag;
+        const movedSide = endpoint;
+        const gateway = movedSide === 'from' ? edge.from : edge.to;
+
+        await gateway.recomputeConnectedEdge(edge, movedSide);
+      }
+    } finally {
+      this.endpointRecomputeRunning = false;
+    }
+  }
+
+  protected handleEndpointMouseMove(ev: AnyMouseEvent) {
+    if (!this.endpointDrag) return;
+
+    const { edge, endpoint } = this.endpointDrag;
+    const gateway = endpoint === 'from' ? edge.from : edge.to;
+
+    if (gateway.state.allowDisplace === false) {
+      return;
+    }
+
+    const mouseCanvas = this.diagram.canvas.inverseFit(new Coordinates(ev));
+    const displacement = gateway.connectionDisplacement(mouseCanvas);
+
+    if (endpoint === 'from') {
+      edge.state.displacementStart = displacement;
+    } else {
+      edge.state.displacementEnd = displacement;
+    }
+
+    this.scheduleEndpointRecompute();
+  }
+
   protected handleMouseMove(ev: AnyMouseEvent) {
+    if (this.endpointDrag) {
+      this.handleEndpointMouseMove(ev);
+      return;
+    }
+
     if (!this.drag) return;
 
     const a = this.drag.pointA;
@@ -485,11 +577,21 @@ export class EdgesDragger extends DiagramExtension {
   }
 
   protected handleMouseUp() {
-    if (!this.drag) return;
+    if (!this.drag && !this.endpointDrag) return;
 
     runInAction(() => {
-      this.drag!.edge.state.dragging = false;
+      if (this.drag) {
+        this.drag.edge.state.dragging = false;
+      }
+      if (this.endpointDrag) {
+        this.endpointDrag.edge.state.dragging = false;
+      }
+
       this.drag = null;
+      this.endpointDrag = null;
     });
+
+    this.endpointRecomputePending = false;
+    this.uns();
   }
 }
