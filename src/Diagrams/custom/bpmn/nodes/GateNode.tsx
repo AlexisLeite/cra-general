@@ -63,16 +63,20 @@ export class GateNode extends BPMNode {
   }
 
   protected Render = observer(() => {
+    const width = this.state.box.width;
+    const height = this.state.box.height;
+
     return (
       <div {...customNodeRendererProps(this)}>
         <svg
+          viewBox={`0 0 ${width} ${height}`}
           style={{
-            width: `${this.state.box.width}px`,
-            height: `${this.state.box.height}px`,
+            width: `${width}px`,
+            height: `${height}px`,
           }}
         >
           <polygon
-            points={`${this.state.box.width / 2} 0 ${this.state.box.width} ${this.state.box.height / 2} ${this.state.box.width / 2}  ${this.state.box.height} 0  ${this.state.box.height / 2}`}
+            points={`${width / 2} 0 ${width} ${height / 2} ${width / 2} ${height} 0 ${height / 2}`}
           />
         </svg>
         <EditableLabel />
