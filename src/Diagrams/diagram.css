@@ -26,6 +26,9 @@
 
   /* Selection */
   --node-select-shadow: rgba(253, 224, 71, 0.75);
+  --node-select-stroke: #facc15;
+  --node-select-ring: rgba(250, 204, 21, 0.38);
+  --node-select-fill-tint: rgba(250, 204, 21, 0.2);
 
   /* Grid */
   --grid-thin: #374252;
@@ -120,6 +123,9 @@ body.light {
 
   /* Selection */
   --node-select-shadow: rgba(37, 99, 235, 0.45);
+  --node-select-stroke: #1d4ed8;
+  --node-select-ring: rgba(29, 78, 216, 0.28);
+  --node-select-fill-tint: rgba(29, 78, 216, 0.14);
 
   /* Grid */
   --grid-thin: #dbe4f1;
@@ -246,7 +252,8 @@ body.light {
     transition:
       background-color 220ms ease,
       border-color 220ms ease,
-      color 220ms ease;
+      color 220ms ease,
+      box-shadow 220ms ease;
   }
 
   path {
@@ -265,7 +272,26 @@ body.light {
 
   &.selected {
     z-index: 1;
-    filter: drop-shadow(0 0 5px var(--node-select-shadow))
+    filter:
+      drop-shadow(0 0 7px var(--node-select-shadow)) drop-shadow(0 0 14px var(--node-select-ring));
+  }
+
+  &.selected:is(div) {
+    border-color: var(--node-select-stroke);
+    background: color-mix(in oklab, var(--node-fill) 85%, var(--node-select-fill-tint) 15%);
+    box-shadow:
+      0 0 0 2px var(--node-select-ring),
+      0 0 0 4px color-mix(in oklab, var(--node-select-ring) 70%, transparent 30%);
+  }
+
+  &.selected path {
+    stroke: var(--node-select-stroke);
+    stroke-width: 3.5px;
+    fill: color-mix(in oklab, var(--node-fill) 86%, var(--node-select-fill-tint) 14%);
+  }
+
+  &.selected text {
+    font-weight: 600;
   }
 }
 
@@ -672,7 +698,7 @@ body.light .diagram__node:is(div) {
   height: 70px !important;
 }
 
-#BPMNShapesShowcasePanel .diagram__showcase_nodes .diagram__node.bpmn__gate > svg {
+#BPMNShapesShowcasePanel .diagram__showcase_nodes .diagram__node.bpmn__gate>svg {
   width: 100% !important;
   height: 100% !important;
 }
@@ -1018,7 +1044,7 @@ body.light .diagram__node:is(div) {
   background: color-mix(in oklab, var(--bg) 85%, white 15%);
 }
 
-.diagram__editor_mode_switcher > button {
+.diagram__editor_mode_switcher>button {
   font: inherit;
   border: 1px solid var(--toolbar-border);
   border-radius: 4px;
@@ -1028,7 +1054,7 @@ body.light .diagram__node:is(div) {
   cursor: pointer;
 }
 
-.diagram__editor_mode_switcher > button.active {
+.diagram__editor_mode_switcher>button.active {
   background: var(--tool-selected-bg);
 }
 

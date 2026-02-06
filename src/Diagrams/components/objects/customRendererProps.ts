@@ -46,6 +46,6 @@ export function customRendererProps(node: Node<any>): DivProps {
     },
     'data-id': node.id,
     style,
-    className: node.classList.string,
+    className: `${node.classList.string} ${node.selected ? 'selected' : ''}`,
   };
 }
