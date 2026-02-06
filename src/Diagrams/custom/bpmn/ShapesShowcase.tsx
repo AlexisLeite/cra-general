@@ -62,10 +62,9 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
 
   if (node !== null) {
     const mouseAtCreation = new Coordinates(ev.nativeEvent);
+    const mouseInCanvas = d.canvas.inverseFit(mouseAtCreation.copy());
     d.add(node);
-    node.setPosition(
-      d.canvas.inverseFit(mouseAtCreation.copy().substract([100, 50])),
-    );
+    node.setPosition(mouseInCanvas.substract(node.box.size.copy().divide(2)));
     d.rules.displaceWhenDragOnEdges = false;
     d.getExtension(Dragger)?.startDrag(node, mouseAtCreation);
     d.getExtension(Selector).clearSelection();
