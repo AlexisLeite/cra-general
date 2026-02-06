@@ -68,6 +68,7 @@ export type TDiagramSettings = Partial<{
 export class Diagram extends Element {
   public readonly priorities = new Priorities();
   rules = new Rules(this);
+  private focusContentTimer: ReturnType<typeof setTimeout> | null = null;
 
   private static knownClasses = new Map<string, any>();
   static getClass(name: string) {
@@ -290,11 +291,17 @@ export class Diagram extends Element {
   import(w: string) {
     runInAction(() => {
       const state = JSON.parse(w) as ReturnType<(typeof this)['serialize']>;
+      const storedPosition = state.position;
+      const hasStoredPosition =
+        !!storedPosition &&
+        Number.isFinite(storedPosition.x) &&
+        Number.isFinite(storedPosition.y) &&
+        Number.isFinite(storedPosition.scale);
 
-      if (state.position) {
-        this.canvas.setScale(state.position.scale);
+      if (hasStoredPosition) {
+        this.canvas.setScale(storedPosition.scale);
         this.canvas.setDisplacement(
-          new Coordinates([state.position.x, state.position.y]),
+          new Coordinates([storedPosition.x, storedPosition.y]),
         );
       }
 
@@ -322,6 +329,10 @@ export class Diagram extends Element {
             })),
           });
         });
+      }
+
+      if (!hasStoredPosition) {
+        this.focusContentInViewportWithRetry();
       }
     });
   }
@@ -390,5 +401,70 @@ export class Diagram extends Element {
         });
       }
     });
+  }
+
+  focusContentInViewport(padding = 80) {
+    if (!this.nodes.length) {
+      return false;
+    }
+
+    const frame = this.canvas.frameDimensions;
+    if (frame.width <= 0 || frame.height <= 0) {
+      return false;
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const node of this.nodes) {
+      const box = node.box;
+      minX = Math.min(minX, box.x);
+      minY = Math.min(minY, box.y);
+      maxX = Math.max(maxX, box.x + box.width);
+      maxY = Math.max(maxY, box.y + box.height);
+    }
+
+    if (
+      !Number.isFinite(minX) ||
+      !Number.isFinite(minY) ||
+      !Number.isFinite(maxX) ||
+      !Number.isFinite(maxY)
+    ) {
+      return false;
+    }
+
+    const contentWidth = Math.max(1, maxX - minX + padding * 2);
+    const contentHeight = Math.max(1, maxY - minY + padding * 2);
+    const targetScale = Math.max(
+      0.3,
+      Math.min(3, Math.min(frame.width / contentWidth, frame.height / contentHeight)),
+    );
+
+    this.canvas.setScale(targetScale);
+    this.canvas.centerOnPoint(
+      new Coordinates([(minX + maxX) / 2, (minY + maxY) / 2]),
+    );
+
+    return true;
+  }
+
+  focusContentInViewportWithRetry(attempts = 8, delayMs = 32) {
+    if (this.focusContentInViewport()) {
+      return;
+    }
+
+    if (attempts <= 0) {
+      return;
+    }
+
+    if (this.focusContentTimer) {
+      clearTimeout(this.focusContentTimer);
+    }
+
+    this.focusContentTimer = setTimeout(() => {
+      this.focusContentInViewportWithRetry(attempts - 1, delayMs);
+    }, delayMs);
   }
 }

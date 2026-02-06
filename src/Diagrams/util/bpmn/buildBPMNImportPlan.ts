@@ -23,9 +23,11 @@ const LANE_PADDING = 25;
 
 const EVENT_TYPE_START = 0;
 const EVENT_TYPE_END = 1;
+const EVENT_TYPE_INTERMEDIATE = 2;
 const GATE_TYPE_INCLUSIVE = 0;
 const GATE_TYPE_EXCLUSIVE = 1;
 const GATE_TYPE_PARALLEL = 2;
+const GATE_TYPE_EVENT_BASED = 3;
 
 const TASK_NODE_TYPES = new Set([
   'businessRuleTask',
@@ -165,6 +167,18 @@ function mapFlowNodeToNode(flowNode: ParsedBPMNFlowNode): NodeMapping {
     };
   }
 
+  if (
+    flowNode.type === 'intermediateCatchEvent' ||
+    flowNode.type === 'intermediateThrowEvent'
+  ) {
+    return {
+      className: 'EventNode',
+      defaultWidth: 80,
+      defaultHeight: 80,
+      eventType: EVENT_TYPE_INTERMEDIATE,
+    };
+  }
+
   if (flowNode.type === 'exclusiveGateway') {
     return {
       className: 'GateNode',
@@ -189,6 +203,15 @@ function mapFlowNodeToNode(flowNode: ParsedBPMNFlowNode): NodeMapping {
       defaultWidth: 80,
       defaultHeight: 80,
       gateType: GATE_TYPE_PARALLEL,
+    };
+  }
+
+  if (flowNode.type === 'eventBasedGateway') {
+    return {
+      className: 'GateNode',
+      defaultWidth: 80,
+      defaultHeight: 80,
+      gateType: GATE_TYPE_EVENT_BASED,
     };
   }
 
@@ -526,7 +549,7 @@ export function buildBPMNImportPlan(parsed: ParsedBPMNModel): BPMNImportPlan {
         bpmnId: flowNode.id,
         processId: flowNode.processId,
         id: dedupeId(flowNode.id, usedDiagramIds, 'node'),
-        label: flowNode.name.trim() || flowNode.id,
+        label: flowNode.name.trim(),
         className: mapping.className,
         box,
         laneIndex,

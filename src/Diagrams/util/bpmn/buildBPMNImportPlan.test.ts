@@ -21,7 +21,12 @@ function createModel(): ParsedBPMNModel {
           {
             id: 'Lane_1',
             name: 'First Lane',
-            flowNodeRefs: ['Task 1', 'Mystery_1'],
+            flowNodeRefs: [
+              'Task 1',
+              'EventBased_1',
+              'Mystery_1',
+              'Wait_1',
+            ],
             processId: 'Process_1',
           },
         ],
@@ -40,8 +45,20 @@ function createModel(): ParsedBPMNModel {
           },
           {
             id: 'Mystery_1',
+            name: 'Complex Branch',
+            type: 'complexGateway',
+            processId: 'Process_1',
+          },
+          {
+            id: 'Wait_1',
             name: 'Catch Something',
             type: 'intermediateCatchEvent',
+            processId: 'Process_1',
+          },
+          {
+            id: 'EventBased_1',
+            name: 'Event Choice',
+            type: 'eventBasedGateway',
             processId: 'Process_1',
           },
         ],
@@ -131,21 +148,50 @@ describe('buildBPMNImportPlan', () => {
     expect(plan.lanes[0].box.width).toBe(1200);
 
     const sortedNodeIds = plan.nodes.map((node) => node.id).sort();
-    expect(sortedNodeIds).toEqual(['Mystery_1', 'Task-1', 'Task-1-1']);
+    expect(sortedNodeIds).toEqual([
+      'EventBased_1',
+      'Mystery_1',
+      'Task-1',
+      'Task-1-1',
+      'Wait_1',
+    ]);
 
     const unknown = plan.nodes.find((node) => node.bpmnId === 'Mystery_1');
     expect(unknown?.className).toBe('UnknownBPMNNode');
-    expect(unknown?.sourceType).toBe('intermediateCatchEvent');
+    expect(unknown?.sourceType).toBe('complexGateway');
+
+    const intermediate = plan.nodes.find((node) => node.bpmnId === 'Wait_1');
+    expect(intermediate?.className).toBe('EventNode');
+    expect(intermediate?.eventType).toBe(2);
+
+    const eventBased = plan.nodes.find(
+      (node) => node.bpmnId === 'EventBased_1',
+    );
+    expect(eventBased?.className).toBe('GateNode');
+    expect(eventBased?.gateType).toBe(3);
 
     const fallbackNode = plan.nodes.find((node) => node.bpmnId === 'Task@1');
     expect(fallbackNode?.box.x).toBe(220);
     expect(fallbackNode?.box.y).toBe(510);
 
+    const unnamedTask = plan.nodes.find((node) => node.bpmnId === 'Task 1');
+    expect(unnamedTask?.label).toBe('');
+
+    expect(
+      plan.warnings.some((warning) =>
+        warning.includes("Unsupported BPMN node 'complexGateway'"),
+      ),
+    ).toBe(true);
     expect(
       plan.warnings.some((warning) =>
         warning.includes("Unsupported BPMN node 'intermediateCatchEvent'"),
       ),
-    ).toBe(true);
+    ).toBe(false);
+    expect(
+      plan.warnings.some((warning) =>
+        warning.includes("Unsupported BPMN node 'eventBasedGateway'"),
+      ),
+    ).toBe(false);
   });
 
   it('preserves edge waypoints and derives orientations from DI waypoints', () => {

@@ -15,6 +15,9 @@ export function importBPMNXmlIntoDiagram(
   const parsed = parseBPMNXml(xml);
   const plan = buildBPMNImportPlan(parsed);
   const applied = applyBPMNImportPlan(diagram, plan);
+  if (typeof (diagram as any).focusContentInViewportWithRetry === 'function') {
+    diagram.focusContentInViewportWithRetry();
+  }
 
   return {
     warnings: [...plan.warnings, ...applied.warnings],

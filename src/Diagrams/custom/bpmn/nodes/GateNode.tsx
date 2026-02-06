@@ -12,6 +12,7 @@ export enum GateTypes {
   inclusive,
   exclusive,
   parallel,
+  eventBased,
 }
 
 export class GateNode extends BPMNode {
@@ -57,6 +58,12 @@ export class GateNode extends BPMNode {
             c.outgoingEdges.forEach((e) => this.diagram?.disconnect(e)),
           );
           this.classList.add(getEnumStr(GateTypes, GateTypes.parallel));
+          break;
+        case GateTypes.eventBased:
+          this._gateways.forEach((c) =>
+            c.outgoingEdges.forEach((e) => this.diagram?.disconnect(e)),
+          );
+          this.classList.add(getEnumStr(GateTypes, GateTypes.eventBased));
           break;
       }
     }

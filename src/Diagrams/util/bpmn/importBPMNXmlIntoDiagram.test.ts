@@ -14,7 +14,7 @@ const SIMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
   targetNamespace="https://example.com/bpmn"
 >
   <bpmn:process id="Process_1">
-    <bpmn:intermediateCatchEvent id="Unknown_1" name="Wait for signal"/>
+    <bpmn:complexGateway id="Unknown_1" name="Complex branch"/>
   </bpmn:process>
 </bpmn:definitions>`;
 
@@ -43,7 +43,7 @@ describe('importBPMNXmlIntoDiagram', () => {
     ).toBe(true);
     expect(
       result.warnings.some((warning) =>
-        warning.includes("Unsupported BPMN node 'intermediateCatchEvent'"),
+        warning.includes("Unsupported BPMN node 'complexGateway'"),
       ),
     ).toBe(true);
   });

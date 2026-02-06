@@ -85,6 +85,7 @@ export const OpenTool = observer(function OpenTool() {
 
             if (await d.reset()) {
               const applied = applyBPMNImportPlan(d, plan);
+              d.focusContentInViewportWithRetry();
               const allWarnings = [...plan.warnings, ...applied.warnings];
               allWarnings.forEach((warning) => {
                 console.warn(`[BPMN Import] ${warning}`);

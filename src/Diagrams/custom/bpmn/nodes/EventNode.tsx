@@ -11,6 +11,7 @@ import { getEnumStr } from '../../../util/getEnumStr';
 export enum EventTypes {
   start,
   end,
+  intermediate,
 }
 
 export type TEventNodeType = EventTypes;
@@ -52,6 +53,9 @@ export class EventNode extends BPMNode {
             c.outgoingEdges.forEach((e) => this.diagram?.disconnect(e)),
           );
           this.classList.add(getEnumStr(EventTypes, EventTypes.start));
+          break;
+        case EventTypes.intermediate:
+          this.classList.add(getEnumStr(EventTypes, EventTypes.intermediate));
           break;
       }
     }
