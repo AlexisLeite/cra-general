@@ -18,7 +18,7 @@ const triggerPreview = new TriggerNode(null, {
 const actionPreview = new ActionNode(null, {
   id: 'action-preview',
   label: 'Action',
-  box: new Dimensions([0, 0, 160, 84]),
+  box: new Dimensions([0, 0, 110, 80]),
 });
 const conditionPreview = new ConditionNode(null, {
   id: 'condition-preview',
@@ -28,7 +28,7 @@ const conditionPreview = new ConditionNode(null, {
 const outcomePreview = new OutcomeNode(null, {
   id: 'outcome-preview',
   label: 'Outcome',
-  box: new Dimensions([0, 0, 104, 92]),
+  box: new Dimensions([0, 0, 110, 80]),
 });
 
 function createNode(
@@ -91,25 +91,41 @@ export const AgentShapesShowcase = ({
         <div className="diagram__stats_section diagram__showcase_nodes">
           <div
             className="diagram__showcase_item"
-            onMouseDownCapture={createNode.bind(createNode, controller, 'trigger')}
+            onMouseDownCapture={createNode.bind(
+              createNode,
+              controller,
+              'trigger',
+            )}
           >
             <triggerPreview.Renderer />
           </div>
           <div
             className="diagram__showcase_item"
-            onMouseDownCapture={createNode.bind(createNode, controller, 'action')}
+            onMouseDownCapture={createNode.bind(
+              createNode,
+              controller,
+              'action',
+            )}
           >
             <actionPreview.Renderer />
           </div>
           <div
             className="diagram__showcase_item"
-            onMouseDownCapture={createNode.bind(createNode, controller, 'condition')}
+            onMouseDownCapture={createNode.bind(
+              createNode,
+              controller,
+              'condition',
+            )}
           >
             <conditionPreview.Renderer />
           </div>
           <div
             className="diagram__showcase_item"
-            onMouseDownCapture={createNode.bind(createNode, controller, 'outcome')}
+            onMouseDownCapture={createNode.bind(
+              createNode,
+              controller,
+              'outcome',
+            )}
           >
             <outcomePreview.Renderer />
           </div>
