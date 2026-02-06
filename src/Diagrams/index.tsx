@@ -5,6 +5,7 @@ import { reaction, toJS } from 'mobx';
 import { useState } from 'react';
 import { BPMDiagram } from './custom/bpmn/BPMDiagram';
 import { ShapesShowcase } from './custom/bpmn/ShapesShowcase';
+import { TabsPanel } from './components/TabsPanel';
 import {
   BPMNStatisticsController,
   BPMNStatisticsPanel,
@@ -22,34 +23,26 @@ export const Diagrams = () => {
   const [activePanel, setActivePanel] = useState<'showcase' | 'statistics'>(
     'statistics',
   );
+  const tabs = [
+    { key: 'showcase', label: 'Showcase' },
+    { key: 'statistics', label: 'Statistics' },
+  ] as const;
 
   return (
     <Viewer
       diagram={d}
       leftPanel={
-        <div className="diagram__left_panel_shell">
-          <div className="diagram__left_tabs">
-            <button
-              className={`diagram__left_tab ${activePanel === 'showcase' ? 'active' : ''}`}
-              onClick={() => setActivePanel('showcase')}
-            >
-              Showcase
-            </button>
-            <button
-              className={`diagram__left_tab ${activePanel === 'statistics' ? 'active' : ''}`}
-              onClick={() => setActivePanel('statistics')}
-            >
-              Statistics
-            </button>
-          </div>
-          <div className="diagram__left_panel_content">
-            {activePanel === 'showcase' ? (
-              <ShapesShowcase />
-            ) : (
-              <BPMNStatisticsPanel controller={statsController} />
-            )}
-          </div>
-        </div>
+        <TabsPanel
+          activeTab={activePanel}
+          onTabChange={setActivePanel}
+          tabs={tabs}
+        >
+          {activePanel === 'showcase' ? (
+            <ShapesShowcase />
+          ) : (
+            <BPMNStatisticsPanel controller={statsController} />
+          )}
+        </TabsPanel>
       }
     />
   );

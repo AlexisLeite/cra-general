@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "nodeId": "lane0",
+      "throughput": 20,
+      "durationMs": 1300,
+      "errorRate": 0.02
+    },
+    {
+      "nodeId": "node10",
+      "throughput": 40,
+      "durationMs": 1800,
+      "errorRate": 0.04
+    },
+    {
+      "nodeId": "node11",
+      "throughput": 60,
+      "durationMs": 2300,
+      "errorRate": 0.06
+    },
+    {
+      "nodeId": "node12",
+      "throughput": 80,
+      "durationMs": 2800,
+      "errorRate": 0.08
+    },
+    {
+      "nodeId": "node13",
+      "throughput": 100,
+      "durationMs": 3300,
+      "errorRate": 0.1
+    },
+    {
+      "nodeId": "node14",
+      "throughput": 120,
+      "durationMs": 3800,
+      "errorRate": 0.12
+    },
+    {
+      "nodeId": "node15",
+      "throughput": 140,
+      "durationMs": 4300,
+      "errorRate": 0.14
+    },
+    {
+      "nodeId": "node16",
+      "throughput": 160,
+      "durationMs": 4800,
+      "errorRate": 0.16
+    },
+    {
+      "nodeId": "node17",
+      "throughput": 180,
+      "durationMs": 5300,
+      "errorRate": 0.18
+    },
+    {
+      "nodeId": "node18",
+      "throughput": 200,
+      "durationMs": 5800,
+      "errorRate": 0.2
+    },
+    {
+      "nodeId": "node19",
+      "throughput": 220,
+      "durationMs": 6300,
+      "errorRate": 0.22
+    }
+  ],
+  "edges": [
+    {
+      "fromNodeId": "node10",
+      "fromGatewayId": "right",
+      "toNodeId": "node11",
+      "toGatewayId": "left",
+      "throughput": 18,
+      "durationMs": 1350,
+      "errorRate": 0.015
+    },
+    {
+      "fromNodeId": "node12",
+      "fromGatewayId": "up",
+      "toNodeId": "node18",
+      "toGatewayId": "up",
+      "throughput": 36,
+      "durationMs": 1800,
+      "errorRate": 0.03
+    },
+    {
+      "fromNodeId": "node12",
+      "fromGatewayId": "down",
+      "toNodeId": "node14",
+      "toGatewayId": "up",
+      "throughput": 54,
+      "durationMs": 2250,
+      "errorRate": 0.045
+    },
+    {
+      "fromNodeId": "node13",
+      "fromGatewayId": "right",
+      "toNodeId": "node12",
+      "toGatewayId": "left",
+      "throughput": 72,
+      "durationMs": 2700,
+      "errorRate": 0.06
+    },
+    {
+      "fromNodeId": "node14",
+      "fromGatewayId": "right",
+      "toNodeId": "node15",
+      "toGatewayId": "left",
+      "throughput": 90,
+      "durationMs": 3150,
+      "errorRate": 0.075
+    },
+    {
+      "fromNodeId": "node15",
+      "fromGatewayId": "right",
+      "toNodeId": "node16",
+      "toGatewayId": "left",
+      "throughput": 108,
+      "durationMs": 3600,
+      "errorRate": 0.09
+    },
+    {
+      "fromNodeId": "node15",
+      "fromGatewayId": "up",
+      "toNodeId": "node10",
+      "toGatewayId": "down",
+      "throughput": 126,
+      "durationMs": 4050,
+      "errorRate": 0.105
+    },
+    {
+      "fromNodeId": "node17",
+      "fromGatewayId": "down",
+      "toNodeId": "node18",
+      "toGatewayId": "up",
+      "throughput": 144,
+      "durationMs": 4500,
+      "errorRate": 0.12
+    },
+    {
+      "fromNodeId": "node18",
+      "fromGatewayId": "right",
+      "toNodeId": "node13",
+      "toGatewayId": "left",
+      "throughput": 162,
+      "durationMs": 4950,
+      "errorRate": 0.135
+    },
+    {
+      "fromNodeId": "node19",
+      "fromGatewayId": "right",
+      "toNodeId": "node17",
+      "toGatewayId": "left",
+      "throughput": 180,
+      "durationMs": 5400,
+      "errorRate": 0.15
+    }
+  ]
+}

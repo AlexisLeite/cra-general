@@ -35,11 +35,30 @@ type EdgeEntry = {
 };
 
 const METRICS: BPMNMetric[] = ['throughput', 'durationMs', 'errorRate'];
-const FALLBACK_LOW_COLOR = '#0ea5e9';
-const FALLBACK_HIGH_COLOR = '#2563eb';
+const FALLBACK_LOW_COLOR = '#64748b';
+const FALLBACK_HIGH_COLOR = '#0ea5e9';
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
+}
+
+function hashString(input: string) {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash * 31 + input.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function isLaneNode(node: Node<any>) {
+  return (
+    node.constructor.name === 'Lanes' ||
+    node.classList.string.split(' ').includes('bpm__lanes')
+  );
+}
+
+function isFlowNode(node: Node<any>) {
+  return !isLaneNode(node) && node.gateways.length > 0;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -286,10 +305,10 @@ export class BPMNStatisticsController {
   lowColor = FALLBACK_LOW_COLOR;
   highColor = FALLBACK_HIGH_COLOR;
   reverseScale = false;
-  nodeAlpha = 0.88;
+  nodeAlpha = 0.72;
 
-  edgeMinWidth = 2;
-  edgeMaxWidth = 8;
+  edgeMinWidth = 1.5;
+  edgeMaxWidth = 6;
 
   matchedNodes = 0;
   unmatchedNodeStats = 0;
@@ -461,35 +480,40 @@ export class BPMNStatisticsController {
 
   buildSampleStatistics(): BPMNStatisticsFileV1 {
     const nodes = this.diagram.nodes
-      .filter((node) => node.id.toLowerCase().startsWith('task'))
+      .filter((node) => isFlowNode(node) && node.id.toLowerCase().startsWith('task'))
       .sort((a, b) => a.id.localeCompare(b.id));
 
     const fallbackNodes = this.diagram.nodes
-      .filter((node) => !nodes.includes(node))
+      .filter((node) => isFlowNode(node) && !nodes.includes(node))
       .sort((a, b) => a.id.localeCompare(b.id));
 
     const allNodes = [...nodes, ...fallbackNodes];
 
-    const nodeStats = allNodes.map((node, index): BPMNNodeStat => {
-      const step = index + 1;
+    const nodeStats = allNodes.map((node): BPMNNodeStat => {
+      const throughputSeed = hashString(`${node.id}:throughput`);
+      const durationSeed = hashString(`${node.id}:duration`);
+      const errorSeed = hashString(`${node.id}:error`);
       return {
         nodeId: node.id,
-        throughput: step * 20,
-        durationMs: 800 + step * 500,
-        errorRate: Number((step * 0.02).toFixed(3)),
+        throughput: 25 + (throughputSeed % 85),
+        durationMs: 600 + (durationSeed % 5000),
+        errorRate: Number((0.01 + (errorSeed % 220) / 1000).toFixed(3)),
       };
     });
 
-    const edgeStats = this.diagram.edges.map((edge, index): BPMNEdgeStat => {
-      const step = index + 1;
+    const edgeStats = this.diagram.edges.map((edge): BPMNEdgeStat => {
+      const edgeId = `${edge.from.parent.id}:${edge.from.id}->${edge.to.parent.id}:${edge.to.id}`;
+      const throughputSeed = hashString(`${edgeId}:throughput`);
+      const durationSeed = hashString(`${edgeId}:duration`);
+      const errorSeed = hashString(`${edgeId}:error`);
       return {
         fromNodeId: edge.from.parent.id,
         fromGatewayId: edge.from.id,
         toNodeId: edge.to.parent.id,
         toGatewayId: edge.to.id,
-        throughput: step * 18,
-        durationMs: 900 + step * 450,
-        errorRate: Number((step * 0.015).toFixed(3)),
+        throughput: 20 + (throughputSeed % 80),
+        durationMs: 500 + (durationSeed % 4500),
+        errorRate: Number((0.005 + (errorSeed % 180) / 1000).toFixed(3)),
       };
     });
 
@@ -547,6 +571,10 @@ export class BPMNStatisticsController {
     const matchedEdges: Array<{ edge: Edge; value: number }> = [];
 
     for (const node of this.diagram.nodes) {
+      if (!isFlowNode(node)) {
+        continue;
+      }
+
       const nodeEntry = nodeIndex.get(node.id);
       if (!nodeEntry) {
         continue;
