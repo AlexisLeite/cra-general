@@ -31,7 +31,19 @@ export function customRendererProps(node: Node<any>): DivProps {
 
   return {
     onMouseOver: () => node.setState('hover', true),
-    onMouseOut: () => node.setState('hover', false),
+    onMouseOut: (ev) => {
+      const nextTarget = ev.relatedTarget;
+      if (
+        nextTarget instanceof Element &&
+        nextTarget.closest(
+          `[data-id="${node.id}"], [data-gateway-parent="${node.id}"]`,
+        )
+      ) {
+        return;
+      }
+
+      node.setState('hover', false);
+    },
     'data-id': node.id,
     style,
     className: node.classList.string,

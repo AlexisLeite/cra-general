@@ -21,6 +21,20 @@ export const GatewayRender = observer(({ gateway }: { gateway: Gateway }) => {
         },
       ]}
       className="diagram__node__gateway"
+      data-gateway-parent={gateway.parent.id}
+      onMouseOut={(ev) => {
+        const nextTarget = ev.relatedTarget;
+        if (
+          nextTarget instanceof Element &&
+          nextTarget.closest(
+            `[data-id="${gateway.parent.id}"], [data-gateway-parent="${gateway.parent.id}"]`,
+          )
+        ) {
+          return;
+        }
+
+        gateway.parent.setState('hover', false);
+      }}
       onMouseDownCapture={connector.startConnectionFrom.bind(
         connector,
         gateway,

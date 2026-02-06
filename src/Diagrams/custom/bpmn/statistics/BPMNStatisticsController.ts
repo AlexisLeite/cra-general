@@ -37,6 +37,10 @@ type EdgeEntry = {
 const METRICS: BPMNMetric[] = ['throughput', 'durationMs', 'errorRate'];
 const FALLBACK_LOW_COLOR = '#64748b';
 const FALLBACK_HIGH_COLOR = '#0ea5e9';
+const DURATION_LOW_COLOR = '#86efac';
+const DURATION_HIGH_COLOR = '#166534';
+const ERROR_LOW_COLOR = '#fca5a5';
+const ERROR_HIGH_COLOR = '#991b1b';
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
@@ -113,6 +117,18 @@ function rgbString(rgb: RGB) {
 
 function rgbaString(rgb: RGB, alpha: number) {
   return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${clamp(alpha, 0, 1)})`;
+}
+
+function paletteByMetric(metric: BPMNMetric, lowColor: string, highColor: string) {
+  switch (metric) {
+    case 'durationMs':
+      return { low: DURATION_LOW_COLOR, high: DURATION_HIGH_COLOR };
+    case 'errorRate':
+      return { low: ERROR_LOW_COLOR, high: ERROR_HIGH_COLOR };
+    case 'throughput':
+    default:
+      return { low: lowColor, high: highColor };
+  }
 }
 
 function toExactEdgeKey(
@@ -532,10 +548,24 @@ export class BPMNStatisticsController {
     this.captureBaseStyles();
     this.restoreBaseStyles();
 
-    const lowRgb =
-      hexColorToRgb(this.lowColor) ?? hexColorToRgb(FALLBACK_LOW_COLOR)!;
-    const highRgb =
-      hexColorToRgb(this.highColor) ?? hexColorToRgb(FALLBACK_HIGH_COLOR)!;
+    const nodePalette = paletteByMetric(
+      this.nodeMetric,
+      this.lowColor,
+      this.highColor,
+    );
+    const edgePalette = paletteByMetric(
+      this.edgeMetric,
+      this.lowColor,
+      this.highColor,
+    );
+    const nodeLowRgb =
+      hexColorToRgb(nodePalette.low) ?? hexColorToRgb(FALLBACK_LOW_COLOR)!;
+    const nodeHighRgb =
+      hexColorToRgb(nodePalette.high) ?? hexColorToRgb(FALLBACK_HIGH_COLOR)!;
+    const edgeLowRgb =
+      hexColorToRgb(edgePalette.low) ?? hexColorToRgb(FALLBACK_LOW_COLOR)!;
+    const edgeHighRgb =
+      hexColorToRgb(edgePalette.high) ?? hexColorToRgb(FALLBACK_HIGH_COLOR)!;
 
     const nodeIndex = new Map<string, NodeEntry>();
     this.dataset.nodes.forEach((stat, index) => {
@@ -614,7 +644,7 @@ export class BPMNStatisticsController {
           nodeRange.min,
           nodeRange.max,
         );
-        const mixed = mixRgb(lowRgb, highRgb, intensity);
+        const mixed = mixRgb(nodeLowRgb, nodeHighRgb, intensity);
         entry.node.state.stroke = rgbString(mixed);
         entry.node.state.fill = rgbaString(mixed, this.nodeAlpha);
       }
@@ -636,7 +666,7 @@ export class BPMNStatisticsController {
           edgeRange.min,
           edgeRange.max,
         );
-        const mixed = mixRgb(lowRgb, highRgb, intensity);
+        const mixed = mixRgb(edgeLowRgb, edgeHighRgb, intensity);
         entry.edge.state.stroke = rgbString(mixed);
         entry.edge.state.strokeWidth =
           minEdgeWidth + (maxEdgeWidth - minEdgeWidth) * intensity;

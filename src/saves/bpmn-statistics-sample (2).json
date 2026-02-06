@@ -3,69 +3,69 @@
   "nodes": [
     {
       "nodeId": "lane0",
-      "throughput": 20,
-      "durationMs": 1300,
-      "errorRate": 0.02
+      "throughput": 95,
+      "durationMs": 4200,
+      "errorRate": 0.035
     },
     {
       "nodeId": "node10",
-      "throughput": 40,
-      "durationMs": 1800,
-      "errorRate": 0.04
+      "throughput": 180,
+      "durationMs": 1600,
+      "errorRate": 0.082
     },
     {
       "nodeId": "node11",
-      "throughput": 60,
-      "durationMs": 2300,
-      "errorRate": 0.06
+      "throughput": 70,
+      "durationMs": 5400,
+      "errorRate": 0.021
     },
     {
       "nodeId": "node12",
-      "throughput": 80,
-      "durationMs": 2800,
-      "errorRate": 0.08
+      "throughput": 230,
+      "durationMs": 3000,
+      "errorRate": 0.145
     },
     {
       "nodeId": "node13",
-      "throughput": 100,
-      "durationMs": 3300,
-      "errorRate": 0.1
+      "throughput": 120,
+      "durationMs": 2500,
+      "errorRate": 0.062
     },
     {
       "nodeId": "node14",
-      "throughput": 120,
-      "durationMs": 3800,
-      "errorRate": 0.12
+      "throughput": 45,
+      "durationMs": 6100,
+      "errorRate": 0.018
     },
     {
       "nodeId": "node15",
-      "throughput": 140,
-      "durationMs": 4300,
-      "errorRate": 0.14
+      "throughput": 200,
+      "durationMs": 4700,
+      "errorRate": 0.19
     },
     {
       "nodeId": "node16",
-      "throughput": 160,
-      "durationMs": 4800,
-      "errorRate": 0.16
+      "throughput": 88,
+      "durationMs": 2100,
+      "errorRate": 0.041
     },
     {
       "nodeId": "node17",
-      "throughput": 180,
-      "durationMs": 5300,
-      "errorRate": 0.18
+      "throughput": 155,
+      "durationMs": 6900,
+      "errorRate": 0.11
     },
     {
       "nodeId": "node18",
-      "throughput": 200,
-      "durationMs": 5800,
-      "errorRate": 0.2
+      "throughput": 260,
+      "durationMs": 3600,
+      "errorRate": 0.072
     },
     {
       "nodeId": "node19",
-      "throughput": 220,
-      "durationMs": 6300,
-      "errorRate": 0.22
+      "throughput": 35,
+      "durationMs": 5200,
+      "errorRate": 0.23
     }
   ],
   "edges": [
@@ -74,90 +74,90 @@
       "fromGatewayId": "right",
       "toNodeId": "node11",
       "toGatewayId": "left",
-      "throughput": 18,
-      "durationMs": 1350,
-      "errorRate": 0.015
+      "throughput": 165,
+      "durationMs": 1500,
+      "errorRate": 0.028
     },
     {
       "fromNodeId": "node12",
       "fromGatewayId": "up",
       "toNodeId": "node18",
       "toGatewayId": "up",
-      "throughput": 36,
-      "durationMs": 1800,
-      "errorRate": 0.03
+      "throughput": 78,
+      "durationMs": 5100,
+      "errorRate": 0.12
     },
     {
       "fromNodeId": "node12",
       "fromGatewayId": "down",
       "toNodeId": "node14",
       "toGatewayId": "up",
-      "throughput": 54,
-      "durationMs": 2250,
-      "errorRate": 0.045
+      "throughput": 42,
+      "durationMs": 3000,
+      "errorRate": 0.19
     },
     {
       "fromNodeId": "node13",
       "fromGatewayId": "right",
       "toNodeId": "node12",
       "toGatewayId": "left",
-      "throughput": 72,
-      "durationMs": 2700,
-      "errorRate": 0.06
+      "throughput": 118,
+      "durationMs": 2400,
+      "errorRate": 0.055
     },
     {
       "fromNodeId": "node14",
       "fromGatewayId": "right",
       "toNodeId": "node15",
       "toGatewayId": "left",
-      "throughput": 90,
-      "durationMs": 3150,
-      "errorRate": 0.075
+      "throughput": 205,
+      "durationMs": 6400,
+      "errorRate": 0.014
     },
     {
       "fromNodeId": "node15",
       "fromGatewayId": "right",
       "toNodeId": "node16",
       "toGatewayId": "left",
-      "throughput": 108,
-      "durationMs": 3600,
-      "errorRate": 0.09
+      "throughput": 96,
+      "durationMs": 1900,
+      "errorRate": 0.16
     },
     {
       "fromNodeId": "node15",
       "fromGatewayId": "up",
       "toNodeId": "node10",
       "toGatewayId": "down",
-      "throughput": 126,
-      "durationMs": 4050,
-      "errorRate": 0.105
+      "throughput": 54,
+      "durationMs": 4500,
+      "errorRate": 0.098
     },
     {
       "fromNodeId": "node17",
       "fromGatewayId": "down",
       "toNodeId": "node18",
       "toGatewayId": "up",
-      "throughput": 144,
-      "durationMs": 4500,
-      "errorRate": 0.12
+      "throughput": 182,
+      "durationMs": 3700,
+      "errorRate": 0.073
     },
     {
       "fromNodeId": "node18",
       "fromGatewayId": "right",
       "toNodeId": "node13",
       "toGatewayId": "left",
-      "throughput": 162,
-      "durationMs": 4950,
-      "errorRate": 0.135
+      "throughput": 66,
+      "durationMs": 2800,
+      "errorRate": 0.132
     },
     {
       "fromNodeId": "node19",
       "fromGatewayId": "right",
       "toNodeId": "node17",
       "toGatewayId": "left",
-      "throughput": 180,
-      "durationMs": 5400,
-      "errorRate": 0.15
+      "throughput": 24,
+      "durationMs": 5600,
+      "errorRate": 0.205
     }
   ]
 }

@@ -34,7 +34,17 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
               node.state.hover = true;
             });
           }}
-          onMouseOut={() => {
+          onMouseOut={(ev) => {
+            const nextTarget = ev.relatedTarget;
+            if (
+              nextTarget instanceof Element &&
+              nextTarget.closest(
+                `[data-id="${node.id}"], [data-gateway-parent="${node.id}"]`,
+              )
+            ) {
+              return;
+            }
+
             runInAction(() => {
               node.state.hover = false;
             });
@@ -47,10 +57,6 @@ const ShapeWrap = observer(({ node }: { node: Node }) => {
           data-id={node.id}
         />
       )}
-      {(node.state.hover || node.selected) &&
-        node.gateways.map((c) => {
-          return <GatewayRender key={c.id} gateway={c} />;
-        })}
     </>
   );
 });
@@ -77,21 +83,28 @@ const ScalableShapes = makeScalableComponent(
   observer(() => {
     const d = Diagram.use();
     const selector = d.getExtension(Selector);
+    const selectedNodes = selector?.selectedNodes ?? [];
+    const orderedNodes = [
+      ...d.nodes.filter((node) => !selectedNodes.includes(node)),
+      ...selectedNodes,
+    ];
+    const visibleGateways = orderedNodes
+      .filter((node) => node.state.hover || node.selected)
+      .flatMap((node) => node.gateways);
 
     return (
       <>
-        {d.nodes
-          .map((c) =>
-            selector?.selectedNodes.find((s) => s === c) ? null : (
-              <ShapeWrap node={c} key={c.id} />
-            ),
-          )
-          .filter(Boolean)}
-        {selector?.selectedNodes.map((c) => (
-          <ShapeWrap node={c} key={c.id} />
+        {orderedNodes.map((node) => (
+          <ShapeWrap node={node} key={node.id} />
         ))}
         {d.edges.map((c) => (
           <DiagramEdge edge={c} key={c.id} />
+        ))}
+        {visibleGateways.map((gateway) => (
+          <GatewayRender
+            gateway={gateway}
+            key={`${gateway.parent.id}-${gateway.id}`}
+          />
         ))}
       </>
     );

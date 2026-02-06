@@ -2,8 +2,8 @@ import { useRef, type MouseEvent } from 'react';
 import { Diagram } from '../../store/Diagram';
 import { Dragger } from '../../store/extensions/Dragger';
 import { Selector } from '../../store/extensions/Selector';
+import { Coordinates } from '../../store/primitives/Coordinates';
 import { getIdForNode } from '../../util/getIdForNode';
-import { Mouse } from '../../util/Mouse';
 import { BPMNode } from './nodes/BPMNode';
 import { EventNode } from './nodes/EventNode';
 import { GateNode } from './nodes/GateNode';
@@ -61,12 +61,13 @@ function createNode(d: Diagram, type: string, ev: MouseEvent) {
   }
 
   if (node !== null) {
+    const mouseAtCreation = new Coordinates(ev.nativeEvent);
     d.add(node);
     node.setPosition(
-      d.canvas.inverseFit(Mouse.getInstance().coordinates.substract([100, 50])),
+      d.canvas.inverseFit(mouseAtCreation.copy().substract([100, 50])),
     );
     d.rules.displaceWhenDragOnEdges = false;
-    d.getExtension(Dragger)?.startDrag(node);
+    d.getExtension(Dragger)?.startDrag(node, mouseAtCreation);
     d.getExtension(Selector).clearSelection();
     d.getExtension(Selector).selectNode(node);
   }
