@@ -20,6 +20,27 @@ export type THotKey = Partial<{
 export class Hotkeys extends DiagramExtension {
   hotkeys: THotKey[] = [];
 
+  private isEditableTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    return (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement ||
+      target instanceof HTMLButtonElement ||
+      target.isContentEditable
+    );
+  }
+
+  private shouldIgnoreHotkeys(ev: DKeyDownEvent) {
+    return (
+      this.isEditableTarget(ev.originalEvent.target) ||
+      this.isEditableTarget(document.activeElement)
+    );
+  }
+
   private get measurer() {
     return this.diagram.getExtension(Measurer);
   }
@@ -46,6 +67,10 @@ export class Hotkeys extends DiagramExtension {
 
   init() {
     this.diagram.onEvent(DKeyDownEvent, async (ev) => {
+      if (this.shouldIgnoreHotkeys(ev)) {
+        return;
+      }
+
       if (!this.revertHotkey.has(ev.code)) {
         for (const c of this.hotkeys) {
           if (this.match(ev, c)) {
