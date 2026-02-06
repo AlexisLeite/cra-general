@@ -1005,6 +1005,33 @@ body.light .diagram__node:is(div) {
   z-index: 2;
 }
 
+.diagram__editor_mode_switcher {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 1001;
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--toolbar-border);
+  background: color-mix(in oklab, var(--bg) 85%, white 15%);
+}
+
+.diagram__editor_mode_switcher > button {
+  font: inherit;
+  border: 1px solid var(--toolbar-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.diagram__editor_mode_switcher > button.active {
+  background: var(--tool-selected-bg);
+}
+
 .edge {
   pointer-events: auto;
 }
@@ -1047,6 +1074,18 @@ body.light .diagram__node:is(div) {
   width: 12px;
   height: 12px;
   fill: var(--edge-stroke);
+}
+
+.edge_endpoint_drag_point {
+  fill: var(--bg);
+  stroke: var(--edge-dragger-stroke);
+  stroke-width: 2px;
+}
+
+.edge.selected .edge_endpoint_drag_point,
+.edge.dragging .edge_endpoint_drag_point {
+  cursor: pointer;
+  stroke: var(--edge-dragger-hover-stroke);
 }
 
 .measurement {
