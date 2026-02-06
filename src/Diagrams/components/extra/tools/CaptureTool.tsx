@@ -207,10 +207,11 @@ async function captureAsSvg({
   const union = mergeBounds([...svgBounds, ...htmlBounds]);
   if (!union) return;
 
-  const minX = Math.floor(union.minX);
-  const minY = Math.floor(union.minY);
-  const width = Math.max(1, Math.ceil(union.maxX - union.minX));
-  const height = Math.max(1, Math.ceil(union.maxY - union.minY));
+  const padding = 50;
+  const minX = Math.floor(union.minX - padding);
+  const minY = Math.floor(union.minY - padding);
+  const width = Math.max(1, Math.ceil(union.maxX - union.minX + padding * 2));
+  const height = Math.max(1, Math.ceil(union.maxY - union.minY + padding * 2));
 
   const MAX = 8192;
   const safeScale = Math.min(scale, MAX / Math.max(width, height));
