@@ -261,6 +261,14 @@ body.light {
   }
 }
 
+.diagram__node.bpm__lanes .lane__label {
+  font-size: 22px;
+}
+
+.diagram__node.bpm__lanes .lane__labelInput {
+  font-size: 22px;
+}
+
 .base_shape {
   pointer-events: auto;
 }
@@ -531,11 +539,13 @@ body.light .diagram__node:is(div) {
   align-items: center;
 }
 
-#BPMNStatisticsPanel {
+#BPMNStatisticsPanel,
+#BPMNShapesShowcasePanel {
   padding: var(--space-2) var(--space-2) var(--space-4);
 }
 
-#BPMNStatisticsPanel .collapsible_panel__header {
+#BPMNStatisticsPanel .collapsible_panel__header,
+#BPMNShapesShowcasePanel .collapsible_panel__header {
   margin-top: var(--space-2);
   padding: 7px 10px;
   border: 1px solid var(--stats-panel-border);
@@ -545,16 +555,19 @@ body.light .diagram__node:is(div) {
   box-shadow: var(--stats-panel-shadow);
 }
 
-#BPMNStatisticsPanel>.collapsible_panel__header:first-child {
+#BPMNStatisticsPanel>.collapsible_panel__header:first-child,
+#BPMNShapesShowcasePanel>.collapsible_panel__header:first-child {
   margin-top: 0;
 }
 
-#BPMNStatisticsPanel .collapsible_panel__title {
+#BPMNStatisticsPanel .collapsible_panel__title,
+#BPMNShapesShowcasePanel .collapsible_panel__title {
   font-size: 14px;
   letter-spacing: 0.1px;
 }
 
-#BPMNStatisticsPanel .collapsible_panel__content {
+#BPMNStatisticsPanel .collapsible_panel__content,
+#BPMNShapesShowcasePanel .collapsible_panel__content {
   border: 1px solid var(--stats-panel-border);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   border-top: none;
@@ -563,14 +576,18 @@ body.light .diagram__node:is(div) {
   box-shadow: var(--stats-panel-shadow);
 }
 
+#BPMNShapesShowcasePanel .node__tools {
+  display: none;
+}
+
 #BPMNStatisticsPanel .diagram__stats_label {
   font-size: 12px;
   color: var(--stats-panel-muted);
 }
 
-#BPMNStatisticsPanel .diagram__stats_label > input,
-#BPMNStatisticsPanel .diagram__stats_label > select,
-#BPMNStatisticsPanel .diagram__stats_label > textarea {
+#BPMNStatisticsPanel .diagram__stats_label>input,
+#BPMNStatisticsPanel .diagram__stats_label>select,
+#BPMNStatisticsPanel .diagram__stats_label>textarea {
   color: var(--form-text);
 }
 
@@ -579,7 +596,7 @@ body.light .diagram__node:is(div) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-#BPMNStatisticsPanel .diagram__stats_actions > button {
+#BPMNStatisticsPanel .diagram__stats_actions>button {
   width: 100%;
   min-height: 34px;
   border-radius: var(--radius-sm);
@@ -607,6 +624,73 @@ body.light .diagram__node:is(div) {
 #BPMNStatisticsPanel .diagram__stats_grid_2 input[type='color'] {
   min-height: 36px;
   padding: var(--space-1);
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_nodes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_groups {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_item {
+  position: relative;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1);
+  min-height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_item>.diagram__node {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%);
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_nodes .diagram__node.bpmn__task {
+  width: 128px !important;
+  height: 70px !important;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_nodes .diagram__node.bpmn__event,
+#BPMNShapesShowcasePanel .diagram__showcase_nodes .diagram__node.bpmn__gate {
+  width: 70px !important;
+  height: 70px !important;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_nodes .diagram__node.bpmn__gate > svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_groups .diagram__showcase_item {
+  min-height: 112px;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_groups .diagram__node.bpm__lanes {
+  width: 260px !important;
+  height: 84px !important;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_groups .diagram__node.bpm__lanes .lane__label {
+  font-size: 64px;
+}
+
+#BPMNShapesShowcasePanel .diagram__showcase_groups .diagram__node_tools,
+#BPMNShapesShowcasePanel .diagram__showcase_groups .lane__labelInput {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  #BPMNShapesShowcasePanel .diagram__showcase_nodes {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 420px) {

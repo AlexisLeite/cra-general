@@ -81,7 +81,7 @@ export const ShapesShowcase = () => {
   return (
     <div
       className="diagram__plain_panel"
-      id="Showcase"
+      id="BPMNShapesShowcasePanel"
       onMouseLeave={() => {
         uns.current();
         if (!d.rules.displaceWhenDragOnEdges) {
@@ -98,14 +98,25 @@ export const ShapesShowcase = () => {
         <span className="collapsible_panel__title">Nodes</span>
       </div>
       <div className="collapsible_panel__content nodes">
-        <div onMouseDownCapture={createNode.bind(createNode, d, 'task')}>
-          <task.Renderer />
-        </div>
-        <div onMouseDownCapture={createNode.bind(createNode, d, 'event')}>
-          <event.Renderer />
-        </div>
-        <div onMouseDownCapture={createNode.bind(createNode, d, 'gate')}>
-          <gate.Renderer />
+        <div className="diagram__stats_section diagram__showcase_nodes">
+          <div
+            className="diagram__showcase_item"
+            onMouseDownCapture={createNode.bind(createNode, d, 'task')}
+          >
+            <task.Renderer />
+          </div>
+          <div
+            className="diagram__showcase_item"
+            onMouseDownCapture={createNode.bind(createNode, d, 'event')}
+          >
+            <event.Renderer />
+          </div>
+          <div
+            className="diagram__showcase_item"
+            onMouseDownCapture={createNode.bind(createNode, d, 'gate')}
+          >
+            <gate.Renderer />
+          </div>
         </div>
       </div>
 
@@ -113,8 +124,13 @@ export const ShapesShowcase = () => {
         <span className="collapsible_panel__title">Groups</span>
       </div>
       <div className="collapsible_panel__content groups">
-        <div onMouseDownCapture={createNode.bind(createNode, d, 'lane')}>
-          <lanes.Renderer />
+        <div className="diagram__stats_section diagram__showcase_groups">
+          <div
+            className="diagram__showcase_item"
+            onMouseDownCapture={createNode.bind(createNode, d, 'lane')}
+          >
+            <lanes.Renderer />
+          </div>
         </div>
       </div>
     </div>

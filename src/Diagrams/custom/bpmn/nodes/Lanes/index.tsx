@@ -21,6 +21,7 @@ export class Lanes extends BPMNode {
   static readonly laneHeaderWidth = 50;
   static readonly laneHeight = 250;
   static readonly lanePadding = 25;
+  static readonly laneHeaderFontSize = 14;
 
   constructor(parent: Element | null, state: { id: string }) {
     super(parent, { ...state, label: '', zIndex: 50, groupChildren: true });
@@ -152,6 +153,7 @@ export class Lanes extends BPMNode {
                     className="lane__label"
                     x={Lanes.laneHeaderWidth / 2}
                     y={y + Lanes.laneHeight / 2}
+                    fontSize={Lanes.laneHeaderFontSize}
                     textAnchor="middle"
                     dominantBaseline="middle"
                     transform={`rotate(-90 ${Lanes.laneHeaderWidth / 2} ${y + Lanes.laneHeight / 2})`}
@@ -177,6 +179,7 @@ export class Lanes extends BPMNode {
                 left: '0px',
                 width: `${Lanes.laneHeaderWidth}px`,
                 height: `${Lanes.laneHeight}px`,
+                fontSize: `${Lanes.laneHeaderFontSize}px`,
               }}
               onMouseDown={(ev) => {
                 ev.nativeEvent.stopImmediatePropagation();
