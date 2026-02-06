@@ -35,7 +35,7 @@ type EdgeEntry = {
 };
 
 const METRICS: BPMNMetric[] = ['throughput', 'durationMs', 'errorRate'];
-const FALLBACK_LOW_COLOR = '#64748b';
+const FALLBACK_LOW_COLOR = '#e1e8f3';
 const FALLBACK_HIGH_COLOR = '#0ea5e9';
 const DURATION_LOW_COLOR = '#86efac';
 const DURATION_HIGH_COLOR = '#166534';
@@ -119,7 +119,11 @@ function rgbaString(rgb: RGB, alpha: number) {
   return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${clamp(alpha, 0, 1)})`;
 }
 
-function paletteByMetric(metric: BPMNMetric, lowColor: string, highColor: string) {
+function paletteByMetric(
+  metric: BPMNMetric,
+  lowColor: string,
+  highColor: string,
+) {
   switch (metric) {
     case 'durationMs':
       return { low: DURATION_LOW_COLOR, high: DURATION_HIGH_COLOR };
@@ -496,7 +500,9 @@ export class BPMNStatisticsController {
 
   buildSampleStatistics(): BPMNStatisticsFileV1 {
     const nodes = this.diagram.nodes
-      .filter((node) => isFlowNode(node) && node.id.toLowerCase().startsWith('task'))
+      .filter(
+        (node) => isFlowNode(node) && node.id.toLowerCase().startsWith('task'),
+      )
       .sort((a, b) => a.id.localeCompare(b.id));
 
     const fallbackNodes = this.diagram.nodes

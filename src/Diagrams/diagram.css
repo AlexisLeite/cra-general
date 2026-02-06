@@ -243,11 +243,19 @@ body.light {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition:
+      background-color 220ms ease,
+      border-color 220ms ease,
+      color 220ms ease;
   }
 
   path {
     fill: var(--node-fill);
     stroke: var(--node-stroke);
+    transition:
+      fill 220ms ease,
+      stroke 220ms ease,
+      stroke-width 220ms ease;
   }
 
   text {
@@ -1003,10 +1011,17 @@ body.light .diagram__node:is(div) {
 
 .edge_marker_path {
   fill: var(--edge-stroke);
+  transition:
+    fill 220ms ease,
+    stroke 220ms ease;
 }
 
 .edge path {
   stroke: var(--edge-stroke);
+  transition:
+    stroke 220ms ease,
+    stroke-width 220ms ease,
+    fill 220ms ease;
 
   &.edge-hover-area {
     stroke: transparent;
