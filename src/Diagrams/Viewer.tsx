@@ -14,12 +14,45 @@ import { AlignmentSuggestions } from './components/extra/AlignmentSuggestions';
 import './diagram.css';
 import { PathFindingRenderer } from './components/extra/PathFindingRenderer';
 import { ShapesShowcase } from './custom/bpmn/ShapesShowcase';
+import { ContextMenu, buildDiagramContextMenu } from './context-menu';
+import type { MouseEvent, ReactNode } from 'react';
 
-export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
+type ViewerProps = {
+  diagram: Diagram;
+  leftPanel?: ReactNode;
+};
+
+export const Viewer = observer(({ diagram, leftPanel }: ViewerProps) => {
+  const handleContextMenu = (ev: MouseEvent<HTMLDivElement>) => {
+    const target = ev.target;
+
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    if (target.closest('input, textarea, [contenteditable="true"]')) {
+      ContextMenu.close();
+      return;
+    }
+
+    ev.preventDefault();
+
+    ContextMenu.open(
+      buildDiagramContextMenu(diagram, target, {
+        x: ev.clientX,
+        y: ev.clientY,
+      }),
+      {
+        x: ev.clientX,
+        y: ev.clientY,
+      },
+    );
+  };
+
   return (
     <diagram.Context>
-      <Stage>
-        <ShapesShowcase />
+      <Stage onContextMenu={handleContextMenu}>
+        {leftPanel ?? <ShapesShowcase />}
         <Canvas>
           <Grid />
           <NodesConnectorRenderer />
@@ -29,6 +62,7 @@ export const Viewer = observer(({ diagram }: { diagram: Diagram }) => {
           <PathFindingRenderer />
         </Canvas>
       </Stage>
+      <ContextMenu.Component />
       <Tools />
       <Stats />
     </diagram.Context>

@@ -1,10 +1,12 @@
 import { makeAutoObservable } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
+  type FocusEvent,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 import { Mouse } from '../util/Mouse';
@@ -16,6 +18,215 @@ type Position = {
 };
 
 const VIEWPORT_MARGIN = 8;
+const SUBMENU_OVERLAP = 2;
+const SUBMENU_CLOSE_DELAY = 120;
+
+function clampPosition(
+  position: Position,
+  size: { width: number; height: number },
+) {
+  const x = Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(position.x, window.innerWidth - size.width - VIEWPORT_MARGIN),
+  );
+  const y = Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(position.y, window.innerHeight - size.height - VIEWPORT_MARGIN),
+  );
+
+  return { x, y };
+}
+
+function MenuItem({
+  item,
+  onAction,
+}: {
+  item: ContextMenuElement;
+  onAction: (item: ContextMenuElement) => void;
+}) {
+  const hasSubmenu = Boolean(item.submenu?.length);
+  const itemRef = useRef<HTMLLIElement | null>(null);
+  const submenuRef = useRef<HTMLDivElement | null>(null);
+  const closeTimeoutRef = useRef<number | null>(null);
+  const [submenuOpen, setSubmenuOpen] = useState(false);
+  const [submenuReady, setSubmenuReady] = useState(false);
+  const [submenuPosition, setSubmenuPosition] = useState({
+    left: 0,
+    top: -4,
+    openToLeft: false,
+  });
+
+  const updateSubmenuPosition = useCallback(() => {
+    if (!itemRef.current || !submenuRef.current) {
+      return;
+    }
+
+    const triggerRect = itemRef.current.getBoundingClientRect();
+    const submenuRect = submenuRef.current.getBoundingClientRect();
+
+    let left = triggerRect.width - SUBMENU_OVERLAP;
+    let openToLeft = false;
+
+    if (
+      triggerRect.right - SUBMENU_OVERLAP + submenuRect.width >
+      window.innerWidth - VIEWPORT_MARGIN
+    ) {
+      left = -submenuRect.width + SUBMENU_OVERLAP;
+      openToLeft = true;
+    }
+
+    if (triggerRect.left + left < VIEWPORT_MARGIN) {
+      left = VIEWPORT_MARGIN - triggerRect.left;
+      openToLeft = false;
+    }
+
+    let top = -4;
+    let absoluteTop = triggerRect.top + top;
+
+    if (absoluteTop + submenuRect.height > window.innerHeight - VIEWPORT_MARGIN) {
+      top -=
+        absoluteTop +
+        submenuRect.height -
+        (window.innerHeight - VIEWPORT_MARGIN);
+      absoluteTop = triggerRect.top + top;
+    }
+
+    if (absoluteTop < VIEWPORT_MARGIN) {
+      top += VIEWPORT_MARGIN - absoluteTop;
+    }
+
+    setSubmenuPosition({ left, top, openToLeft });
+    setSubmenuReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!submenuOpen) {
+      setSubmenuReady(false);
+    }
+  }, [submenuOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current !== null) {
+        window.clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!submenuOpen) {
+      return;
+    }
+
+    updateSubmenuPosition();
+  }, [submenuOpen, updateSubmenuPosition]);
+
+  useEffect(() => {
+    if (!submenuOpen) {
+      return;
+    }
+
+    const handleResize = () => {
+      updateSubmenuPosition();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [submenuOpen, updateSubmenuPosition]);
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const openSubmenu = () => {
+    if (hasSubmenu) {
+      clearCloseTimeout();
+      setSubmenuOpen(true);
+    }
+  };
+
+  const closeSubmenu = () => {
+    clearCloseTimeout();
+    setSubmenuOpen(false);
+  };
+
+  const scheduleCloseSubmenu = () => {
+    if (!hasSubmenu) {
+      return;
+    }
+
+    clearCloseTimeout();
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setSubmenuOpen(false);
+      closeTimeoutRef.current = null;
+    }, SUBMENU_CLOSE_DELAY);
+  };
+
+  const handleBlur = (ev: FocusEvent<HTMLLIElement>) => {
+    const nextTarget = ev.relatedTarget as Node | null;
+
+    if (!nextTarget || !ev.currentTarget.contains(nextTarget)) {
+      closeSubmenu();
+    }
+  };
+
+  return (
+    <li
+      ref={itemRef}
+      className={[
+        'diagram__context_menu_item',
+        item.disabled && 'disabled',
+        item.danger && 'danger',
+        hasSubmenu && 'has_submenu',
+        submenuOpen && 'submenu_open',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      onMouseEnter={openSubmenu}
+      onMouseLeave={scheduleCloseSubmenu}
+      onFocusCapture={openSubmenu}
+      onBlurCapture={handleBlur}
+    >
+      <button
+        type="button"
+        className="diagram__context_menu_button"
+        disabled={item.disabled}
+        onClick={(ev) => {
+          ev.stopPropagation();
+          ev.preventDefault();
+          onAction(item);
+        }}
+      >
+        <span className="diagram__context_menu_label">{item.label}</span>
+        {hasSubmenu && (
+          <span className="diagram__context_menu_chevron">
+            {submenuPosition.openToLeft ? '<' : '>'}
+          </span>
+        )}
+      </button>
+      {hasSubmenu && submenuOpen && (
+        <div
+          ref={submenuRef}
+          className="diagram__context_menu_submenu"
+          style={{
+            left: submenuPosition.left,
+            top: submenuPosition.top,
+            opacity: submenuReady ? 1 : 0,
+          }}
+        >
+          <div className="diagram__context_menu diagram__context_menu--nested">
+            <MenuItems items={item.submenu!} onAction={onAction} />
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
 
 function MenuItems({
   items,
@@ -27,43 +238,12 @@ function MenuItems({
   return (
     <ul className="diagram__context_menu_list">
       {items.map((item, index) => {
-        const hasSubmenu = Boolean(item.submenu?.length);
-
         return (
-          <li
+          <MenuItem
             key={`${item.label}_${index}`}
-            className={[
-              'diagram__context_menu_item',
-              item.disabled && 'disabled',
-              item.danger && 'danger',
-              hasSubmenu && 'has_submenu',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            <button
-              type="button"
-              className="diagram__context_menu_button"
-              disabled={item.disabled}
-              onClick={(ev) => {
-                ev.stopPropagation();
-                ev.preventDefault();
-                onAction(item);
-              }}
-            >
-              <span className="diagram__context_menu_label">{item.label}</span>
-              {hasSubmenu && (
-                <span className="diagram__context_menu_chevron">{'>'}</span>
-              )}
-            </button>
-            {hasSubmenu && (
-              <div className="diagram__context_menu_submenu">
-                <div className="diagram__context_menu diagram__context_menu--nested">
-                  <MenuItems items={item.submenu!} onAction={onAction} />
-                </div>
-              </div>
-            )}
-          </li>
+            item={item}
+            onAction={onAction}
+          />
         );
       })}
     </ul>
@@ -86,20 +266,7 @@ const ContextMenuRenderer = observer(({ menu }: { menu: ContextMenuStore }) => {
     }
 
     const { width, height } = menuRef.current.getBoundingClientRect();
-
-    let x = menu.position.x;
-    let y = menu.position.y;
-
-    if (x + width > window.innerWidth - VIEWPORT_MARGIN) {
-      x = Math.max(VIEWPORT_MARGIN, window.innerWidth - width - VIEWPORT_MARGIN);
-    }
-
-    if (y + height > window.innerHeight - VIEWPORT_MARGIN) {
-      y = Math.max(
-        VIEWPORT_MARGIN,
-        window.innerHeight - height - VIEWPORT_MARGIN,
-      );
-    }
+    const { x, y } = clampPosition(menu.position, { width, height });
 
     if (x !== position.x || y !== position.y) {
       setPosition({ x, y });

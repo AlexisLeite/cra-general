@@ -116,7 +116,9 @@ export const ShapesShowcase = () => {
           },
         ]}
         id="Showcase"
-        defaultWidth={280}
+        defaultWidth={320}
+        minWidth={260}
+        maxWidth={520}
         onMouseLeave={() => {
           uns.current();
           if (!d.rules.displaceWhenDragOnEdges) {

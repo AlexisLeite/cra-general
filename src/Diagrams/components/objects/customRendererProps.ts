@@ -18,11 +18,22 @@ export function customRendererStyles(
 }
 
 export function customRendererProps(node: Node<any>): DivProps {
+  const style = customRendererStyles(node) as DivProps['style'] & {
+    [key: `--${string}`]: string | undefined;
+  };
+
+  if (node.state.fill) {
+    style['--node-fill'] = node.state.fill;
+  }
+  if (node.state.stroke) {
+    style['--node-stroke'] = node.state.stroke;
+  }
+
   return {
     onMouseOver: () => node.setState('hover', true),
     onMouseOut: () => node.setState('hover', false),
     'data-id': node.id,
-    style: customRendererStyles(node),
+    style,
     className: node.classList.string,
   };
 }

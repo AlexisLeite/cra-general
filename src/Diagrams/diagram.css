@@ -34,10 +34,20 @@
   /* Stats / panels */
   --stats-bg: #020617;
   --stats-color: #f9fafb;
+  --scrollbar-track: #0f172a;
+  --scrollbar-thumb: #475569;
+  --scrollbar-thumb-hover: #64748b;
 
   /* Toolbar */
   --toolbar-border: #6b7280;
   --toolbar-tool-border: #020617;
+
+  /* Context menu */
+  --context-menu-bg: var(--bg);
+  --context-menu-color: var(--text);
+  --context-menu-border: var(--toolbar-border);
+  --context-menu-hover-bg: var(--tool-selected-bg);
+  --context-menu-danger: var(--text);
 
   /* Tool states */
   --tool-disabled-fg: #6d6d6d;
@@ -66,49 +76,73 @@
 
 
 body.light {
-  --bg: #f7f8fa;
-  --text: #1f2937;
+  /* Base */
+  --bg: #f1f5f9;
+  --text: #0b1220;
 
   /* Gateways */
-  --gateway-fill: #d1d5db;
-  --gateway-hover: #9ca3af;
+  --gateway-fill: #c7d2e3;
+  --gateway-hover: #9fb0c9;
 
   /* Nodes */
   --node-fill: #ffffff;
-  --node-stroke: #c7cdd6;
-  --node-color: #1f2937;
-  --node-font-size: 18px;
+  --node-stroke: #4f6f9a;
+  --node-color: #0f172a;
+  --node-font-size: 12px;
 
   /* Edges */
-  --edge-stroke: rgb(160, 165, 175);
+  --edge-stroke: rgb(95, 115, 146);
 
   /* Edge dragger */
-  --edge-dragger-stroke: rgb(160, 165, 175);
-  --edge-dragger-hover-stroke: rgb(90, 95, 105);
+  --edge-dragger-stroke: rgb(125, 147, 179);
+  --edge-dragger-hover-stroke: rgb(63, 84, 115);
 
   /* Selection */
-  --node-select-shadow: rgba(59, 130, 246, 0.45);
+  --node-select-shadow: rgba(37, 99, 235, 0.45);
 
   /* Grid */
-  --grid-thin: #e5e7eb;
-  --grid-strong: #cbd5e1;
+  --grid-thin: #dbe4f1;
+  --grid-strong: #b8c8dd;
 
   /* Stats / panels */
-  --stats-bg: #ffffff;
-  --stats-color: #111827;
+  --stats-bg: #f8fbff;
+  --stats-color: #0b1220;
+  --scrollbar-track: #dce7f5;
+  --scrollbar-thumb: #8aa0be;
+  --scrollbar-thumb-hover: #607a9f;
 
   /* Toolbar */
-  --toolbar-border: #d1d5db;
-  --toolbar-tool-border: #cbd5e1;
+  --toolbar-border: #b8c8dd;
+  --toolbar-tool-border: #8aa0be;
+
+  /* Context menu */
+  --context-menu-bg: #f8fbff;
+  --context-menu-color: #0b1220;
+  --context-menu-border: #b8c8dd;
+  --context-menu-hover-bg: #d9e6f8;
+  --context-menu-danger: #b91c1c;
 
   /* Tool states */
-  --tool-disabled-fg: #ff0000;
-  --tool-selected-bg: #e0ecff;
-  --tool-active-bg: #c7dbff;
+  --tool-disabled-fg: #8fa0b7;
+  --tool-selected-bg: #d8e8ff;
+  --tool-active-bg: #bfd8ff;
 
   /* Selection rectangle */
-  --selection-border: #93c5fd;
-  --selection-fill: #93c5fd33;
+  --selection-border: #2563eb;
+  --selection-fill: #2563eb26;
+
+  /* Suggestions */
+  --alignment-sugestion: rgba(2, 132, 199, 0.4);
+  --distance-balance-sugestion: rgba(34, 197, 94, 0.45);
+
+  /* Extra */
+  --path-finding-grid-edge: #eab308;
+  --path-finding-grid-edge--highlight: #1e293b;
+
+  /******
+    SIZES
+  */
+  --diagram-button: 20px;
 }
 
 .grid_line {
@@ -163,6 +197,7 @@ body.light {
   &:is(div) {
     background: var(--node-fill);
     border: 2px solid var(--node-stroke);
+    color: var(--node-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -302,6 +337,53 @@ body.light {
   }
 }
 
+body.light .diagram__node:is(div) {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+.diagram__left_panel_shell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+  background: var(--stats-bg);
+  color: var(--stats-color);
+  border-right: 1px solid var(--toolbar-border);
+}
+
+.diagram__left_panel_content {
+  min-height: 0;
+  height: 100%;
+}
+
+.diagram__left_tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px 8px;
+  border: none;
+  background: var(--stats-bg);
+  width: auto;
+  border-bottom: 1px solid var(--toolbar-border);
+}
+
+.diagram__left_tab {
+  appearance: none;
+  border: 1px solid var(--toolbar-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.diagram__left_tab.active {
+  background: var(--tool-selected-bg);
+}
+
 .stage {
   display: flex;
   flex-direction: row;
@@ -309,6 +391,7 @@ body.light {
   height: 100%;
   position: fixed;
   inset: 0;
+  background: var(--bg);
 }
 
 .h_stack>* {
@@ -331,9 +414,43 @@ body.light {
   background: var(--bg);
   color: var(--text);
   border: 1px solid var(--toolbar-border);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   position: relative;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+.diagram__left_panel_content > .collapsible_panel {
+  height: calc(100vh - 54px);
+}
+
+.collapsible_panel::-webkit-scrollbar,
+.canvas__frame::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.collapsible_panel::-webkit-scrollbar-track,
+.canvas__frame::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.collapsible_panel::-webkit-scrollbar-thumb,
+.canvas__frame::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+.collapsible_panel::-webkit-scrollbar-thumb:hover,
+.canvas__frame::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 
 .collapsible_panel.collapsed {
@@ -358,6 +475,57 @@ body.light {
 .collapsible_panel__content {
   border-top: 1px solid var(--toolbar-border);
   padding: 10px;
+}
+
+.collapsible_panel input,
+.collapsible_panel select,
+.collapsible_panel button,
+.collapsible_panel textarea {
+  font: inherit;
+  color: var(--text);
+  background: color-mix(in oklab, var(--bg) 82%, white 18%);
+  border: 1px solid var(--toolbar-border);
+  border-radius: 6px;
+}
+
+.collapsible_panel input,
+.collapsible_panel select,
+.collapsible_panel textarea {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 10px;
+  box-sizing: border-box;
+}
+
+.collapsible_panel input[type='checkbox'] {
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  padding: 0;
+}
+
+.collapsible_panel input[type='color'] {
+  min-height: 34px;
+  padding: 3px;
+}
+
+.collapsible_panel button {
+  padding: 7px 10px;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+.collapsible_panel button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.collapsible_panel input:focus,
+.collapsible_panel select:focus,
+.collapsible_panel textarea:focus,
+.collapsible_panel button:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--tool-selected-bg) 70%, white 30%);
+  outline-offset: 1px;
 }
 
 .collapsible_panel__resizer {
@@ -439,6 +607,83 @@ body.light {
   .tool:active {
     background: var(--tool-active-bg);
   }
+}
+
+.diagram__context_menu_layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.diagram__context_menu {
+  position: fixed;
+  min-width: 220px;
+  max-width: 280px;
+  padding: 3px;
+  border-radius: 4px;
+  background: var(--context-menu-bg);
+  color: var(--context-menu-color);
+  border: 1px solid var(--context-menu-border);
+  overflow: visible;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.diagram__context_menu--nested {
+  position: static;
+}
+
+.diagram__context_menu_list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.diagram__context_menu_item {
+  position: relative;
+}
+
+.diagram__context_menu_button {
+  width: 100%;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.diagram__context_menu_item:hover>.diagram__context_menu_button,
+.diagram__context_menu_item:focus-within>.diagram__context_menu_button,
+.diagram__context_menu_item.submenu_open>.diagram__context_menu_button {
+  background: var(--context-menu-hover-bg);
+}
+
+.diagram__context_menu_item.disabled>.diagram__context_menu_button {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.diagram__context_menu_item.danger>.diagram__context_menu_button .diagram__context_menu_label {
+  color: var(--context-menu-danger);
+  font-weight: 600;
+}
+
+.diagram__context_menu_chevron {
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+.diagram__context_menu_submenu {
+  position: absolute;
+  z-index: 2;
 }
 
 .edge {

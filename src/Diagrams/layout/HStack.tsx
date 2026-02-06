@@ -1,5 +1,11 @@
-import type { PropsWithChildren } from 'react';
+import type { HTMLAttributes, PropsWithChildren } from 'react';
 
-export function Stage({ children }: PropsWithChildren) {
-  return <div className="stage">{children}</div>;
+type StageProps = PropsWithChildren<HTMLAttributes<HTMLDivElement>>;
+
+export function Stage({ children, className, ...rest }: StageProps) {
+  return (
+    <div {...rest} className={['stage', className].filter(Boolean).join(' ')}>
+      {children}
+    </div>
+  );
 }
