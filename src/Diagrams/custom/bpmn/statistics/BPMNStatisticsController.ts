@@ -306,6 +306,54 @@ function resolveEdgeEntry(
   return gatewayFiltered ?? candidates[0];
 }
 
+function distributeIntegerTotal(total: number, weights: number[]): number[] {
+  const count = weights.length;
+  if (count <= 0) {
+    return [];
+  }
+  const safeWeights = weights.map((value) => Math.max(0.0001, value));
+  const totalWeight = safeWeights.reduce((sum, value) => sum + value, 0);
+  const raw = safeWeights.map((value) => (total * value) / totalWeight);
+  const values = raw.map((value) => Math.floor(value));
+  const remainder = total - values.reduce((sum, value) => sum + value, 0);
+  if (remainder <= 0) {
+    return values;
+  }
+
+  const order = raw.map((value, index) => ({
+    index,
+    frac: value - Math.floor(value),
+    rand: randomUnit(),
+  }));
+  order.sort((a, b) => b.frac - a.frac || a.rand - b.rand);
+
+  for (let i = 0; i < remainder; i++) {
+    values[order[i % count].index] += 1;
+  }
+
+  return values;
+}
+
+function randomUnit() {
+  if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto) {
+    const values = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(values);
+    return values[0] / 0x100000000;
+  }
+  return Math.random();
+}
+
+function randomInt(min: number, max: number) {
+  return Math.floor(randomUnit() * (max - min + 1)) + min;
+}
+
+function randomWeights(count: number) {
+  return Array.from({ length: count }, () => {
+    const u = Math.max(1e-9, randomUnit());
+    return -Math.log(u);
+  });
+}
+
 export class BPMNStatisticsController {
   readonly diagram: Diagram;
 
@@ -498,6 +546,28 @@ export class BPMNStatisticsController {
     );
   }
 
+  randomizeStatistics() {
+    const previousSignature = this.dataset
+      ? this.toThroughputSignature(this.dataset)
+      : '';
+
+    let next = this.buildSampleStatistics();
+    let attempts = 0;
+    while (
+      previousSignature &&
+      this.toThroughputSignature(next) === previousSignature &&
+      attempts < 10
+    ) {
+      next = this.buildSampleStatistics();
+      attempts += 1;
+    }
+
+    this.dataset = next;
+    this.fileName = 'random-generated';
+    this.error = '';
+    this.apply();
+  }
+
   buildSampleStatistics(): BPMNStatisticsFileV1 {
     const nodes = this.diagram.nodes
       .filter(
@@ -511,21 +581,8 @@ export class BPMNStatisticsController {
 
     const allNodes = [...nodes, ...fallbackNodes];
 
-    const nodeStats = allNodes.map((node): BPMNNodeStat => {
-      const throughputSeed = hashString(`${node.id}:throughput`);
-      const durationSeed = hashString(`${node.id}:duration`);
-      const errorSeed = hashString(`${node.id}:error`);
-      return {
-        nodeId: node.id,
-        throughput: 25 + (throughputSeed % 85),
-        durationMs: 600 + (durationSeed % 5000),
-        errorRate: Number((0.01 + (errorSeed % 220) / 1000).toFixed(3)),
-      };
-    });
-
     const edgeStats = this.diagram.edges.map((edge): BPMNEdgeStat => {
       const edgeId = `${edge.from.parent.id}:${edge.from.id}->${edge.to.parent.id}:${edge.to.id}`;
-      const throughputSeed = hashString(`${edgeId}:throughput`);
       const durationSeed = hashString(`${edgeId}:duration`);
       const errorSeed = hashString(`${edgeId}:error`);
       return {
@@ -533,9 +590,92 @@ export class BPMNStatisticsController {
         fromGatewayId: edge.from.id,
         toNodeId: edge.to.parent.id,
         toGatewayId: edge.to.id,
-        throughput: 20 + (throughputSeed % 80),
+        throughput: 0,
         durationMs: 500 + (durationSeed % 4500),
         errorRate: Number((0.005 + (errorSeed % 180) / 1000).toFixed(3)),
+      };
+    });
+
+    const incomingEdgeIndexes = new Map<string, number[]>();
+    const outgoingEdgeIndexes = new Map<string, number[]>();
+
+    edgeStats.forEach((edge, index) => {
+      const incoming = incomingEdgeIndexes.get(edge.toNodeId) ?? [];
+      incoming.push(index);
+      incomingEdgeIndexes.set(edge.toNodeId, incoming);
+
+      const outgoing = outgoingEdgeIndexes.get(edge.fromNodeId) ?? [];
+      outgoing.push(index);
+      outgoingEdgeIndexes.set(edge.fromNodeId, outgoing);
+    });
+
+    // Start with random throughput values.
+    edgeStats.forEach((edge) => {
+      edge.throughput = randomInt(20, 99);
+    });
+
+    const internalNodeIds = [
+      ...new Set(edgeStats.flatMap((edge) => [edge.fromNodeId, edge.toNodeId])),
+    ]
+      .filter((nodeId) => {
+        const incoming = incomingEdgeIndexes.get(nodeId)?.length ?? 0;
+        const outgoing = outgoingEdgeIndexes.get(nodeId)?.length ?? 0;
+        return incoming > 0 && outgoing > 0;
+      });
+
+    // Balance process throughput for intermediate nodes so sum(incoming) === sum(outgoing).
+    for (let sweep = 0; sweep < 24; sweep++) {
+      const sweepNodeIds = [...internalNodeIds];
+      for (let i = sweepNodeIds.length - 1; i > 0; i--) {
+        const j = Math.floor(randomUnit() * (i + 1));
+        [sweepNodeIds[i], sweepNodeIds[j]] = [sweepNodeIds[j], sweepNodeIds[i]];
+      }
+
+      for (const nodeId of sweepNodeIds) {
+        const incomingIndexes = incomingEdgeIndexes.get(nodeId) ?? [];
+        const outgoingIndexes = outgoingEdgeIndexes.get(nodeId) ?? [];
+        if (!incomingIndexes.length || !outgoingIndexes.length) {
+          continue;
+        }
+
+        const incomingTotal = incomingIndexes.reduce(
+          (sum, edgeIndex) => sum + (edgeStats[edgeIndex].throughput ?? 0),
+          0,
+        );
+        const splitWeights = randomWeights(outgoingIndexes.length);
+        const distribution = distributeIntegerTotal(
+          incomingTotal,
+          splitWeights,
+        );
+
+        outgoingIndexes.forEach((edgeIndex, distIndex) => {
+          edgeStats[edgeIndex].throughput = distribution[distIndex];
+        });
+      }
+    }
+
+    const nodeStats = allNodes.map((node): BPMNNodeStat => {
+      const incomingIndexes = incomingEdgeIndexes.get(node.id) ?? [];
+      const outgoingIndexes = outgoingEdgeIndexes.get(node.id) ?? [];
+      const incomingTotal = incomingIndexes.reduce(
+        (sum, edgeIndex) => sum + (edgeStats[edgeIndex].throughput ?? 0),
+        0,
+      );
+      const outgoingTotal = outgoingIndexes.reduce(
+        (sum, edgeIndex) => sum + (edgeStats[edgeIndex].throughput ?? 0),
+        0,
+      );
+      const durationSeed = hashString(`${node.id}:duration`);
+      const errorSeed = hashString(`${node.id}:error`);
+
+      return {
+        nodeId: node.id,
+        throughput:
+          incomingIndexes.length > 0 && outgoingIndexes.length > 0
+            ? incomingTotal
+            : Math.max(incomingTotal, outgoingTotal),
+        durationMs: 600 + (durationSeed % 5000),
+        errorRate: Number((0.01 + (errorSeed % 220) / 1000).toFixed(3)),
       };
     });
 
@@ -765,5 +905,18 @@ export class BPMNStatisticsController {
     }
 
     return clamp(normalized, 0, 1);
+  }
+
+  private toThroughputSignature(dataset: BPMNStatisticsFileV1) {
+    const edgePart = dataset.edges
+      .map(
+        (edge) =>
+          `${edge.fromNodeId}:${edge.fromGatewayId ?? ''}->${edge.toNodeId}:${edge.toGatewayId ?? ''}=${edge.throughput ?? ''}`,
+      )
+      .join('|');
+    const nodePart = dataset.nodes
+      .map((node) => `${node.nodeId}=${node.throughput ?? ''}`)
+      .join('|');
+    return `${edgePart}::${nodePart}`;
   }
 }

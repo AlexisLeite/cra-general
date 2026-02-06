@@ -57,6 +57,9 @@ export const BPMNStatisticsPanel = observer(function BPMNStatisticsPanel({
             <button onClick={() => controller.downloadSampleFile()}>
               Sample
             </button>
+            <button onClick={() => controller.randomizeStatistics()}>
+              Random
+            </button>
           </div>
           {controller.fileName && (
             <div className="diagram__stats_meta">
