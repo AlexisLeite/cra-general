@@ -2,7 +2,7 @@ import { Viewer } from './Viewer';
 import json from '../saves/temp.json';
 
 import { reaction, toJS } from 'mobx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TabsPanel } from './components/TabsPanel';
 import { BPMDiagram } from './custom/bpmn/BPMDiagram';
 import { ShapesShowcase } from './custom/bpmn/ShapesShowcase';
@@ -30,12 +30,29 @@ const agentFlowController = new AgentFlowController(agentDiagram);
 
 bpmnDiagram.import(JSON.stringify(json as any));
 
+const DIAGRAM_EDITOR_MODE_STORAGE_KEY = 'diagram_editor_mode';
+
+const getInitialEditorMode = (): 'bpmn' | 'agent' => {
+  if (typeof window === 'undefined') {
+    return 'bpmn';
+  }
+
+  const storedMode = window.localStorage.getItem(
+    DIAGRAM_EDITOR_MODE_STORAGE_KEY,
+  );
+  return storedMode === 'agent' ? 'agent' : 'bpmn';
+};
+
 export const Diagrams = () => {
-  const [mode, setMode] = useState<'bpmn' | 'agent'>('bpmn');
+  const [mode, setMode] = useState<'bpmn' | 'agent'>(getInitialEditorMode);
   const [bpmnPanel, setBpmnPanel] = useState<'showcase' | 'statistics'>(
     'statistics',
   );
   const [agentPanel, setAgentPanel] = useState<'showcase' | 'flow'>('showcase');
+
+  useEffect(() => {
+    window.localStorage.setItem(DIAGRAM_EDITOR_MODE_STORAGE_KEY, mode);
+  }, [mode]);
 
   const diagram = mode === 'bpmn' ? bpmnDiagram : agentDiagram;
 
@@ -75,7 +92,11 @@ export const Diagrams = () => {
   return (
     <>
       <Viewer diagram={diagram} leftPanel={leftPanel} />
-      <div className="diagram__editor_mode_switcher" role="group" aria-label="Editor mode">
+      <div
+        className="diagram__editor_mode_switcher"
+        role="group"
+        aria-label="Editor mode"
+      >
         <button
           type="button"
           className={mode === 'bpmn' ? 'active' : ''}
