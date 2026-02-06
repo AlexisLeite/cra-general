@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "nodeId": "sid-0C55B79B-914C-478D-B927-2EAB6287ADA3",
+      "throughput": 14,
+      "durationMs": 2802,
+      "errorRate": 0.208
+    },
+    {
+      "nodeId": "sid-17E1CD84-67F2-4E7C-851C-049612C56F2A",
+      "throughput": 21,
+      "durationMs": 2796,
+      "errorRate": 0.122
+    },
+    {
+      "nodeId": "sid-255C189C-8349-4BCE-A15B-F9D5CBEDAA56",
+      "throughput": 64,
+      "durationMs": 4881,
+      "errorRate": 0.217
+    },
+    {
+      "nodeId": "sid-3336271B-C1A3-4EB7-9155-EB0E72D38709",
+      "throughput": 14,
+      "durationMs": 5300,
+      "errorRate": 0.102
+    },
+    {
+      "nodeId": "sid-3434D9C1-D145-4DA7-8B80-B0E815FDA328",
+      "throughput": 64,
+      "durationMs": 2817,
+      "errorRate": 0.011
+    },
+    {
+      "nodeId": "sid-4201CEF8-ED43-42B6-A193-99DA95E7C20E",
+      "throughput": 85,
+      "durationMs": 1835,
+      "errorRate": 0.223
+    },
+    {
+      "nodeId": "sid-48AA560D-818A-4244-82E7-0ACF67C5B7B4",
+      "throughput": 85,
+      "durationMs": 3624,
+      "errorRate": 0.074
+    },
+    {
+      "nodeId": "sid-79819E10-4A2C-4536-A776-37C1C6799180",
+      "throughput": 64,
+      "durationMs": 1863,
+      "errorRate": 0.097
+    },
+    {
+      "nodeId": "sid-82AAA30C-D17E-46E8-B185-BEFCC0E69B30",
+      "throughput": 85,
+      "durationMs": 3834,
+      "errorRate": 0.04
+    },
+    {
+      "nodeId": "sid-85CCC288-EED5-46CB-9C27-C9CED467FA42",
+      "throughput": 42,
+      "durationMs": 4936,
+      "errorRate": 0.07
+    },
+    {
+      "nodeId": "sid-9CD8E5BA-8C8D-4A4F-AD28-ADC7038A437C",
+      "throughput": 14,
+      "durationMs": 701,
+      "errorRate": 0.159
+    },
+    {
+      "nodeId": "sid-9FC93F0D-5FDC-4B88-90F1-B8417314E088",
+      "throughput": 42,
+      "durationMs": 1228,
+      "errorRate": 0.118
+    },
+    {
+      "nodeId": "sid-B0633D9E-8BC1-4B3B-A9F2-5977AFE43779",
+      "throughput": 14,
+      "durationMs": 5256,
+      "errorRate": 0.062
+    },
+    {
+      "nodeId": "sid-B2685024-FCCC-4A24-A833-6349E9D93906",
+      "throughput": 14,
+      "durationMs": 5070,
+      "errorRate": 0.144
+    },
+    {
+      "nodeId": "sid-BB0559B9-8832-4767-9433-A987418F372B",
+      "throughput": 21,
+      "durationMs": 3513,
+      "errorRate": 0.045
+    },
+    {
+      "nodeId": "sid-BE274AC5-D1F8-4D68-B896-F1727C8C7D0C",
+      "throughput": 21,
+      "durationMs": 701,
+      "errorRate": 0.145
+    },
+    {
+      "nodeId": "sid-BF719E43-4F74-4F2D-B603-79850200D780",
+      "throughput": 14,
+      "durationMs": 4396,
+      "errorRate": 0.226
+    }
+  ],
+  "edges": [
+    {
+      "fromNodeId": "sid-0C55B79B-914C-478D-B927-2EAB6287ADA3",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-3434D9C1-D145-4DA7-8B80-B0E815FDA328",
+      "toGatewayId": "down",
+      "throughput": 14,
+      "durationMs": 4858,
+      "errorRate": 0.171
+    },
+    {
+      "fromNodeId": "sid-17E1CD84-67F2-4E7C-851C-049612C56F2A",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-BB0559B9-8832-4767-9433-A987418F372B",
+      "toGatewayId": "left",
+      "throughput": 21,
+      "durationMs": 2463,
+      "errorRate": 0.012
+    },
+    {
+      "fromNodeId": "sid-255C189C-8349-4BCE-A15B-F9D5CBEDAA56",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-79819E10-4A2C-4536-A776-37C1C6799180",
+      "toGatewayId": "left",
+      "throughput": 64,
+      "durationMs": 2476,
+      "errorRate": 0.153
+    },
+    {
+      "fromNodeId": "sid-3336271B-C1A3-4EB7-9155-EB0E72D38709",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-BF719E43-4F74-4F2D-B603-79850200D780",
+      "toGatewayId": "left",
+      "throughput": 14,
+      "durationMs": 2244,
+      "errorRate": 0.121
+    },
+    {
+      "fromNodeId": "sid-3434D9C1-D145-4DA7-8B80-B0E815FDA328",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-255C189C-8349-4BCE-A15B-F9D5CBEDAA56",
+      "toGatewayId": "left",
+      "throughput": 64,
+      "durationMs": 2548,
+      "errorRate": 0.065
+    },
+    {
+      "fromNodeId": "sid-4201CEF8-ED43-42B6-A193-99DA95E7C20E",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-48AA560D-818A-4244-82E7-0ACF67C5B7B4",
+      "toGatewayId": "left",
+      "throughput": 85,
+      "durationMs": 2423,
+      "errorRate": 0.096
+    },
+    {
+      "fromNodeId": "sid-48AA560D-818A-4244-82E7-0ACF67C5B7B4",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-85CCC288-EED5-46CB-9C27-C9CED467FA42",
+      "toGatewayId": "left",
+      "throughput": 42,
+      "durationMs": 992,
+      "errorRate": 0.045
+    },
+    {
+      "fromNodeId": "sid-48AA560D-818A-4244-82E7-0ACF67C5B7B4",
+      "fromGatewayId": "up",
+      "toNodeId": "sid-3434D9C1-D145-4DA7-8B80-B0E815FDA328",
+      "toGatewayId": "left",
+      "throughput": 43,
+      "durationMs": 1010,
+      "errorRate": 0.091
+    },
+    {
+      "fromNodeId": "sid-82AAA30C-D17E-46E8-B185-BEFCC0E69B30",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-4201CEF8-ED43-42B6-A193-99DA95E7C20E",
+      "toGatewayId": "left",
+      "throughput": 85,
+      "durationMs": 1897,
+      "errorRate": 0.118
+    },
+    {
+      "fromNodeId": "sid-85CCC288-EED5-46CB-9C27-C9CED467FA42",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-9FC93F0D-5FDC-4B88-90F1-B8417314E088",
+      "toGatewayId": "left",
+      "throughput": 42,
+      "durationMs": 4560,
+      "errorRate": 0.097
+    },
+    {
+      "fromNodeId": "sid-9CD8E5BA-8C8D-4A4F-AD28-ADC7038A437C",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-0C55B79B-914C-478D-B927-2EAB6287ADA3",
+      "toGatewayId": "left",
+      "throughput": 14,
+      "durationMs": 3435,
+      "errorRate": 0.032
+    },
+    {
+      "fromNodeId": "sid-9FC93F0D-5FDC-4B88-90F1-B8417314E088",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-9CD8E5BA-8C8D-4A4F-AD28-ADC7038A437C",
+      "toGatewayId": "left",
+      "throughput": 14,
+      "durationMs": 3119,
+      "errorRate": 0.144
+    },
+    {
+      "fromNodeId": "sid-9FC93F0D-5FDC-4B88-90F1-B8417314E088",
+      "fromGatewayId": "down",
+      "toNodeId": "sid-3336271B-C1A3-4EB7-9155-EB0E72D38709",
+      "toGatewayId": "left",
+      "throughput": 14,
+      "durationMs": 2826,
+      "errorRate": 0.007
+    },
+    {
+      "fromNodeId": "sid-9FC93F0D-5FDC-4B88-90F1-B8417314E088",
+      "fromGatewayId": "down",
+      "toNodeId": "sid-B2685024-FCCC-4A24-A833-6349E9D93906",
+      "toGatewayId": "left",
+      "throughput": 14,
+      "durationMs": 3832,
+      "errorRate": 0.025
+    },
+    {
+      "fromNodeId": "sid-B0633D9E-8BC1-4B3B-A9F2-5977AFE43779",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-BE274AC5-D1F8-4D68-B896-F1727C8C7D0C",
+      "toGatewayId": "left",
+      "throughput": 7,
+      "durationMs": 3317,
+      "errorRate": 0.098
+    },
+    {
+      "fromNodeId": "sid-B0633D9E-8BC1-4B3B-A9F2-5977AFE43779",
+      "fromGatewayId": "up",
+      "toNodeId": "sid-3434D9C1-D145-4DA7-8B80-B0E815FDA328",
+      "toGatewayId": "down",
+      "throughput": 7,
+      "durationMs": 753,
+      "errorRate": 0.17
+    },
+    {
+      "fromNodeId": "sid-B2685024-FCCC-4A24-A833-6349E9D93906",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-BE274AC5-D1F8-4D68-B896-F1727C8C7D0C",
+      "toGatewayId": "down",
+      "throughput": 14,
+      "durationMs": 2220,
+      "errorRate": 0.005
+    },
+    {
+      "fromNodeId": "sid-BE274AC5-D1F8-4D68-B896-F1727C8C7D0C",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-17E1CD84-67F2-4E7C-851C-049612C56F2A",
+      "toGatewayId": "left",
+      "throughput": 21,
+      "durationMs": 2425,
+      "errorRate": 0.12
+    },
+    {
+      "fromNodeId": "sid-BF719E43-4F74-4F2D-B603-79850200D780",
+      "fromGatewayId": "right",
+      "toNodeId": "sid-B0633D9E-8BC1-4B3B-A9F2-5977AFE43779",
+      "toGatewayId": "left",
+      "throughput": 14,
+      "durationMs": 4708,
+      "errorRate": 0.017
+    }
+  ]
+}
