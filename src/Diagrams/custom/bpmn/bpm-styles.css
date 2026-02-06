@@ -42,14 +42,11 @@
     width: 100% !important;
     height: 60px !important;
     padding: 0 !important;
-
-    .lane__head {
-      height: 30px;
-    }
   }
 
   .node__tools,
-  .lane__resize {
+  .lane__resize,
+  .lane__resizeBar {
     display: none;
   }
 }
@@ -135,6 +132,16 @@
     box-sizing: border-box;
     padding: 8px 0;
     transform-origin: center;
+  }
+
+  .lane__resizeBar {
+    position: absolute;
+    top: 25px;
+    bottom: 25px;
+    right: -4px;
+    width: 8px;
+    cursor: col-resize;
+    pointer-events: all;
   }
 
   .lane__resize {

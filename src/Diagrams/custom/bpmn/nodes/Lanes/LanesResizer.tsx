@@ -34,6 +34,10 @@ export const LanesResizer = observer(({ lanes }: { lanes: Lanes }) => {
     <>
       <div
         onMouseDown={resizeLane.bind(resizeLane, lanes)}
+        className="lane__resizeBar"
+      ></div>
+      <div
+        onMouseDown={resizeLane.bind(resizeLane, lanes)}
         className="lane__resize"
       ></div>
     </>
