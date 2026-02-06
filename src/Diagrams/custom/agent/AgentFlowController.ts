@@ -181,6 +181,7 @@ export class AgentFlowController {
 
   createConditionalTemplate(anchor?: Coordinates): AgentTemplateResult {
     const center = anchor?.copy() ?? this.resolveTemplateAnchor();
+    const branchOffset = Math.max(110, Math.round(this.verticalGap * 0.85));
 
     const trigger = this.createNode({
       kind: 'trigger',
@@ -197,29 +198,25 @@ export class AgentFlowController {
     const trueAction = this.createNode({
       kind: 'action',
       label: 'True Action',
-      position: center.copy().sum([this.horizontalGap, -this.verticalGap / 2]),
+      position: center.copy().sum([this.horizontalGap, -branchOffset]),
       select: false,
     });
     const falseAction = this.createNode({
       kind: 'action',
       label: 'False Action',
-      position: center.copy().sum([this.horizontalGap, this.verticalGap / 2]),
+      position: center.copy().sum([this.horizontalGap, branchOffset]),
       select: false,
     });
     const trueOutcome = this.createNode({
       kind: 'outcome',
       label: 'True Outcome',
-      position: center
-        .copy()
-        .sum([this.horizontalGap * 2, -this.verticalGap / 2]),
+      position: center.copy().sum([this.horizontalGap * 2, -branchOffset]),
       select: false,
     });
     const falseOutcome = this.createNode({
       kind: 'outcome',
       label: 'False Outcome',
-      position: center
-        .copy()
-        .sum([this.horizontalGap * 2, this.verticalGap / 2]),
+      position: center.copy().sum([this.horizontalGap * 2, branchOffset]),
       select: false,
     });
 
@@ -394,14 +391,14 @@ export class AgentFlowController {
   } {
     if (isTrueBranch) {
       return {
-        fromGateway: 'right',
+        fromGateway: 'up',
         toGateway: 'left',
       };
     }
 
     return {
       fromGateway: 'down',
-      toGateway: 'up',
+      toGateway: 'left',
     };
   }
 }

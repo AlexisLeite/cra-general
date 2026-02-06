@@ -36,9 +36,11 @@ export class ConditionNode extends AgentNode<ConditionPayload> {
     return (
       <div {...customRendererProps(this)}>
         <svg
+          viewBox={`0 0 ${this.state.box.width} ${this.state.box.height}`}
+          preserveAspectRatio="none"
           style={{
-            width: `${this.state.box.width}px`,
-            height: `${this.state.box.height}px`,
+            width: '100%',
+            height: '100%',
           }}
         >
           <polygon

@@ -1,5 +1,6 @@
 import { useRef, type MouseEvent } from 'react';
 import { Coordinates } from '../../store/primitives/Coordinates';
+import { Dimensions } from '../../store/primitives/Dimensions';
 import { Dragger } from '../../store/extensions/Dragger';
 import { Selector } from '../../store/extensions/Selector';
 import type { AgentFlowController } from './AgentFlowController';
@@ -12,18 +13,22 @@ import { TriggerNode } from './nodes/TriggerNode';
 const triggerPreview = new TriggerNode(null, {
   id: 'trigger-preview',
   label: 'Trigger',
+  box: new Dimensions([0, 0, 96, 96]),
 });
 const actionPreview = new ActionNode(null, {
   id: 'action-preview',
   label: 'Action',
+  box: new Dimensions([0, 0, 160, 84]),
 });
 const conditionPreview = new ConditionNode(null, {
   id: 'condition-preview',
   label: 'Condition',
+  box: new Dimensions([0, 0, 112, 92]),
 });
 const outcomePreview = new OutcomeNode(null, {
   id: 'outcome-preview',
   label: 'Outcome',
+  box: new Dimensions([0, 0, 104, 92]),
 });
 
 function createNode(
@@ -56,11 +61,15 @@ export const AgentShapesShowcase = ({
   controller: AgentFlowController;
 }) => {
   const resetDisplaceTimeout = useRef(() => {});
+  const stopDiagramMouseDown = (ev: MouseEvent<HTMLDivElement>) => {
+    ev.nativeEvent.stopImmediatePropagation();
+  };
 
   return (
     <div
       className="diagram__plain_panel"
       id="AgentShapesShowcasePanel"
+      onMouseDownCapture={stopDiagramMouseDown}
       onMouseLeave={() => {
         resetDisplaceTimeout.current();
 

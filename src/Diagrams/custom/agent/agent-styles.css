@@ -23,12 +23,14 @@
   border-style: dashed;
 }
 
-.agent__condition {
+.diagram__node.agent__condition {
   border: none;
   background: none;
   position: relative;
+  padding: 0;
 
   svg {
+    display: block;
     width: 100%;
     height: 100%;
 
@@ -123,25 +125,8 @@
   transform: translate(-50%, -50%);
 }
 
-#AgentShapesShowcasePanel .agent__trigger,
-#AgentShapesShowcasePanel .agent__outcome {
-  width: 92px !important;
-  height: 92px !important;
-}
-
-#AgentShapesShowcasePanel .agent__action {
-  width: 148px !important;
-  height: 78px !important;
-}
-
-#AgentShapesShowcasePanel .agent__condition {
-  width: 108px !important;
-  height: 88px !important;
-}
-
-#AgentShapesShowcasePanel .agent__condition > svg {
-  width: 100% !important;
-  height: 100% !important;
+#AgentShapesShowcasePanel .diagram__showcase_item .editable__label {
+  pointer-events: none;
 }
 
 @media (max-width: 420px) {

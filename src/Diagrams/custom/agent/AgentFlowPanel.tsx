@@ -1,4 +1,5 @@
 import { observer } from 'mobx-react-lite';
+import type { MouseEvent } from 'react';
 import type { AgentFlowController } from './AgentFlowController';
 import type {
   ActionPayload,
@@ -209,9 +210,16 @@ export const AgentFlowPanel = observer(function AgentFlowPanel({
 }: AgentFlowPanelProps) {
   const selectedNodes = controller.selectedAgentNodes;
   const selectedNode = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  const stopDiagramMouseDown = (ev: MouseEvent<HTMLDivElement>) => {
+    ev.nativeEvent.stopImmediatePropagation();
+  };
 
   return (
-    <div className="diagram__plain_panel" id="AgentFlowPanel">
+    <div
+      className="diagram__plain_panel"
+      id="AgentFlowPanel"
+      onMouseDownCapture={stopDiagramMouseDown}
+    >
       <div className="collapsible_panel__header templates" aria-expanded>
         <span className="collapsible_panel__title">Flow Templates</span>
       </div>
