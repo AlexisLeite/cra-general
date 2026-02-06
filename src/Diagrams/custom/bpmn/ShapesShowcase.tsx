@@ -1,5 +1,4 @@
 import { useRef, type MouseEvent } from 'react';
-import { CollapsiblePanel } from '../../layout/CollapsiblePanel';
 import { Diagram } from '../../store/Diagram';
 import { Dragger } from '../../store/extensions/Dragger';
 import { Selector } from '../../store/extensions/Selector';
@@ -79,58 +78,44 @@ export const ShapesShowcase = () => {
   const uns = useRef(() => {});
 
   return (
-    <>
-      <CollapsiblePanel
-        sections={[
-          {
-            key: 'nodes',
-            title: 'Nodes',
-            children: (
-              <>
-                <div
-                  onMouseDownCapture={createNode.bind(createNode, d, 'task')}
-                >
-                  <task.Renderer />
-                </div>
-                <div
-                  onMouseDownCapture={createNode.bind(createNode, d, 'event')}
-                >
-                  <event.Renderer />
-                </div>
-                <div
-                  onMouseDownCapture={createNode.bind(createNode, d, 'gate')}
-                >
-                  <gate.Renderer />
-                </div>
-              </>
-            ),
-          },
-          {
-            key: 'groups',
-            title: 'Groups',
-            children: (
-              <div onMouseDownCapture={createNode.bind(createNode, d, 'lane')}>
-                <lanes.Renderer />
-              </div>
-            ),
-          },
-        ]}
-        id="Showcase"
-        defaultWidth={320}
-        minWidth={260}
-        maxWidth={520}
-        onMouseLeave={() => {
-          uns.current();
-          if (!d.rules.displaceWhenDragOnEdges) {
-            const i = setTimeout(() => {
-              d.rules.displaceWhenDragOnEdges = true;
-            }, 2000);
-            uns.current = () => {
-              clearInterval(i);
-            };
-          }
-        }}
-      ></CollapsiblePanel>
-    </>
+    <div
+      className="diagram__plain_panel"
+      id="Showcase"
+      onMouseLeave={() => {
+        uns.current();
+        if (!d.rules.displaceWhenDragOnEdges) {
+          const i = setTimeout(() => {
+            d.rules.displaceWhenDragOnEdges = true;
+          }, 2000);
+          uns.current = () => {
+            clearInterval(i);
+          };
+        }
+      }}
+    >
+      <div className="collapsible_panel__header nodes" aria-expanded>
+        <span className="collapsible_panel__title">Nodes</span>
+      </div>
+      <div className="collapsible_panel__content nodes">
+        <div onMouseDownCapture={createNode.bind(createNode, d, 'task')}>
+          <task.Renderer />
+        </div>
+        <div onMouseDownCapture={createNode.bind(createNode, d, 'event')}>
+          <event.Renderer />
+        </div>
+        <div onMouseDownCapture={createNode.bind(createNode, d, 'gate')}>
+          <gate.Renderer />
+        </div>
+      </div>
+
+      <div className="collapsible_panel__header groups" aria-expanded>
+        <span className="collapsible_panel__title">Groups</span>
+      </div>
+      <div className="collapsible_panel__content groups">
+        <div onMouseDownCapture={createNode.bind(createNode, d, 'lane')}>
+          <lanes.Renderer />
+        </div>
+      </div>
+    </div>
   );
 };

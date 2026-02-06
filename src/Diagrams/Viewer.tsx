@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Diagram } from './store/Diagram';
 import { NodesConnectorRenderer } from './components/extra/NodesConnectorRenderer';
-import { Stats } from './components/extra/Stats';
 import { Tools } from './components/extra/Tools';
 
 import { Measurement } from './components/extra/Measurement';
@@ -64,7 +63,6 @@ export const Viewer = observer(({ diagram, leftPanel }: ViewerProps) => {
       </Stage>
       <ContextMenu.Component />
       <Tools />
-      <Stats />
     </diagram.Context>
   );
 });
