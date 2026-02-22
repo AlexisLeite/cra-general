@@ -8,7 +8,7 @@ export class EditableDiagram extends Diagram {
   constructor(settings?: TDiagramSettings) {
     super(settings);
 
-    Diagram.registerClass(EditableNode);
+    this.registerClass(EditableNode);
     this.registerExtension(EditionMode);
   }
 }

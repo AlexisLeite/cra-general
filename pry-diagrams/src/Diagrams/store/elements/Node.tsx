@@ -2,7 +2,7 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import type { TOrientation, TNodeState } from '../types';
 import { Dimensions } from '../primitives/Dimensions';
 import { Coordinates } from '../primitives/Coordinates';
-import { Diagram } from '../Diagram';
+import type { Diagram } from '../Diagram';
 import { Gateway } from './Gateway';
 import { Element } from './Element';
 import { ClassList } from '../../util/ClassList';
@@ -162,9 +162,14 @@ export class Node<Gateways = TOrientation> extends Element {
     o.gateways.forEach((c) => {
       const incoming = this._gateways.get(c.id as any)?.incomingEdges || [];
 
+      const gatewayClass = this.diagram?.getClass(c.class);
+      if (!gatewayClass) {
+        throw new Error(`Unknown gateway class '${c.class}' on node '${this.id}'.`);
+      }
+
       this._gateways.set(
         c.id as any,
-        new (Diagram.getClass(c.class))(this, {
+        new gatewayClass(this, {
           id: c.id,
         }) as Gateway,
       );

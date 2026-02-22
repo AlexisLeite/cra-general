@@ -4,7 +4,6 @@ import type { TOrientation } from '../types';
 import type { Edge } from './Edge';
 import { EdgePoint } from './EdgePoint';
 import type { Node } from './Node';
-import { Diagram } from '../Diagram';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
 import { action, makeObservable, observable, reaction, toJS } from 'mobx';
@@ -636,7 +635,14 @@ export class Gateway extends Element {
     this.state.position.assign(c.coordinates);
 
     c.outEdges.forEach((edgeState) => {
-      const edge = new (Diagram.getClass(edgeState.class))(this, {
+      const edgeClass = this.diagram.getClass(edgeState.class);
+      if (!edgeClass) {
+        throw new Error(
+          `Unknown edge class '${edgeState.class}' on gateway '${this.id}'.`,
+        );
+      }
+
+      const edge = new edgeClass(this, {
         from: this,
       }) as Edge;
 

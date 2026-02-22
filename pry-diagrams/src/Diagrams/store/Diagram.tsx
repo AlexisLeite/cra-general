@@ -69,13 +69,13 @@ export class Diagram extends Element {
   public readonly priorities = new Priorities();
   rules = new Rules(this);
   private focusContentTimer: ReturnType<typeof setTimeout> | null = null;
+  private knownClasses = new Map<string, any>();
 
-  private static knownClasses = new Map<string, any>();
-  static getClass(name: string) {
+  getClass(name: string) {
     return this.knownClasses.get(name);
   }
-  static registerClass(clazz: any) {
-    this.knownClasses.set(clazz.name, clazz);
+  registerClass(clazz: any, className = clazz.name) {
+    this.knownClasses.set(className, clazz);
   }
 
   edgeClass: typeof Edge = Edge;
@@ -92,10 +92,10 @@ export class Diagram extends Element {
   constructor(settings?: TDiagramSettings) {
     super(null);
 
-    Diagram.registerClass(Node);
-    Diagram.registerClass(Edge);
-    Diagram.registerClass(Gateway);
-    Diagram.registerClass(TextNode);
+    this.registerClass(Node);
+    this.registerClass(Edge);
+    this.registerClass(Gateway);
+    this.registerClass(TextNode);
 
     Object.entries(DefaultExtensions).forEach(([key, clazz]) => {
       if (settings?.extensions?.[key as keyof TDefaultExensions] !== false) {
@@ -309,7 +309,14 @@ export class Diagram extends Element {
         const idMap = new Map<string, string>();
 
         state.nodes.forEach((nodeState) => {
-          const node = new (Diagram.getClass(nodeState.class))(this, {
+          const nodeClass = this.getClass(nodeState.class);
+          if (!nodeClass) {
+            throw new Error(
+              `Unable to import node: unknown class '${nodeState.class}'.`,
+            );
+          }
+
+          const node = new nodeClass(this, {
             id: nodeState.id,
           }) as Node;
           const addedNode = this.add(node);
@@ -374,7 +381,14 @@ export class Diagram extends Element {
         const diff = mouse.substract(nearestToOrigin);
 
         state.nodes.forEach((nodeState) => {
-          const node = new (Diagram.getClass(nodeState.class))(this, {
+          const nodeClass = this.getClass(nodeState.class);
+          if (!nodeClass) {
+            throw new Error(
+              `Unable to paste node: unknown class '${nodeState.class}'.`,
+            );
+          }
+
+          const node = new nodeClass(this, {
             id: idMap.get(nodeState.id)!,
           }) as Node;
           this.add(node);

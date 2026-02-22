@@ -1,4 +1,4 @@
-import { type TDiagramSettings, Diagram } from '../../store/Diagram';
+import type { TDiagramSettings } from '../../store/Diagram';
 import { EditableDiagram } from '../editable/EditableDiagram';
 import { AgentEdge } from './edges/AgentEdge';
 import { ActionNode } from './nodes/ActionNode';
@@ -13,12 +13,12 @@ export class AgentDiagram extends EditableDiagram {
   constructor(settings?: TDiagramSettings) {
     super(settings);
 
-    Diagram.registerClass(AgentNode);
-    Diagram.registerClass(TriggerNode);
-    Diagram.registerClass(ActionNode);
-    Diagram.registerClass(ConditionNode);
-    Diagram.registerClass(OutcomeNode);
-    Diagram.registerClass(AgentEdge);
+    this.registerClass(AgentNode);
+    this.registerClass(TriggerNode);
+    this.registerClass(ActionNode);
+    this.registerClass(ConditionNode);
+    this.registerClass(OutcomeNode);
+    this.registerClass(AgentEdge);
 
     this.setDefaultEdge(AgentEdge);
   }

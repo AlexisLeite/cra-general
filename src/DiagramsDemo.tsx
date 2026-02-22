@@ -1,34 +1,18 @@
-import { Viewer } from './Viewer';
-import json from '../saves/temp.json';
-
 import { reaction, toJS } from 'mobx';
-import { useEffect, useState } from 'react';
-import { TabsPanel } from './components/TabsPanel';
-import { BPMDiagram } from './custom/bpmn/BPMDiagram';
-import { ShapesShowcase } from './custom/bpmn/ShapesShowcase';
-import {
-  BPMNStatisticsController,
-  BPMNStatisticsPanel,
-} from './custom/bpmn/statistics';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AgentDiagram,
   AgentFlowController,
   AgentFlowPanel,
   AgentShapesShowcase,
-} from './custom/agent';
-
-const bpmnDiagram = new BPMDiagram();
-const bpmnStatisticsController = new BPMNStatisticsController(bpmnDiagram);
-const agentDiagram = new AgentDiagram();
-const agentFlowController = new AgentFlowController(agentDiagram);
-
-(window as any).d = bpmnDiagram;
-(window as any).bpmnDiagram = bpmnDiagram;
-(window as any).agentDiagram = agentDiagram;
-(window as any).toJS = toJS;
-(window as any).reaction = reaction;
-
-bpmnDiagram.import(JSON.stringify(json as any));
+  BPMDiagram,
+  BPMNStatisticsController,
+  BPMNStatisticsPanel,
+  DiagramEditor,
+  ShapesShowcase,
+  TabsPanel,
+} from 'pry-diagrams';
+import json from './demo-data/diagram-temp.json';
 
 const DIAGRAM_EDITOR_MODE_STORAGE_KEY = 'diagram_editor_mode';
 
@@ -43,7 +27,18 @@ const getInitialEditorMode = (): 'bpmn' | 'agent' => {
   return storedMode === 'agent' ? 'agent' : 'bpmn';
 };
 
-export const Diagrams = () => {
+export function DiagramsDemo() {
+  const bpmnDiagram = useMemo(() => new BPMDiagram(), []);
+  const agentDiagram = useMemo(() => new AgentDiagram(), []);
+  const bpmnStatisticsController = useMemo(
+    () => new BPMNStatisticsController(bpmnDiagram),
+    [bpmnDiagram],
+  );
+  const agentFlowController = useMemo(
+    () => new AgentFlowController(agentDiagram),
+    [agentDiagram],
+  );
+
   const [mode, setMode] = useState<'bpmn' | 'agent'>(getInitialEditorMode);
   const [bpmnPanel, setBpmnPanel] = useState<'showcase' | 'statistics'>(
     'statistics',
@@ -53,6 +48,16 @@ export const Diagrams = () => {
   useEffect(() => {
     window.localStorage.setItem(DIAGRAM_EDITOR_MODE_STORAGE_KEY, mode);
   }, [mode]);
+
+  useEffect(() => {
+    bpmnDiagram.import(JSON.stringify(json as any));
+
+    (window as any).d = bpmnDiagram;
+    (window as any).bpmnDiagram = bpmnDiagram;
+    (window as any).agentDiagram = agentDiagram;
+    (window as any).toJS = toJS;
+    (window as any).reaction = reaction;
+  }, [agentDiagram, bpmnDiagram]);
 
   const diagram = mode === 'bpmn' ? bpmnDiagram : agentDiagram;
 
@@ -91,7 +96,7 @@ export const Diagrams = () => {
 
   return (
     <>
-      <Viewer diagram={diagram} leftPanel={leftPanel} />
+      <DiagramEditor diagram={diagram} leftPanel={leftPanel} />
       <div
         className="diagram__editor_mode_switcher"
         role="group"
@@ -114,4 +119,4 @@ export const Diagrams = () => {
       </div>
     </>
   );
-};
+}

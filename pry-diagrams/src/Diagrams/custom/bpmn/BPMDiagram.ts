@@ -1,4 +1,4 @@
-import { type TDiagramSettings, Diagram } from '../../store/Diagram';
+import type { TDiagramSettings } from '../../store/Diagram';
 import { EditableDiagram } from '../editable/EditableDiagram';
 import { BPMNode } from './nodes/BPMNode';
 import { EventNode } from './nodes/EventNode';
@@ -12,11 +12,11 @@ import { Lanes } from './nodes/Lanes';
 export class BPMDiagram extends EditableDiagram {
   constructor(settings?: TDiagramSettings) {
     super(settings);
-    Diagram.registerClass(BPMNode);
-    Diagram.registerClass(TaskNode);
-    Diagram.registerClass(EventNode);
-    Diagram.registerClass(GateNode);
-    Diagram.registerClass(Lanes);
-    Diagram.registerClass(UnknownBPMNNode);
+    this.registerClass(BPMNode);
+    this.registerClass(TaskNode);
+    this.registerClass(EventNode);
+    this.registerClass(GateNode);
+    this.registerClass(Lanes);
+    this.registerClass(UnknownBPMNNode);
   }
 }

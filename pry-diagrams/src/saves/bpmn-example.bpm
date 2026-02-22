@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_OrderFulfillment"
+  targetNamespace="https://example.com/bpmn/order-fulfillment"
+>
+  <bpmn:process id="Process_OrderFulfillment" name="Order Fulfillment" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Main">
+      <bpmn:lane id="Lane_Sales" name="Sales">
+        <bpmn:flowNodeRef>StartEvent_NewOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviewOrder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_OrderComplete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_OrderClosed</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Operations" name="Operations">
+        <bpmn:flowNodeRef>Task_PrepareShipment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateInventory</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_NewOrder" name="New Order"/>
+    <bpmn:task id="Task_ReviewOrder" name="Review Order"/>
+    <bpmn:exclusiveGateway id="Gateway_OrderComplete" name="Order Complete?"/>
+    <bpmn:task id="Task_PrepareShipment" name="Prepare Shipment"/>
+    <bpmn:serviceTask id="Task_UpdateInventory" name="Update Inventory"/>
+    <bpmn:endEvent id="EndEvent_OrderClosed" name="Order Closed"/>
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_NewOrder" targetRef="Task_ReviewOrder"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_ReviewOrder" targetRef="Gateway_OrderComplete"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_OrderComplete" targetRef="Task_PrepareShipment"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_PrepareShipment" targetRef="Task_UpdateInventory"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_UpdateInventory" targetRef="EndEvent_OrderClosed"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Gateway_OrderComplete" targetRef="EndEvent_OrderClosed"/>
+  </bpmn:process>
+
+  <bpmn:collaboration id="Collaboration_Main">
+    <bpmn:participant
+      id="Participant_Main"
+      name="Main Process"
+      processRef="Process_OrderFulfillment"
+    />
+  </bpmn:collaboration>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Main">
+      <bpmndi:BPMNShape id="Participant_Main_di" bpmnElement="Participant_Main">
+        <dc:Bounds x="100" y="80" width="1400" height="560"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Sales_di" bpmnElement="Lane_Sales">
+        <dc:Bounds x="100" y="80" width="1400" height="280"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Operations_di" bpmnElement="Lane_Operations">
+        <dc:Bounds x="100" y="360" width="1400" height="280"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="StartEvent_NewOrder_di" bpmnElement="StartEvent_NewOrder">
+        <dc:Bounds x="220" y="180" width="80" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviewOrder_di" bpmnElement="Task_ReviewOrder">
+        <dc:Bounds x="380" y="170" width="200" height="100"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_OrderComplete_di" bpmnElement="Gateway_OrderComplete">
+        <dc:Bounds x="670" y="180" width="80" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PrepareShipment_di" bpmnElement="Task_PrepareShipment">
+        <dc:Bounds x="850" y="430" width="200" height="100"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UpdateInventory_di" bpmnElement="Task_UpdateInventory">
+        <dc:Bounds x="1140" y="430" width="200" height="100"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_OrderClosed_di" bpmnElement="EndEvent_OrderClosed">
+        <dc:Bounds x="1140" y="180" width="80" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="300" y="220"/>
+        <di:waypoint x="380" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="580" y="220"/>
+        <di:waypoint x="670" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="750" y="220"/>
+        <di:waypoint x="750" y="480"/>
+        <di:waypoint x="850" y="480"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="1050" y="480"/>
+        <di:waypoint x="1140" y="480"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="1340" y="480"/>
+        <di:waypoint x="1380" y="480"/>
+        <di:waypoint x="1380" y="220"/>
+        <di:waypoint x="1220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="750" y="220"/>
+        <di:waypoint x="1140" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

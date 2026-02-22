@@ -13,6 +13,7 @@
     "html2canvas": "^1.4.1",
     "mobx": "^6.13.7",
     "mobx-react-lite": "^4.1.0",
+    "pry-diagrams": "file:./pry-diagrams",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",

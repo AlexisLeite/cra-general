@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "nodeId": "task0",
+      "throughput": 20,
+      "durationMs": 1300,
+      "errorRate": 0.02
+    },
+    {
+      "nodeId": "task1",
+      "throughput": 40,
+      "durationMs": 1800,
+      "errorRate": 0.04
+    }
+  ],
+  "edges": [
+    {
+      "fromNodeId": "task0",
+      "fromGatewayId": "right",
+      "toNodeId": "task1",
+      "toGatewayId": "left",
+      "throughput": 18,
+      "durationMs": 1350,
+      "errorRate": 0.015
+    }
+  ]
+}

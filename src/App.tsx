@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { InvoicesComponent } from './Invoices/index';
 import './App.css';
-import { Diagrams } from './Diagrams';
+import { DiagramsDemo } from './DiagramsDemo';
 
 function Home() {
   return (
@@ -22,7 +22,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/invoices" element={<InvoicesComponent />} />
-        <Route path="/diagrams" element={<Diagrams />} />
+        <Route path="/diagrams" element={<DiagramsDemo />} />
       </Routes>
     </Router>
   );
