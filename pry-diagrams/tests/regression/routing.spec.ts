@@ -299,6 +299,28 @@ test('allows dragging edge segments for custom routing', async ({ page }) => {
   expect(JSON.stringify(after.steps)).not.toBe(JSON.stringify(beforeEdge.steps));
 });
 
+test('edge hover drag indicators hide when edge hover state clears', async ({ page }) => {
+  await openAndLoad(
+    page,
+    diagramFixture(taskNode('A', 220, 180), taskNode('B', 620, 420)),
+  );
+
+  await connectProgrammatically(page, 'A', 'left', 'B', 'left');
+  const edge = await waitForSingleEdge(page);
+
+  const edgeGroup = page.locator(`.edge[data-id="${edge.id}"]`).first();
+  await expect(edgeGroup).toBeVisible();
+  await setEdgeHover(page, edge.id, true);
+
+  const midpoint = page
+    .locator(`.edge_drag_point[data-edge-id="${edge.id}"][data-midpoint-id="0"]`)
+    .first();
+  await expect(midpoint).toBeVisible();
+
+  await setEdgeHover(page, edge.id, false);
+  await expect(midpoint).toBeHidden();
+});
+
 test('repeated edge segment drags never leave diagonal segments', async ({ page }) => {
   await openAndLoad(
     page,
