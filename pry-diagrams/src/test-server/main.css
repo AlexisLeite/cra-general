@@ -1,0 +1,24 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+/* Demo-only layout: keep the showcase readable in the Vite test server. */
+.stage > #BPMNShapesShowcasePanel {
+  flex: 0 0 340px;
+  width: 340px;
+  min-width: 340px;
+  border-right: 1px solid var(--toolbar-border);
+}
+
+.stage > .canvas__frame {
+  flex: 1 1 auto;
+  min-width: 0;
+}

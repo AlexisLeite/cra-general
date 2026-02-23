@@ -1,5 +1,6 @@
 import { reaction, toJS } from 'mobx';
 import { useEffect, useMemo, useState } from 'react';
+import 'pry-diagrams/pry-diagrams.css';
 import {
   AgentDiagram,
   AgentFlowController,

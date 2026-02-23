@@ -25,6 +25,8 @@ export type ScaleEvent = {
 };
 
 export class Canvas extends Element {
+  private unbindDocumentEvents: Array<() => void> = [];
+  private mouseSessionStartedInFrame = false;
   protected _displacement: Coordinates = new Coordinates([-5000, -5000]);
   _scale: number = 1;
   size = new Coordinates([1000000, 1000000]);
@@ -75,16 +77,27 @@ export class Canvas extends Element {
 
     makeObservable(this, {});
 
-    bindDocument(this, 'click', this.handleClick);
-    bindDocument(this, 'dblclick', this.handleDoubleClick);
-    bindDocument(this, 'wheel', this.handleWheel);
-    bindDocument(this, 'mouseup', this.handleMouseUp);
-    bindDocument(this, 'mousedown', this.handleMouseDown);
-    bindDocument(this, 'mousemove', this.handleMouseMove);
+    this.unbindDocumentEvents.push(
+      bindDocument(this, 'click', this.handleClick),
+      bindDocument(this, 'dblclick', this.handleDoubleClick),
+      bindDocument(this, 'wheel', this.handleWheel),
+      bindDocument(this, 'mouseup', this.handleMouseUp),
+      bindDocument(this, 'mousedown', this.handleMouseDown),
+      bindDocument(this, 'mousemove', this.handleMouseMove),
+      bindDocument(this, 'keyup', this.handleKeyUp),
+      bindDocument(this, 'keypress', this.handleKeyPress),
+      bindDocument(this, 'keydown', this.handleKeyDown),
+    );
+  }
 
-    bindDocument(this, 'keyup', this.handleKeyUp);
-    bindDocument(this, 'keypress', this.handleKeyPress);
-    bindDocument(this, 'keydown', this.handleKeyDown);
+  dispose() {
+    for (const unbind of this.unbindDocumentEvents.splice(0)) {
+      unbind();
+    }
+  }
+
+  markMouseSessionStartedInFrame() {
+    this.mouseSessionStartedInFrame = true;
   }
 
   public get dragging() {
@@ -215,6 +228,7 @@ export class Canvas extends Element {
     const translation = this._displacement.copy(false).multiply(this.scale);
 
     return {
+      position: 'relative',
       width: `${this.size.x}px`,
       height: `${this.size.y}px`,
       transform: `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`,
@@ -228,6 +242,7 @@ export class Canvas extends Element {
       const translation = this._displacement.copy(false).multiply(this.scale);
 
       element!.dataset.setStyles = 'true';
+      element!.style.position = 'relative';
       element!.style.width = `${this.size.x}px`;
       element!.style.height = `${this.size.y}px`;
       element!.style.transform = `translate(${translation.x}px, ${translation.y}px) scale(${this.scale})`;
@@ -244,7 +259,65 @@ export class Canvas extends Element {
     }
   };
 
+  private isInsideFrameFromTarget(target: EventTarget | null): boolean {
+    const frame = this.element?.parentElement;
+    return Boolean(
+      frame &&
+      target instanceof Node &&
+      (frame === target || frame.contains(target)),
+    );
+  }
+
+  private isInsideFrameEvent(ev: Event): boolean {
+    const frame = this.element?.parentElement;
+    if (!frame) {
+      return false;
+    }
+
+    const path = typeof ev.composedPath === 'function' ? ev.composedPath() : [];
+    if (path.length > 0) {
+      if (
+        path.some(
+          (entry) =>
+            entry === frame || (entry instanceof Node && frame.contains(entry)),
+        )
+      ) {
+        return true;
+      }
+    }
+
+    if (this.isInsideFrameFromTarget(ev.target)) {
+      return true;
+    }
+
+    // Synthetic wheel events (for example Playwright's page.mouse.wheel) may
+    // not target the hovered element reliably. Respect the current hover state
+    // of the frame so embedded canvases can still zoom deterministically.
+    if (ev.type === 'wheel' && frame.matches(':hover')) {
+      return true;
+    }
+
+    if ('clientX' in ev && 'clientY' in ev) {
+      const rect = frame.getBoundingClientRect();
+      const x = Number((ev as MouseEvent).clientX);
+      const y = Number((ev as MouseEvent).clientY);
+      return (
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+      );
+    }
+
+    return false;
+  }
+
   protected handleMouseMove(originalEvent: MouseEvent) {
+    if (
+      !this.isInsideFrameEvent(originalEvent) &&
+      !this.eventStart &&
+      !this.mouseSessionStartedInFrame
+    ) {
+      return;
+    }
+
     const ev = this.emit(new DMouseMoveEvent(this, originalEvent));
 
     if (!ev.cancelled && this.displacementStart && this.eventStart) {
@@ -271,21 +344,42 @@ export class Canvas extends Element {
   }
 
   protected handleDoubleClick(originalEvent: MouseEvent) {
+    if (!this.isInsideFrameEvent(originalEvent)) {
+      return;
+    }
     this.emit(new DDoubleClickEvent(this, originalEvent));
   }
 
   protected handleClick(originalEvent: MouseEvent) {
+    if (!this.isInsideFrameEvent(originalEvent)) {
+      return;
+    }
     this.emit(new DClickEvent(this, originalEvent));
   }
 
   protected handleMouseUp(originalEvent: MouseEvent) {
+    if (
+      !this.isInsideFrameEvent(originalEvent) &&
+      !this.eventStart &&
+      !this.mouseSessionStartedInFrame
+    ) {
+      return;
+    }
+
     this.emit(new DMouseUpEvent(this, originalEvent));
 
     this._dragging = false;
     this.eventStart = null;
+    this.mouseSessionStartedInFrame = false;
   }
 
   protected handleMouseDown(originalEvent: MouseEvent) {
+    if (!this.isInsideFrameEvent(originalEvent)) {
+      return;
+    }
+
+    this.mouseSessionStartedInFrame = true;
+
     const ev = this.emit(new DMouseDownEvent(this, originalEvent));
 
     if (
@@ -310,14 +404,7 @@ export class Canvas extends Element {
   }
 
   protected handleWheel(originalEvent: WheelEvent) {
-    const frame = this.element?.parentElement;
-    const target = originalEvent.target;
-    const insideFrame =
-      frame &&
-      target instanceof Node &&
-      (frame === target || frame.contains(target));
-
-    if (!insideFrame) {
+    if (!this.isInsideFrameEvent(originalEvent)) {
       return;
     }
 

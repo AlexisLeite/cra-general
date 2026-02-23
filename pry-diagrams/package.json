@@ -10,10 +10,13 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
       "require": "./dist/index.umd.js"
-    }
+    },
+    "./pry-diagrams.css": "./dist/pry-diagrams.css"
   },
   "scripts": {
     "dev": "vite",
+    "test:server": "vite --host 127.0.0.1 --port 4173 --strictPort",
+    "test:regression": "playwright test",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -27,6 +30,9 @@
     "svg-path-bbox": "^2.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@vitejs/plugin-react": "^5.1.4",
+    "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4"
   }
 }

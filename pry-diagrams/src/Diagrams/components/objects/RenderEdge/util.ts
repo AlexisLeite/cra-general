@@ -28,8 +28,10 @@ export function getSegmentMidpoints(
       (c) => c instanceof EdgePoint && c.mode === 'static',
     ).length;
 
-    // Allow static-nonstatic segments to be dragged; only skip fully static.
-    if (staticCount === 2) {
+    // Straight 2-point edges are fully static but must still expose a midpoint so
+    // users can insert a bend and avoid obstacles.
+    const isStraightTwoPointEdge = edge.steps.length === 2 && points.length === 2;
+    if (staticCount === 2 && !isStraightTwoPointEdge) {
       continue;
     }
 

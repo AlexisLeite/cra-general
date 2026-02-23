@@ -1,5 +1,5 @@
 import { DiagramExtension } from './DiagramExtension';
-import { DDragNodeEvent } from '../elements/Events';
+import { DDragEdgeSegmentEvent, DDragNodeEvent } from '../elements/Events';
 import { makeObservable, observable } from 'mobx';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
@@ -33,6 +33,27 @@ export class GridSnap extends DiagramExtension {
         }
       },
       this.diagram.priorities.Drag_Node_Snap_To_Grid,
+    );
+
+    this.diagram.onEvent(
+      DDragEdgeSegmentEvent,
+      (ev) => {
+        if (!this._enable) {
+          return;
+        }
+
+        for (const p of ev.proposals) {
+          const next = p.get().copy();
+          next.snapToGrid(this.gridSize, ev.movedAxis);
+          p.update(next);
+          if (ev.movedAxis === 'x') {
+            p.lockY();
+          } else {
+            p.lockX();
+          }
+        }
+      },
+      this.diagram.priorities.Drag_Edge_Snap_To_Grid,
     );
   }
 }

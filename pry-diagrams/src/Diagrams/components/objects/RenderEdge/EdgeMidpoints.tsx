@@ -19,7 +19,7 @@ export const EdgeMidpoints: React.FC<EdgeMidpointsProps> = ({
 
   return (
     <>
-      {midpoints.map((mid) => {
+      {midpoints.map((mid, index) => {
         const x = mid.x;
         const y = mid.y;
 
@@ -28,8 +28,13 @@ export const EdgeMidpoints: React.FC<EdgeMidpointsProps> = ({
             key={mid.id}
             x={x - 6}
             y={y - 6}
+            width={12}
+            height={12}
             rx={4}
             className="edge_drag_point"
+            data-edge-id={edge.id}
+            data-midpoint-id={mid.id}
+            data-midpoint-index={index}
             onMouseDownCapture={(e) => {
               onMouseDown(mid, e);
             }}

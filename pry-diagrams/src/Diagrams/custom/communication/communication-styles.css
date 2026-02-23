@@ -1,0 +1,53 @@
+.communication__node {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid var(--node-stroke, #222);
+  background: var(--node-fill, #fff);
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  color: var(--node-color, #111);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.communication__node.selected {
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25), 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.communication__node-badge {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 8px;
+  opacity: 0.85;
+}
+
+.communication__node .editable__label {
+  margin: 0;
+  width: 100%;
+  min-height: 20px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: 600 14px/1.35 sans-serif;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+.communication__node .editable__label:focus {
+  outline: none;
+}
+
+.communication__node--actor {
+  border-radius: 999px;
+}
+
+.communication__node--controller {
+  border-style: dashed;
+}

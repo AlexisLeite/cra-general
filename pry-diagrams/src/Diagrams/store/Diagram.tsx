@@ -160,25 +160,20 @@ export class Diagram extends Element {
       toDisplacement?: Coordinates;
     },
   ) {
-    const edge = this.connectWithEdge(
+    const edge = new this.edgeClass(this, {
+      hover: false,
+      dragging: false,
+      selected: false,
       from,
       to,
-      new this.edgeClass(this, {
-        hover: false,
-        dragging: false,
-        selected: false,
-        from,
-        to,
-        label: '',
-        labelPositioning: new Coordinates([0, 0]),
-        steps: [],
-      }),
-    );
-
+      label: '',
+      labelPositioning: new Coordinates([0, 0]),
+      steps: [],
+    });
     edge.state.displacementStart = options?.fromDisplacement;
     edge.state.displacementEnd = options?.toDisplacement;
 
-    return edge;
+    return this.connectWithEdge(from, to, edge);
   }
 
   connectWithEdge(from: Gateway, to: Gateway, existentEdge: Edge) {

@@ -6,8 +6,10 @@ import { observer } from 'mobx-react-lite';
 import { Cross } from '../Cross';
 import { EdgePoint } from '../../../store/elements/EdgePoint';
 import { Coordinates } from '../../../store/primitives/Coordinates';
+import type { Edge } from '../../../store/elements/Edge';
 import { ToolsStates } from '../../extra/Tools';
 import { runInAction } from 'mobx';
+import { observer as mobxObserver } from 'mobx-react-lite';
 
 export type * from './types';
 
@@ -23,6 +25,87 @@ function crossColor(p: Coordinates | EdgePoint) {
     }
   }
 }
+
+function getLabelAnchor(points: (Coordinates | EdgePoint)[]) {
+  if (points.length < 2) {
+    return null;
+  }
+
+  const segmentIndex = Math.max(0, Math.floor((points.length - 2) / 2));
+  const a = points[segmentIndex];
+  const b = points[segmentIndex + 1];
+  return a.copy().sum(b).divide(2);
+}
+
+type EdgeLabelEditable = Edge & {
+  isEditingLabel?: boolean;
+  labelDraft?: string;
+  beginLabelEdit?: () => void;
+  cancelLabelEdit?: () => void;
+  confirmLabelEdit?: () => void;
+};
+
+const EdgeLabel = mobxObserver(({ edge, points }: { edge: EdgeLabelEditable; points: (Coordinates | EdgePoint)[] }) => {
+  const label = edge?.state?.label ?? '';
+  const anchor = getLabelAnchor(points);
+
+  if (!edge || !anchor) {
+    return null;
+  }
+
+  const offset = edge.state.labelPositioning ?? new Coordinates([0, 0]);
+  const x = anchor.x + offset.x;
+  const y = anchor.y + offset.y;
+  const isEditing = Boolean(edge.isEditingLabel);
+
+  if (isEditing) {
+    return (
+      <foreignObject x={x - 90} y={y - 18} width={180} height={36}>
+        <input
+          className="edge-label-input"
+          value={edge.labelDraft ?? label}
+          autoFocus
+          onChange={(ev) => {
+            runInAction(() => {
+              edge.labelDraft = ev.target.value;
+            });
+          }}
+          onBlur={() => edge.confirmLabelEdit?.()}
+          onKeyDown={(ev) => {
+            if (ev.key === 'Enter') {
+              ev.preventDefault();
+              edge.confirmLabelEdit?.();
+            }
+            if (ev.key === 'Escape') {
+              ev.preventDefault();
+              edge.cancelLabelEdit?.();
+            }
+            ev.stopPropagation();
+          }}
+        />
+      </foreignObject>
+    );
+  }
+
+  if (!label) {
+    return null;
+  }
+
+  return (
+    <g
+      className="edge-label"
+      onDoubleClick={(ev) => {
+        ev.stopPropagation();
+        edge.beginLabelEdit?.();
+      }}
+    >
+      <rect x={x - 44} y={y - 12} width={88} height={24} rx={6} ry={6} />
+      <text x={x} y={y} textAnchor="middle" dominantBaseline="middle">
+        {label}
+      </text>
+    </g>
+  );
+});
 
 export const RenderEdge: React.FC<RenderEdgeProps> = observer(
   ({
@@ -146,6 +229,8 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
           markerEnd={endType !== 'none' ? `url(#${endMarkerId})` : undefined}
         />
 
+        {edge && <EdgeLabel edge={edge as EdgeLabelEditable} points={points} />}
+
         {ToolsStates.instance.showDragHints &&
           points.map((c, i) => (
             <Cross coordinates={c} key={i} size={15} stroke={crossColor(c)} />
@@ -168,6 +253,8 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
               cy={points[0].y}
               r={6}
               className="edge_endpoint_drag_point"
+              data-edge-id={edge?.id}
+              data-endpoint="from"
               onMouseDownCapture={(ev) => {
                 onEndpointMouseDown?.('from', ev);
               }}
@@ -177,6 +264,8 @@ export const RenderEdge: React.FC<RenderEdgeProps> = observer(
               cy={points.at(-1)!.y}
               r={6}
               className="edge_endpoint_drag_point"
+              data-edge-id={edge?.id}
+              data-endpoint="to"
               onMouseDownCapture={(ev) => {
                 onEndpointMouseDown?.('to', ev);
               }}

@@ -4,6 +4,23 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
+  base: './',
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
+  worker: {
+    format: 'es',
+    rollupOptions: {
+      // Workers must be self-contained in the library build; do not inherit the
+      // main bundle externals (e.g. mobx), or the blob worker fails at runtime.
+      external: [],
+    },
+  },
+  esbuild: {
+    // JSON diagram import/export relies on runtime class names matching serialized
+    // `class` values such as "TaskNode". Preserve names in the built package.
+    keepNames: true,
+  },
   plugins: [
     react(),
     dts({

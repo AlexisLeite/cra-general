@@ -13,6 +13,7 @@ export class Priorities {
   public Drag_Node_Straight_Drag = 300;
   public Drag_Node_Aligner = 200;
   public Drag_Node_Snap_To_Grid = 100;
+  public Drag_Edge_Snap_To_Grid = 100;
 
   public Mouse_Down_Rules = Rules;
   public Mouse_Down_Measurer = 400;

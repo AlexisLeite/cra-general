@@ -6,8 +6,9 @@ import { EdgePoint } from './EdgePoint';
 import type { Node } from './Node';
 import { Coordinates } from '../primitives/Coordinates';
 import { Dimensions } from '../primitives/Dimensions';
-import { action, makeObservable, observable, reaction, toJS } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import { Element } from './Element';
+import { GridSnap } from '../extensions/GridSnap';
 
 const AXIS_EPSILON = 0.001;
 
@@ -43,12 +44,6 @@ export class Gateway extends Element {
       removeOutgoingEdge: action,
     });
 
-    reaction(
-      () => this.state.incomingEdges,
-      (e) => {
-        console.log(toJS(e));
-      },
-    );
   }
 
   addIncomingEdge(edge: Edge) {
@@ -60,7 +55,12 @@ export class Gateway extends Element {
   addOutgoingEdge(edge: Edge) {
     if (!this.state.outgoingEdges.find((c) => c.id === edge.id)) {
       this.state.outgoingEdges.push(edge);
-      this.updateEdges();
+      // New edges are created with empty steps and need an initial route.
+      // Deserialized/imported edges already have persisted steps and must not be
+      // recomputed during import, or custom routes can be destroyed.
+      if (edge.steps.length === 0) {
+        this.updateEdges();
+      }
     }
   }
 
@@ -439,6 +439,159 @@ export class Gateway extends Element {
     return result;
   }
 
+  private gatewayLeadLength() {
+    return this.diagram.getExtension(GridSnap)?.gridSize ?? 50;
+  }
+
+  private orientationVector(orientation: TOrientation) {
+    switch (orientation) {
+      case 'left':
+        return { x: -1, y: 0 };
+      case 'right':
+        return { x: 1, y: 0 };
+      case 'up':
+        return { x: 0, y: -1 };
+      case 'down':
+        return { x: 0, y: 1 };
+    }
+  }
+
+  private ensureEndpointLeadOnPath(
+    steps: Coordinates[],
+    side: 'from' | 'to',
+    orientation: TOrientation,
+  ) {
+    if (steps.length < 2) return steps;
+
+    const lead = this.gatewayLeadLength();
+    const isFrom = side === 'from';
+    const endpointIndex = isFrom ? 0 : steps.length - 1;
+    const adjacentIndex = isFrom ? 1 : steps.length - 2;
+    const endpoint = steps[endpointIndex];
+    const adjacent = steps[adjacentIndex];
+    const v = this.orientationVector(orientation);
+    const expected = new Coordinates([endpoint.x + v.x * lead, endpoint.y + v.y * lead]);
+
+    const alignedAndForward =
+      this.areOnSameAxis(endpoint, adjacent) &&
+      ((v.x !== 0 &&
+        Math.abs(adjacent.y - endpoint.y) < AXIS_EPSILON &&
+        Math.sign(adjacent.x - endpoint.x || 0) === Math.sign(v.x)) ||
+        (v.y !== 0 &&
+          Math.abs(adjacent.x - endpoint.x) < AXIS_EPSILON &&
+          Math.sign(adjacent.y - endpoint.y || 0) === Math.sign(v.y)));
+
+    const hasExpectedLead =
+      Math.abs(adjacent.x - expected.x) < AXIS_EPSILON &&
+      Math.abs(adjacent.y - expected.y) < AXIS_EPSILON;
+
+    if (hasExpectedLead) {
+      return steps;
+    }
+
+    if (alignedAndForward) {
+      // Keep the current adjacent point if it already provides at least the fixed lead.
+      const forwardDistance =
+        Math.abs(v.x !== 0 ? adjacent.x - endpoint.x : adjacent.y - endpoint.y);
+      if (forwardDistance >= lead - AXIS_EPSILON) {
+        return steps;
+      }
+    }
+
+    // If the point adjacent to the endpoint is manual, keep the user's
+    // displacement axis and align it to the fixed lead line. This avoids
+    // introducing a small terminal pocket/corner during recomputes.
+    if (adjacent instanceof EdgePoint && adjacent.mode === 'manual') {
+      if (v.x !== 0) {
+        adjacent.x = expected.x;
+      } else {
+        adjacent.y = expected.y;
+      }
+    }
+
+    const leadPoint =
+      endpoint instanceof EdgePoint
+        ? new EdgePoint(null, [expected.x, expected.y, 'auto'])
+        : expected;
+
+    const result = [...steps];
+    if (isFrom) {
+      result.splice(1, 0, leadPoint);
+    } else {
+      result.splice(result.length - 1, 0, leadPoint);
+    }
+    return result;
+  }
+
+  private ensureGatewayLeadSegments(edge: Edge, steps: Coordinates[]) {
+    let next = this.collapseOrthogonalDetours(
+      this.simplify(this.ensureOrthogonalAdjacency(steps)),
+    );
+    next = this.ensureEndpointLeadOnPath(next, 'from', edge.from.orientation);
+    next = this.ensureEndpointLeadOnPath(next, 'to', edge.to.orientation);
+    return this.simplifyPreservingEndpointLeadSlots(
+      this.ensureOrthogonalAdjacency(next),
+    );
+  }
+
+  private collapseOrthogonalDetours(steps: Coordinates[]) {
+    const result = [...steps];
+
+    for (let i = 0; i < result.length - 3; ) {
+      const a = result[i];
+      const b = result[i + 1];
+      const c = result[i + 2];
+      const d = result[i + 3];
+
+      const isOrthChain =
+        this.areOnSameAxis(a, b) &&
+        this.areOnSameAxis(b, c) &&
+        this.areOnSameAxis(c, d);
+
+      if (!isOrthChain || !this.areOnSameAxis(a, d)) {
+        i += 1;
+        continue;
+      }
+
+      const modeB = b instanceof EdgePoint ? b.mode : 'auto';
+      const modeC = c instanceof EdgePoint ? c.mode : 'auto';
+      if (modeB !== 'auto' || modeC !== 'auto') {
+        i += 1;
+        continue;
+      }
+
+      result.splice(i + 1, 2);
+    }
+
+    return result;
+  }
+
+  private simplifyPreservingEndpointLeadSlots(steps: Coordinates[]) {
+    const result = [...steps];
+
+    for (let i = 1; i < result.length - 1; ) {
+      if (i === 1 || i === result.length - 2) {
+        i += 1;
+        continue;
+      }
+
+      const a = result[i - 1];
+      const b = result[i];
+      const c = result[i + 1];
+      const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+      const modeB = b instanceof EdgePoint ? b.mode : 'auto';
+
+      if (Math.abs(cross) < AXIS_EPSILON && modeB === 'auto') {
+        result.splice(i, 1);
+        continue;
+      }
+
+      i += 1;
+    }
+
+    return result;
+  }
+
   private ensureOrthogonalAdjacency(steps: Coordinates[]) {
     if (steps.length < 2) return steps;
 
@@ -465,12 +618,29 @@ export class Gateway extends Element {
 
   private mergeAndNormalize(left: Coordinates[], right: Coordinates[]) {
     const merged = [...left, ...right];
-    return this.ensureOrthogonalAdjacency(
-      this.simplify(this.orthogonalize(merged)),
+    const normalized = this.ensureOrthogonalAdjacency(
+      this.collapseOrthogonalDetours(this.simplify(this.orthogonalize(merged))),
     );
+    return this.collapseOrthogonalDetours(this.simplify(normalized));
   }
 
-  private async recomputeEdge(edge: Edge, movedSide: 'from' | 'to') {
+  private ensureManualAnchor(edge: Edge) {
+    if (edge.hasManualSteps || edge.steps.length <= 2) {
+      return;
+    }
+
+    const preferred = Math.min(2, edge.steps.length - 2);
+    const candidate =
+      edge.steps[preferred]?.mode !== 'static'
+        ? edge.steps[preferred]
+        : edge.steps.find((p, i) => i > 0 && i < edge.steps.length - 1 && p.mode !== 'static');
+
+    if (candidate && candidate.mode !== 'static') {
+      candidate.mode = 'manual';
+    }
+  }
+
+  private recomputeEdge(edge: Edge, movedSide: 'from' | 'to') {
     const fullPath = () =>
       findBestPathBetweenNodes(
         this.diagram!,
@@ -481,7 +651,7 @@ export class Gateway extends Element {
       );
 
     if (!edge.hasManualSteps) {
-      edge.setSteps(await fullPath());
+      edge.setSteps(this.ensureGatewayLeadSegments(edge, fullPath()));
       return;
     }
 
@@ -496,14 +666,14 @@ export class Gateway extends Element {
       firstManualIndex >= edge.steps.length - 1 ||
       lastManualIndex >= edge.steps.length - 1
     ) {
-      edge.setSteps(await fullPath());
+      edge.setSteps(fullPath());
       return;
     }
 
     if (movedSide === 'from') {
       const manualBlock = this.getManualBlockFromStart(edge);
       if (!manualBlock) {
-        edge.setSteps(await fullPath());
+        edge.setSteps(fullPath());
         return;
       }
 
@@ -529,7 +699,7 @@ export class Gateway extends Element {
         ),
       );
 
-      const prefix = await findBestPathBetweenNodes(
+      const prefix = findBestPathBetweenNodes(
         this.diagram!,
         edge.from,
         virtualTarget,
@@ -547,17 +717,21 @@ export class Gateway extends Element {
       }
 
       edge.setSteps(
-        this.mergeAndNormalize(
-          prefix.slice(0, Math.max(0, prefix.length - 1)),
-          edge.steps.slice(manualBlock.start),
+        this.ensureGatewayLeadSegments(
+          edge,
+          this.mergeAndNormalize(
+            prefix.slice(0, Math.max(0, prefix.length - 1)),
+            edge.steps.slice(manualBlock.start),
+          ),
         ),
       );
+      this.ensureManualAnchor(edge);
       return;
     }
 
     const manualBlock = this.getManualBlockFromEnd(edge);
     if (!manualBlock) {
-      edge.setSteps(await fullPath());
+      edge.setSteps(fullPath());
       return;
     }
 
@@ -581,7 +755,7 @@ export class Gateway extends Element {
       this.orientationFromPoints(projectedAnchor, toCoordinates),
     );
 
-    const suffix = await findBestPathBetweenNodes(
+    const suffix = findBestPathBetweenNodes(
       this.diagram!,
       virtualSource,
       edge.to,
@@ -600,23 +774,27 @@ export class Gateway extends Element {
     }
 
     edge.setSteps(
-      this.mergeAndNormalize(
-        edge.steps.slice(0, manualBlock.end + 1),
-        suffix.slice(1),
+      this.ensureGatewayLeadSegments(
+        edge,
+        this.mergeAndNormalize(
+          edge.steps.slice(0, manualBlock.end + 1),
+          suffix.slice(1),
+        ),
       ),
     );
+    this.ensureManualAnchor(edge);
   }
 
-  async recomputeConnectedEdge(edge: Edge, movedSide: 'from' | 'to') {
-    await this.recomputeEdge(edge, movedSide);
+  recomputeConnectedEdge(edge: Edge, movedSide: 'from' | 'to') {
+    this.recomputeEdge(edge, movedSide);
   }
 
-  async updateEdges() {
-    for await (const edge of this.state.incomingEdges) {
-      await this.recomputeEdge(edge, 'to');
+  updateEdges() {
+    for (const edge of this.state.incomingEdges) {
+      this.recomputeEdge(edge, 'to');
     }
-    for await (const edge of this.state.outgoingEdges) {
-      await this.recomputeEdge(edge, 'from');
+    for (const edge of this.state.outgoingEdges) {
+      this.recomputeEdge(edge, 'from');
     }
   }
 

@@ -1,6 +1,6 @@
 import type { MouseEvent as ME, KeyboardEvent as KE } from 'react';
 import type { Element } from './Element';
-import type { Coordinates } from '../primitives/Coordinates';
+import { Coordinates } from '../primitives/Coordinates';
 import type { Node } from './Node';
 import type { Edge } from './Edge';
 import type { Midpoint } from '../../components/objects/RenderEdge';
@@ -476,6 +476,72 @@ export class DDragNodeEvent extends DDragEvent {
   constructor(
     public src: Element,
     public proposals: NodePositionProposal[],
+    originalEvent: AnyMouseEvent,
+  ) {
+    super(src, originalEvent);
+  }
+}
+
+export class EdgePointPositionProposal {
+  private _updated: Coordinates;
+  private _lockX: number | null = null;
+  private _lockY: number | null = null;
+
+  constructor(
+    public readonly point: Coordinates,
+    public readonly movedAxis: 'x' | 'y',
+  ) {
+    this._updated = point.copy();
+  }
+
+  get current() {
+    return this._updated.copy();
+  }
+
+  get() {
+    return this._updated;
+  }
+
+  lockX() {
+    this._lockX = this._updated.x;
+  }
+
+  lockY() {
+    this._lockY = this._updated.y;
+  }
+
+  update(point: Coordinates) {
+    this._updated = point.copy();
+
+    if (this._lockX !== null) {
+      this._updated.x = this._lockX;
+    }
+
+    if (this._lockY !== null) {
+      this._updated.y = this._lockY;
+    }
+  }
+
+  updateX(x: number) {
+    if (this._lockX === null) {
+      this._updated.x = x;
+    }
+  }
+
+  updateY(y: number) {
+    if (this._lockY === null) {
+      this._updated.y = y;
+    }
+  }
+}
+
+export class DDragEdgeSegmentEvent extends DDragEvent {
+  declare protected readonly __brand: void;
+
+  constructor(
+    public src: Element,
+    public proposals: EdgePointPositionProposal[],
+    public movedAxis: 'x' | 'y',
     originalEvent: AnyMouseEvent,
   ) {
     super(src, originalEvent);

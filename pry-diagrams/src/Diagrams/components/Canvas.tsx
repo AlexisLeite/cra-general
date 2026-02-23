@@ -27,7 +27,11 @@ export const Canvas = observer(({ children }: { children?: ReactNode }) => {
       <div ref={diagram.canvas.useRef}>
         {back.length && <Svg className="background">{back}</Svg>}
         {rest.length && <div className="scalable_components">{rest}</div>}
-        {scalables.length && <Svg className="foreground">{scalables}</Svg>}
+        {scalables.length && (
+          <Svg className="foreground">
+            {scalables}
+          </Svg>
+        )}
       </div>
     </div>
   );

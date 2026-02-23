@@ -1,4 +1,4 @@
-import { action, makeObservable, toJS } from 'mobx';
+import { action, makeObservable, observable, toJS } from 'mobx';
 import { Dimensions } from './Dimensions';
 import type { TOrientation } from '../types';
 import type { DirectedPoint } from './DirectedPoint';
@@ -31,14 +31,8 @@ export class Coordinates {
       | Event
       | Coordinates
       | number[],
-    observable = true,
+    isObservable = true,
   ) {
-    if (C === null) {
-      getDirectedClass().then((r) => {
-        C = r;
-      });
-    }
-
     if (!items) {
       items = [0, 0];
     }
@@ -62,7 +56,7 @@ export class Coordinates {
       this._data = [0, 0];
     }
 
-    if (observable) {
+    if (isObservable) {
       makeObservable<Coordinates, '_data'>(this, {
         _data: observable,
         set: action,
@@ -223,6 +217,18 @@ export class Coordinates {
   }
 
   toDirectedPoint(direction: TOrientation): DirectedPoint {
+    if (C === null) {
+      getDirectedClass().then((r) => {
+        C = r;
+      });
+
+      const fallback = this.copy(false) as unknown as DirectedPoint & {
+        direction: TOrientation;
+      };
+      fallback.direction = direction;
+      return fallback as DirectedPoint;
+    }
+
     const d = new C(this);
     d.direction = direction;
     return d;

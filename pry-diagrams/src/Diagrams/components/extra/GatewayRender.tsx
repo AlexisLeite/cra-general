@@ -22,6 +22,8 @@ export const GatewayRender = observer(({ gateway }: { gateway: Gateway }) => {
       ]}
       className="diagram__node__gateway"
       data-gateway-parent={gateway.parent.id}
+      data-gateway-id={gateway.id}
+      data-gateway-orientation={gateway.orientation}
       onMouseOut={(ev) => {
         const nextTarget = ev.relatedTarget;
         if (
